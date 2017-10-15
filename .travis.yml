@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "3.6"
+
+install:
+  - pip install -r bot_requirements.txt
+  - pip install pytest
+
+env:
+  - BOT_ENV=development
+
+script:
+  pytest test
