@@ -6,7 +6,7 @@ Should just assemble and run bot
 """
 from telegram.ext import Updater
 from config import bot_config
-from handlers import start_handler, echo_handler
+from handlers import start_handler, echo_handler, task_write_handler, task_read_handler
 from config.db_config import init_db
 
 
@@ -21,6 +21,8 @@ def init_bot():
 
     # handlers are invoked from top to bottom till first match
     dispatcher.add_handler(start_handler.start())
+    dispatcher.add_handler(task_write_handler.task_write())
+    dispatcher.add_handler(task_read_handler.task_read())
     dispatcher.add_handler(echo_handler.echo())
 
     # runs
