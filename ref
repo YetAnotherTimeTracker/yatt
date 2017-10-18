@@ -1,0 +1,17 @@
+# pip3
+brew update
+brew install python3
+curl https://bootstrap.pypa.io/get-pip.py | python3
+
+
+# telegram api
+pip3 install python-telegram-bot
+
+
+# postgres
+# https://www.codementor.io/devops/tutorial/getting-started-postgresql-server-mac-osx
+# http://flask.pocoo.org/docs/0.10/patterns/sqlalchemy/
+brew update
+brew install postgresql
+pg_ctl -D /usr/local/var/postgres start
+\du \dt \connect \list \quit
