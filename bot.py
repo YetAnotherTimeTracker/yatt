@@ -7,9 +7,10 @@ Should just assemble and run bot
 from telegram.ext import Updater
 from config import bot_config
 from handlers import start_handler, echo_handler
+from config.db_config import init_db
 
 
-def main():
+def init_bot():
     print(f'Starting {bot_config.BOT_NAME}')
 
     # handles events
@@ -29,6 +30,11 @@ def main():
     # listens for Ctrl-C on process to stop
     updater.idle()
     print('Bot has stopped')
+
+
+def main():
+    init_db()
+    init_bot()
 
 
 if __name__ == '__main__':
