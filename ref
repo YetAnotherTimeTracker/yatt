@@ -15,3 +15,4 @@ brew update
 brew install postgresql
 pg_ctl -D /usr/local/var/postgres start
 \du \dt \connect \list \quit
+pip3 install sqlalchemy
