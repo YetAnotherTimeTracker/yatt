@@ -10,9 +10,9 @@ import datetime
 class Schedule(Base):
     __tablename__ = 'schedules'
 
-    id                  = Column(BigInteger, primary_key=True, autoincrement=True)
-    start_date          = Column(DateTime, default=datetime.datetime.utcnow)
-    end_date            = Column(DateTime)
-    next_remind_date    = Column(DateTime)
-    is_periodical       = Column(Boolean, default=False)
-    is_active           = Column(Boolean, default=True)
+    id                      = Column(BigInteger, primary_key=True, autoincrement=True)
+    start_datetime          = Column(DateTime, default=datetime.datetime.utcnow)
+    end_datetime            = Column(DateTime)
+    next_remind_datetime    = Column(DateTime)
+    is_periodical           = Column(Boolean, default=False)
+    is_active               = Column(Boolean, default=True)

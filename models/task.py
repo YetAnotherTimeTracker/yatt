@@ -13,7 +13,7 @@ class Task(Base):
     id              = Column(BigInteger, primary_key=True, autoincrement=True)
     title           = Column(String)
     description     = Column(String, nullable=False)
-    create_date     = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    create_datetime = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     priority        = Column(SmallInteger, default=1)
     is_active       = Column(Boolean, default=True)
     # fk
