@@ -16,3 +16,6 @@ class Schedule(Base):
     next_remind_datetime    = Column(DateTime)
     is_periodical           = Column(Boolean, default=False)
     is_active               = Column(Boolean, default=True)
+
+    def get_id(self):
+        return self.id

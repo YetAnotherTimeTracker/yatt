@@ -13,6 +13,9 @@ class Project(Base):
     title           = Column(String)
     is_active       = Column(Boolean, default=True)
     # fk
-    next_task_id    = Column(BigInteger, ForeignKey('tasks.id'), nullable=False)
-    user_id         = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    # TODO for sake of simplicity nullable was disabled. enable it
+    next_task_id    = Column(BigInteger)#, ForeignKey('tasks.id'), nullable=False)
+    user_id         = Column(BigInteger)#, ForeignKey('users.id'), nullable=False)
 
+    def get_id(self):
+        return self.id
