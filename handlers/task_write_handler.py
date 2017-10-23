@@ -3,8 +3,10 @@ Created by anthony on 18.10.17
 task_write_handler
 """
 from telegram.ext import CommandHandler
-from config.db_config import db_session
 from models.task import Task
+from models.schedule import Schedule
+from models.project import Project
+from services import task_service, schedule_service, project_service
 
 
 COMMAND = 'write'
@@ -15,10 +17,5 @@ def task_write():
 
 
 def _handle(bot, update):
-    msg_text = update.message.text
-
-    task = Task(title="Task Title", description=msg_text)
-    db_session.add(task)
-    db_session.commit()
-
+    task_service.create_task(update.message)
     update.message.reply_text('I\'ve created task for ya!')
