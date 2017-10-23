@@ -20,6 +20,6 @@ def _handle(bot, update):
 
     all_tasks = task_service.find_all()
     for task in all_tasks:
-        current_tasks.append(task.description)
+        current_tasks.append(task.get_description())
 
     update.message.reply_text(f'Here are your tasks:\n{current_tasks}')

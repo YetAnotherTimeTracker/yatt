@@ -26,5 +26,5 @@ Base = declarative_base()
 def init_db():
     print('Starting database')
 
-    import models.task, models.message, models.project, models.user, models.schedule
+    import models.user, models.project, models.task
     Base.metadata.create_all(bind=db_engine)
