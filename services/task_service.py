@@ -59,4 +59,4 @@ def create_task(message):
         return saved_task
 
     else:
-        raise AssertionError('Project/User does not exist')
+        raise AssertionError('Project/User could not be created')
