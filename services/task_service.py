@@ -3,15 +3,18 @@ Created by anthony on 22.10.17
 task_service
 """
 from config.db_config import db_session
+import datetime
 from models.task import Task
-from models.schedule import Schedule
 from models.project import Project
-from services import schedule_service, project_service
+from models.user import User
+from services import project_service, user_service
+from utils.message_parser import message_parser
 
 
-def save(_task):
-    db_session.add(_task)
+def save(entity):
+    db_session.add(entity)
     db_session.commit()
+    return entity
 
 
 def find_all():
@@ -19,7 +22,6 @@ def find_all():
     return all_tasks
 
 
-# TODO move search query into db
 def find_tasks_by_title(title):
     all_tasks = find_all()
     res = []
@@ -30,13 +32,31 @@ def find_tasks_by_title(title):
     return res
 
 
+def find_nearest_task(user_id, project_id):
+    all_tasks = find_all()
+    tasks_by_user_id = filter(
+        lambda t: t.get_user_id() == user_id and t.get_project_id() == project_id, all_tasks)
+
+    sorted_by_remind_date = sorted(
+        tasks_by_user_id, key=lambda t: t.get_next_remind_date())
+
+    return sorted_by_remind_date[0]
+
+
 def create_task(message):
-    schedule = Schedule()
-    schedule_service.save(schedule)
+    chat = message.chat
+    user = user_service.create_user(chat)
 
-    project = Project(next_task_id=None, user_id=None)
-    project_service.save(project)
+    category = message_parser.parse_message_for_category(message)
+    project = project_service.create_project(category, user.get_id())
 
-    task = Task(title='Task', description=message.text,
-                message_id=None, schedule_id=schedule.get_id(), project_id=project.get_id())
-    save(task)
+    if project and user:
+        new_task = Task(description=message.text, user_id=user.get_id(), project_id=project.get_id(),
+                        priority=1, message_text=message.text)
+        saved_task = save(new_task)
+        project.set_next_task_id(saved_task.get_id())
+        save(project)
+        return saved_task
+
+    else:
+        raise AssertionError('Project/User could not be created')

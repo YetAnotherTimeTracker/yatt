@@ -12,7 +12,7 @@ class Project(Base):
     # category e.g. personal / university / work
     title               = Column(String)
     # closest task by next_remind_date
-    next_task_id        = Column(BigInteger, ForeignKey('tasks.id'), nullable=False)
+    next_task_id        = Column(BigInteger, ForeignKey('tasks.id'), nullable=True)
     user_id             = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     # safe delete flag
     is_active           = Column(Boolean, default=True)
