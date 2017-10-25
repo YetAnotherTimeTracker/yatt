@@ -16,3 +16,11 @@ brew install postgresql
 pg_ctl -D /usr/local/var/postgres start
 \du \dt \connect \list \quit
 pip3 install sqlalchemy
+
+
+# docker
+# нужно установить docker и docker-compose
+# установка простая, посе установки нужно проверить запуском hello-world контейнера
+# на Mac docker устанавливается в один клик: https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac
+# дополнительно нужно будет установить docker-compose (через homebrew например) если он не идет в комплекте
+# (проверить: docker-compose --version)

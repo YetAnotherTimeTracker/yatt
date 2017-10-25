@@ -3,7 +3,6 @@
 db_user=yatt_user
 db_password=root
 db_name=yatt_db
-db_schema=yatt_schema
 db_host="localhost"
 db_port=5432
 

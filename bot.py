@@ -35,8 +35,12 @@ def init_bot():
 
 
 def main():
-    init_db()
-    init_bot()
+    db_init_success = init_db()
+    if db_init_success:
+        init_bot()
+
+    else:
+        print('Could not start bot. Cause: db error')
 
 
 if __name__ == '__main__':
