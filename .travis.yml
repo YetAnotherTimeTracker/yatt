@@ -11,5 +11,4 @@ env:
   - BOT_ENV=development
 
 script:
-  pytest tests
   python -m unittest discover
