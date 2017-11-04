@@ -18,7 +18,11 @@ def _handle(bot, update, job_queue):
     args = update.message.text.split()
     seconds_till_notify = args[1]
     notification_message = ' '.join(args[2:])
-    reply_text = None
+    reply_text = 'Notification not found'
+
+    if not notification_message:
+        bot.send_message(chat_id=update.message.chat_id, text=reply_text)
+        return
 
     context = {
         'chat_id': update.message.chat_id,
