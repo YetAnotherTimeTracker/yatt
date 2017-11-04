@@ -29,8 +29,9 @@ def init_db():
     import models.user, models.project, models.task
     try:
         Base.metadata.create_all(bind=db_engine)
-        return True
 
     except Exception as e:
         print('Could not start database. Cause: ' + str(e))
-        return False
+
+    else:
+        print('Database has started')
