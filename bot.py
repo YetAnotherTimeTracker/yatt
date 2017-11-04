@@ -8,21 +8,28 @@ from telegram.ext import Updater
 from config import bot_config
 from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler
 from config.db_config import init_db
-from services import queue_service
 
-queue = CustomBotQueue()
 
+updater = Updater(token=bot_config.BOT_API_TOKEN)
+queue = updater.job_queue
+#
+#
+# def callback(bot, job):
+#     bot.send_message(chat_id='316956601', text='hallo')
+#
+#
+# queue.run_once(callback, 10)
 
 def init_bot():
     print(f'Starting {bot_config.BOT_NAME}')
 
     # handles events
-    updater = Updater(token=bot_config.BOT_API_TOKEN)
+
 
     # registers queue service
-    # queue = updater.job_queue
-    # qu
-    queue.set_bot(bot)
+    # if queue.job_queue is None:
+    # queue.job_queue = updater.job_queue
+    print('Bot job queue has been set up')
 
     # registers handlers
     dispatcher = updater.dispatcher
