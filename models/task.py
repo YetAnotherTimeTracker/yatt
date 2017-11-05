@@ -26,12 +26,15 @@ class Task(Base):
     # safe delete flag
     is_active           = Column(Boolean, default=True)
 
-    def __init__(self, description, user_id, project_id, priority, message_text):
+    def __init__(self, description, user_id, project_id):
+        # TODO get data from message (remove date?)
         self.set_description(description)
         self.set_user_id(user_id)
         self.set_project_id(project_id)
-        self.set_priority(priority)
-        self.set_message_text(message_text)
+        # do not need it now
+        self.set_priority(1)
+        # original message
+        self.set_message_text(description)
 
     def get_id(self):
         return self.id
