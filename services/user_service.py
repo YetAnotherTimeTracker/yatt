@@ -18,8 +18,14 @@ def find_one_by_username(username):
     return None
 
 
-def create_or_get_user(chat_id_value, username):
+def find_one_by_chat_id(chat_id_value):
     chat_id = int(chat_id_value)
+    user = find_one_by_id(chat_id, User)
+    return user
+
+
+def create_or_get_user(chat):
+    chat_id = int(chat.id)
     # check if user already exists
     user_by_id = find_one_by_id(chat_id, User)
     if user_by_id:
@@ -27,6 +33,8 @@ def create_or_get_user(chat_id_value, username):
 
     else:
         # create new one
-        user = flush(User(username=username, chat_id=chat_id))
+        username = chat.username
+        first_name = chat.first_name
+        user = flush(User(username=username, chat_id=chat_id, first_name=first_name))
         saved_user = save(user)
         return saved_user

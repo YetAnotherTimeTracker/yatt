@@ -24,6 +24,13 @@ def find_tasks_by_title(title):
     return res
 
 
+def find_tasks_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    all_tasks = find_all(Task)
+    tasks_by_user = [user_id == t.get_user_id() for t in all_tasks]
+    return tasks_by_user
+
+
 def find_nearest_task(user_id, project_id):
     all_tasks = find_all(Task)
     tasks_by_user_id = filter(
@@ -37,9 +44,8 @@ def find_nearest_task(user_id, project_id):
 
 def create_task(update):
     # create or get user
-    chat_id = update.message.chat.id
-    username = update.message.chat.username
-    user = user_service.create_or_get_user(chat_id, username)
+    chat = update.message.chat
+    user = user_service.create_or_get_user(chat)
 
     # create or get project
     msg_text = update.message.text

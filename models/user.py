@@ -11,12 +11,14 @@ class User(Base):
     # user's id is his chat_id
     id              = Column(BigInteger, primary_key=True)
     username        = Column(String)
+    first_name      = Column(String)
     # safe delete flag
     is_active       = Column(Boolean, default=True)
 
-    def __init__(self, username, chat_id):
+    def __init__(self, username, chat_id, first_name):
         self.set_username(username)
         self.set_id(chat_id)
+        self.set_first_name(first_name)
 
     def get_id(self):
         return self.id
@@ -29,3 +31,9 @@ class User(Base):
 
     def set_username(self, name):
         self.username = name
+
+    def get_first_name(self):
+        return self.first_name
+
+    def set_first_name(self, name):
+        self.first_name = name
