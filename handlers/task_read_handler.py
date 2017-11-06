@@ -26,7 +26,7 @@ def _handle(bot, update):
         return
 
 
-    tasks_to_show = [t.get_description() for t in user_tasks]
+    tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
 
     first_name = user.get_first_name()
     if 0 == len(tasks_to_show):
