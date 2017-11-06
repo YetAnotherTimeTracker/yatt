@@ -18,7 +18,7 @@ class User(Base):
     def __init__(self, username, chat_id, first_name):
         self.set_username(username)
         self.set_id(chat_id)
-        self.set_first_name(first_name)
+        self.set_first_name(first_name.capitalize())
 
     def get_id(self):
         return self.id

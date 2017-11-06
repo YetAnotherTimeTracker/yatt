@@ -20,10 +20,10 @@ def _handle(bot, update):
 
     tasks_to_show = [t.get_description() for t in user_tasks]
 
-    username = user.get_first_name().capitalize()
+    first_name = user.get_first_name()
     if 0 == len(tasks_to_show):
-        update.message.reply_text(f'{username}, you don\'t have any tasks yet')
-        update.message.reply_text('You can just write me something to create new one :)')
+        update.message.reply_text(f'{first_name}, you don\'t have any tasks yet')
+        update.message.reply_text('Just write me something to create new one :)')
 
     else:
-        update.message.reply_text(f'{username}, here are your tasks:\n{tasks_to_show}')
+        update.message.reply_text(f'{first_name}, here are your tasks:\n{tasks_to_show}')

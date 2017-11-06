@@ -27,7 +27,7 @@ def find_tasks_by_title(title):
 def find_tasks_by_user_id(user_id_value):
     user_id = int(user_id_value)
     all_tasks = find_all(Task)
-    tasks_by_user = [user_id == t.get_user_id() for t in all_tasks]
+    tasks_by_user = [t for t in all_tasks if user_id == t.get_user_id()]
     return tasks_by_user
 
 

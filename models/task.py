@@ -50,8 +50,14 @@ class Task(Base):
     def get_create_date(self):
         return self.create_date
 
+    def get_user_id(self):
+        return self.user_id
+
     def set_user_id(self, user_id):
         self.user_id = user_id
+
+    def get_project_id(self):
+        return self.project_id
 
     def set_project_id(self, proj_id):
         self.project_id = proj_id

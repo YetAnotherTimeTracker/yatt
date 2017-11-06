@@ -12,7 +12,7 @@ from utils.service_utils import save, flush, find_all, find_one_by_id
 
 def find_all_by_user_id(user_id):
     projects = find_all(Project)
-    projects_by_user = [user_id == p.get_user_id() for p in projects]
+    projects_by_user = [p for p in projects if user_id == p.get_user_id()]
     return projects_by_user
 
 
@@ -39,11 +39,16 @@ def update_nearest_task_for_project(project_id_value):
 
     if project:
         all_tasks = find_all(Task)
-        tasks_by_project_id = [a.get_project_id() == project_id for a in all_tasks]
-        sorted_by_next_remind_date = filter(lambda t: t.get_next_remind_date(), tasks_by_project_id)
+        tasks_by_project_id = [t for t in all_tasks
+                               if t.get_project_id() == project_id and t.get_next_remind_date() is not None]
+        sorted_by_next_remind_date = sorted(tasks_by_project_id, key=lambda t: t.get_next_remind_date())
 
-        nearest_task = next(sorted_by_next_remind_date)
-        if nearest_task:
-            project.set_next_task_id(next(sorted_by_next_remind_date))
+        if 0 != len(sorted_by_next_remind_date):
+            nearest_task = sorted_by_next_remind_date[0]
+            project.set_next_task_id(nearest_task)
+
             saved_proj = save(project)
             return saved_proj
+
+        else:
+            return project
