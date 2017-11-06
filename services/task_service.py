@@ -3,8 +3,8 @@ Created by anthony on 22.10.17
 task_service
 
 if you are not sure which service should implement function
-then function should be implemented in subject's service
-e.g. get all tasks of certain project -> subject is project -> project_service.get_all_tasks_by_project
+then implement it in it's return type service
+e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_id
 """
 from config.db_config import db_session
 from models.task import Task
