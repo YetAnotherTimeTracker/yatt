@@ -4,7 +4,6 @@ echo_handler
 """
 from telegram.ext import MessageHandler, Filters
 from services import task_service, user_service
-from bot import w
 
 
 def echo():
@@ -18,12 +17,12 @@ def _handle(bot, update):
 
     new_task = None
     try:
-        print(w.queue)
         new_task = task_service.create_task(update)
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'
         update.message.reply_text(reply_on_error)
+        return
 
     if new_task:
         reply_on_success = f'{first_name}, task with id "{new_task.get_id()}" has been created!'

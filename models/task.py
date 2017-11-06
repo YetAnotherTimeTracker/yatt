@@ -28,7 +28,7 @@ class Task(Base):
 
     def __init__(self, description, user_id, project_id):
         # TODO get data from message (remove date?)
-        self.set_description(description)
+        self.set_description(description.capitalize())
         self.set_user_id(user_id)
         self.set_project_id(project_id)
         # do not need it now
