@@ -10,6 +10,6 @@ def parse_message(message):
     return None
 
 
-def parse_message_for_category(message):
+def parse_message_for_project(message):
     categories = ['personal', 'university', 'work', 'entertainment']
     return categories[random.randint(0, len(categories) - 1)]

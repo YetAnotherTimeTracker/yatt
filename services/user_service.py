@@ -7,52 +7,34 @@ import datetime
 from models.task import Task
 from models.project import Project
 from models.user import User
-
-
-def find_all():
-    users = db_session.query(User)
-    return users
-
-
-def find_one_by_id(id_value):
-    users = find_all()
-    for u in users:
-        if id_value == u.get_id():
-            return u
-    return None
+from utils.service_utils import save, flush, find_all, find_one_by_id
 
 
 def find_one_by_username(username):
-    users = find_all()
+    users = find_all(User)
     for u in users:
         if username == u.get_username():
             return u
     return None
 
 
-def create_user(chat):
-    username = chat.username
+def find_one_by_chat_id(chat_id_value):
+    chat_id = int(chat_id_value)
+    user = find_one_by_id(chat_id, User)
+    return user
+
+
+def create_or_get_user(chat):
+    chat_id = int(chat.id)
     # check if user already exists
-    user_by_name = find_one_by_username(username)
-    if user_by_name:
-        return user_by_name
+    user_by_id = find_one_by_id(chat_id, User)
+    if user_by_id:
+        return user_by_id
 
     else:
         # create new one
-        user = _flush(User(username, chat.id))
-        saved_user = _save(user)
+        username = chat.username
+        first_name = chat.first_name
+        user = flush(User(username=username, chat_id=chat_id, first_name=first_name))
+        saved_user = save(user)
         return saved_user
-
-
-def _flush(_user):
-    """ prepare user (fill _id_ attribute but do _not_ insert) """
-    db_session.add(_user)
-    db_session.flush()
-    return _user
-
-
-def _save(_user):
-    """ insert user into db """
-    db_session.add(_user)
-    db_session.commit()
-    return _user

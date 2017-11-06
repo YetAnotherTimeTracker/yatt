@@ -8,18 +8,23 @@ from config.db_config import Base
 
 class User(Base):
     __tablename__ = 'users'
-    id              = Column(BigInteger, primary_key=True, autoincrement=True)
+    # user's id is his chat_id
+    id              = Column(BigInteger, primary_key=True)
     username        = Column(String)
-    chat_id         = Column(String)
+    first_name      = Column(String)
     # safe delete flag
     is_active       = Column(Boolean, default=True)
 
-    def __init__(self, username, chat_id):
+    def __init__(self, username, chat_id, first_name):
         self.set_username(username)
-        self.set_chat_id(chat_id)
+        self.set_id(chat_id)
+        self.set_first_name(first_name.capitalize())
 
     def get_id(self):
         return self.id
+
+    def set_id(self, id_value):
+        self.id = id_value
 
     def get_username(self):
         return self.username
@@ -27,10 +32,8 @@ class User(Base):
     def set_username(self, name):
         self.username = name
 
-    def get_chat_id(self):
-        return self.chat_id
+    def get_first_name(self):
+        return self.first_name
 
-    def set_chat_id(self, chat_id):
-        if not chat_id:
-            raise ValueError('User\'s chat id cannot be empty')
-        self.chat_id = chat_id
+    def set_first_name(self, name):
+        self.first_name = name
