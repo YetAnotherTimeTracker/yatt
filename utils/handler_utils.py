@@ -28,3 +28,21 @@ def log_duration(func):
         return ret
 
     return inner_func
+
+def date(args):
+    
+    day = args[0]
+    month = args[1]
+
+    months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+    month_prefix = month[0: 3]  # декабрь ->дек, дек -> дек
+    if month_prefix in months:
+        num = str(months.index(month_prefix) + 1)  # 11+1 -> '12'
+        if len(num) < 2:
+            num = '0' + num
+
+    time = str(args[2]).replace(":", '.').replace("-", '.')
+    date_line = str(day) + ' ' + str(num) + ' ' + str(datetime.date.today().year) + ' ' + time
+
+    d = datetime.datetime.strptime(date_line, "%d %m %Y %H.%M")
+    return d
