@@ -29,10 +29,10 @@ def log_duration(func):
 
     return inner_func
 
-def date(args):
+def parse_date_msg(basedate):
     
-    day = args[0]
-    month = args[1]
+    day = basedate[0]
+    month = basedate[1]
 
     months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
     month_prefix = month[0: 3]  # декабрь ->дек, дек -> дек
@@ -41,8 +41,8 @@ def date(args):
         if len(num) < 2:
             num = '0' + num
 
-    time = str(args[2]).replace(":", '.').replace("-", '.')
+    time = str(basedate[2]).replace(":", '.').replace("-", '.')
     date_line = str(day) + ' ' + str(num) + ' ' + str(datetime.date.today().year) + ' ' + time
 
-    d = datetime.datetime.strptime(date_line, "%d %m %Y %H.%M")
-    return d
+    parse_date = datetime.datetime.strptime(date_line, "%d %m %Y %H.%M")
+    return parse_date
