@@ -7,7 +7,7 @@ import datetime
 from models.task import Task
 from models.project import Project
 from models.user import User
-from utils.service_utils import save, flush, find_all, find_one_by_id
+from utils.service_utils import save, flush, find_all
 
 
 def find_one_by_username(username):
@@ -18,16 +18,18 @@ def find_one_by_username(username):
     return None
 
 
-def find_one_by_chat_id(chat_id_value):
-    chat_id = int(chat_id_value)
-    user = find_one_by_id(chat_id, User)
-    return user
+def find_one_by_id(id_value):
+    users = find_all(User)
+    for u in users:
+        if id_value == u.get_id():
+            return u
+    return None
 
 
 def create_or_get_user(chat):
     chat_id = int(chat.id)
     # check if user already exists
-    user_by_id = find_one_by_id(chat_id, User)
+    user_by_id = find_one_by_id(chat_id)
     if user_by_id:
         return user_by_id
 
