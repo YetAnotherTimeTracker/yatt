@@ -5,6 +5,7 @@ services:
     container_name: postgresql
     restart: always
     image: postgres:alpine
+    # TODO after we are done, db should only be accessed by bot
     ports:
       - "5432:5432"
     environment:
@@ -15,9 +16,6 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   bot:
-    image: yatt_bot:latest
+    build: .
     ports:
       - "80:80"
-    depends_on:
-      - postgres
-      # TODO make backnet?
