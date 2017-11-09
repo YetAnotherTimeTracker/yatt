@@ -15,8 +15,9 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   bot:
-    image: asuna_yuuki:latest
+    image: yatt_bot:latest
     ports:
       - "80:80"
     depends_on:
       - postgres
+      # TODO make backnet?

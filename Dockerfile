@@ -16,4 +16,4 @@ EXPOSE 80
 ENV MODE development
 
 # Run app.py when the container launches
-CMD ["python", "bot.py"]
+CMD ["python3", "bot.py"]
