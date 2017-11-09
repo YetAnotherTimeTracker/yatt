@@ -12,3 +12,17 @@
  - Калугина Дарья
  - Макаров Денис
  
+ 
+ 
+## Quick start
+- Склонируйте себе этот репозиторий: `git clone https://github.com/YetAnotherTimeTracker/yatt.git`
+- Установите [Docker, Docker Compose](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac)
+- Запустите Docker Compose из корня проекта: `docker-compose up`
+
+
+#### Опционально:
+
+- Пересборка образа: `docker build -t <название_образа> .`
+- Пересборка через docker compose: `docker-compose build`
+- Просмотр запущенных контейнеров: `docker ps` или `docker-compose ps`
+- Остановка контейнера: `docker stop <контейнер>`
