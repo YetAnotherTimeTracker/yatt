@@ -11,17 +11,18 @@ def echo():
 
 
 def _handle(bot, update):
-    chat_id = update.message.chat.id
-
     try:
-        user = user_service.find_one_by_id(chat_id)
-        first_name = user.get_first_name()
-
         new_task = task_service.create_task(update)
 
         if new_task:
-            reply_on_success = f'{first_name}, task with id "{new_task.get_id()}" has been created!'
-            update.message.reply_text(reply_on_success)
+            reply_on_success = f'task with id "{new_task.get_id()}" has been created!'
+
+            chat_id = update.message.chat.id
+            user = user_service.find_one_by_id(chat_id)
+            if user:
+                reply_on_success = user.get_first_name() + ', ' + reply_on_success
+
+            update.message.reply_text(reply_on_success.capitalize())
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'
