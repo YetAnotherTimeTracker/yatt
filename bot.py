@@ -8,16 +8,30 @@ from telegram.ext import Updater
 from config import bot_config
 from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler
 from config.db_config import init_db
+from services.state_service import Automata
 
 
-print('Starting job queue')
-updater = Updater(token=bot_config.BOT_API_TOKEN)
-queue = updater.job_queue
-print('Job queue has started')
+def init_job_queue():
+    print('> Starting job queue')
+    updater = Updater(token=bot_config.TOKEN)
+    queue = updater.job_queue
+    print('Job queue has started')
+    return updater, queue
+
+
+def init_automata():
+    print('> Starting state automata')
+    automata = Automata()
+    print('State automata has started')
+    return automata
+
+
+updater, queue = init_job_queue()
+automata = init_automata()
 
 
 def init_bot():
-    print(f'Starting {bot_config.BOT_NAME}')
+    print(f'> Starting {bot_config.BOT_NAME}')
 
     # registers handlers
     dispatcher = updater.dispatcher
