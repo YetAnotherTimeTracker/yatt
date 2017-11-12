@@ -13,7 +13,7 @@ def notify():
 
 
 def _handle(bot, update, job_queue):
-    bot.send_message(chat_id=update.message.chat_id, text='Received message')
+    g.send_message(chat_id=update.message.chat_id, text='Received message')
 
     args = update.message.text.split()
     seconds_till_notify = args[1]
@@ -21,7 +21,7 @@ def _handle(bot, update, job_queue):
     reply_text = 'Notification not found'
 
     if not notification_message:
-        bot.send_message(chat_id=update.message.chat_id, text=reply_text)
+        g.send_message(chat_id=update.message.chat_id, text=reply_text)
         return
 
     context = {
@@ -30,7 +30,7 @@ def _handle(bot, update, job_queue):
     }
 
     try:
-        bot.send_message(chat_id=update.message.chat_id, text='Setting up notification')
+        g.send_message(chat_id=update.message.chat_id, text='Setting up notification')
 
         seconds_as_float = float(seconds_till_notify)   # do not forget casting to float
         job_queue.run_once(callback_notifier, seconds_as_float, context=context)
@@ -49,4 +49,4 @@ def callback_notifier(bot, job):
     chat_id = context['chat_id']
     message = context['text']
 
-    bot.send_message(chat_id=chat_id, text=message)
+    g.send_message(chat_id=chat_id, text=message)

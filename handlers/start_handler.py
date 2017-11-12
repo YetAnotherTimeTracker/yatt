@@ -4,52 +4,48 @@ start_handler
 """
 from telegram.ext import CommandHandler
 
-from bot import automata
-from services import user_service
-
-
-COMMAND_START = 'start'
+import g
+from config.state_config import State
+import services.state_service as ss
 
 
 def start():
-    return CommandHandler(COMMAND_START, _handle_start)
+    return CommandHandler('start', handle)
 
 
 ENC_NUM = 'encounter_num'
 
-def _handle_start(bot, update):
-    reply_msg = 'Hello'
+
+def handle(bot, update):
     chat = update.message.chat
     try:
-        if 0 == automata.get_state(chat.id):
-            print('curr state: 0')
-            update.message.reply_text('Haven\'t we met yet?')
-            automata.set_state(chat.id, 1)
-            automata.set_context(chat.id, {ENC_NUM: 0})
+        curr_state = g.automata.get_state(chat.id)
 
-        elif 1 == automata.get_state(chat.id):
-            automata.set_state(chat.id, 2)
-            enc_num_value = automata.get_context(chat.id)[ENC_NUM] + 1
-            automata.set_context(chat.id, {ENC_NUM: enc_num_value})
-            update.message.reply_text(f'Oh, I know you. We have me for {enc_num_value} times')
+        if State.START == curr_state or State.ALL_TASKS == curr_state or State.ERROR == curr_state:
 
-        elif 2 == automata.get_state(chat.id):
-            automata.set_state(chat.id, 3)
-            update.message.reply_text('Hello my dear friend')
-            enc_num_value = automata.get_context(chat.id)[ENC_NUM] + 1
-            automata.set_context(chat.id, {ENC_NUM: enc_num_value})
+            ss.all_tasks_state(bot, update)
+            g.automata.set_state(chat.id, State.ALL_TASKS)
+
+        elif State.EDIT_DATE == curr_state:
+
+            update.message.reply_text('Please complete date edit')
+            g.automata.set_state(chat.id, State.EDIT_DATE)
 
         else:
-            enc_num_value = automata.get_context(chat.id)[ENC_NUM] + 1
-            automata.set_context(chat.id, {ENC_NUM: enc_num_value})
-            update.message.reply_text(f'Hi! It\'s  the {enc_num_value} we meet :)')
-
-        user = user_service.create_or_get_user(chat)
-
-        if user:
-            reply_msg += ', ' + user.get_first_name()
-
-        #update.message.reply_text(reply_msg)
+            update.message.reply_text('Error!')
+            g.automata.set_state(chat.id, State.ERROR)
+        # elif 2 == g.automata.get_state(chat.id):
+        #     g.automata.set_state(chat.id, 3)
+        #     update.message.reply_text('Hello my dear friend')
+        #     enc_num_value = g.automata.get_context(chat.id)[ENC_NUM] + 1
+        #     g.automata.set_context(chat.id, {ENC_NUM: enc_num_value})
+        #
+        # else:
+        #     enc_num_value = g.automata.get_context(chat.id)[ENC_NUM] + 1
+        #     g.automata.set_context(chat.id, {ENC_NUM: enc_num_value})
+        #     update.message.reply_text(f'Hi! It\'s  the {enc_num_value} we meet :)')
 
     except Exception as e:
-        update.message.reply_text(reply_msg)
+        reply_on_error = f'Sorry, there were an error: {e}'
+        update.message.reply_text(reply_on_error)
+        return
