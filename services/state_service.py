@@ -2,45 +2,71 @@
 Created by anthony on 12.11.17
 state_service
 """
-from config.automata_config import TRANSITION_TABLE
+from services import user_service, task_service
 
 
-class Automata:
-    def __init__(self):
-        self.user_to_state = {}
-        self.user_to_context = {}
+def start_state(bot, update):
+    chat = update.message.chat
+    user = user_service.create_or_get_user(chat)
 
-    def get_state(self, chat_id_value):
-        chat_id = int(chat_id_value)
-        if chat_id in self.user_to_state.keys():
-            return self.user_to_state[chat_id]
+    reply_msg = 'Hello'
+    if user:
+        reply_msg += ', ' + user.get_first_name()
 
-        else:
-            self.user_to_state[chat_id] = 0
-            return self.user_to_state[chat_id]
+    update.message.reply_text(reply_msg)
 
-    def set_state(self, chat_id, new_state):
-        chat_id = int(chat_id)
-        self.user_to_state[chat_id] = new_state
-        return new_state
 
-    def get_context(self, chat_id_value):
-        chat_id = int(chat_id_value)
-        if chat_id in self.user_to_context.keys():
-            return self.user_to_context[chat_id]
+def all_tasks_state(bot, update):
+    chat = update.message.chat
+    user = user_service.find_one_by_id(chat.id)
+    user_tasks = task_service.find_tasks_by_user_id(user.get_id())
 
-        else:
-            self.user_to_context[chat_id] = {}
-            return self.user_to_context[chat_id]
+    tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
 
-    def set_context(self, chat_id, new_context):
-        chat_id = int(chat_id)
-        self.user_to_context[chat_id] = new_context
-        return new_context
+    first_name = user.get_first_name()
+    if 0 == len(tasks_to_show):
+        update.message.reply_text(f'{first_name}, you don\'t have any tasks yet')
+        update.message.reply_text('Just write me something to create a new one :)')
 
-    @staticmethod
-    def if_can_transit_to(curr_state, command, new_state):
-        return new_state == TRANSITION_TABLE[curr_state][command]
+    else:
+        update.message.reply_text(first_name + ', here are your tasks:\n' + '\n'.join(tasks_to_show))
 
-    def update_context(self, old_context, new_context):
-        pass
+
+def new_task_state(bot, update):
+    chat = update.message.chat
+    new_task = task_service.create_task(update)
+
+    if new_task:
+        reply_on_success = f'task with id "{new_task.get_id()}" has been created!'
+
+        user = user_service.find_one_by_id(chat.id)
+        if user:
+            reply_on_success = user.get_first_name() + ', ' + reply_on_success
+
+        update.message.reply_text(reply_on_success.capitalize())
+
+
+def view_task_state(bot, update):
+    args = update.message.text.split()
+    task_id = args[1]
+
+    chat = update.message.chat
+    user = user_service.find_one_by_id(chat.id)
+
+    task = task_service.find_task_by_id(task_id, user.get_id())
+    if task:
+        task_descr = task.get_description()
+        update.message.reply_text(f'[{task_id}]: {task_descr}')
+
+    else:
+        first_name = user.get_first_name()
+        update.message.reply_text(f'Sorry, {first_name}, I couldn\'t find task with id "{task_id}"')
+
+
+def edit_date_state(bot, update, context):
+    args = update.message.text.split()
+    datetime = args[1]
+
+    # TODO get task_id from context
+
+    update.message.reply_text(f'Setting date to {datetime}')

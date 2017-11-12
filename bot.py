@@ -4,58 +4,64 @@ Main bot file
 Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
+import inspect
+
 from telegram.ext import Updater
 from config import bot_config
-from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler
+import handlers.start_handler, handlers.echo_handler, handlers.task_write_handler, \
+    handlers.all_tasks_handler, handlers.notification_handler, \
+    handlers.view_task_handler, handlers.edit_date_handler
 from config.db_config import init_db
-from services.state_service import Automata
+from config.state_config import Automata
+import g
 
 
 def init_job_queue():
     print('> Starting job queue')
-    updater = Updater(token=bot_config.TOKEN)
-    queue = updater.job_queue
+    g.updater = Updater(token=bot_config.TOKEN)
+    g.queue = g.updater.job_queue
     print('Job queue has started')
-    return updater, queue
 
 
 def init_automata():
     print('> Starting state automata')
-    automata = Automata()
+    g.automata = Automata()
     print('State automata has started')
-    return automata
-
-
-updater, queue = init_job_queue()
-automata = init_automata()
 
 
 def init_bot():
     print(f'> Starting {bot_config.BOT_NAME}')
 
     # registers handlers
-    dispatcher = updater.dispatcher
+    dispatcher = g.updater.dispatcher
 
     # handlers are invoked from top to bottom till first match
-    dispatcher.add_handler(start_handler.start())
-    dispatcher.add_handler(notification_handler.notify())
-    dispatcher.add_handler(task_write_handler.task_write())
-    dispatcher.add_handler(task_read_handler.task_read())
-    dispatcher.add_handler(echo_handler.echo())
+    dispatcher.add_handler(handlers.start_handler.start())
+    dispatcher.add_handler(handlers.view_task_handler.view_task())
+    dispatcher.add_handler(handlers.edit_date_handler.edit_date())
+    dispatcher.add_handler(handlers.notification_handler.notify())
+    dispatcher.add_handler(handlers.task_write_handler.task_write())
+    dispatcher.add_handler(handlers.all_tasks_handler.all_tasks())
+    dispatcher.add_handler(handlers.echo_handler.echo())
 
     # runs
-    updater.start_polling()
+    g.updater.start_polling()
     print('Bot has started')
 
     # listens for Ctrl-C on process to stop
-    updater.idle()
+    g.updater.idle()
     print('Bot has stopped')
 
 
 def main():
-    # TODO handle db startup error
+    # TODO handle startup error
     init_db()
+    init_job_queue()
+    init_automata()
+    print(len(inspect.stack()))
+
     init_bot()
+
 
 
 if __name__ == '__main__':
