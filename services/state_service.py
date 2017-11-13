@@ -18,7 +18,7 @@ def start_state(bot, update):
 
 def all_tasks_state(bot, update):
     chat = update.message.chat
-    user = user_service.find_one_by_id(chat.id)
+    user = user_service.create_or_get_user(chat)
     user_tasks = task_service.find_tasks_by_user_id(user.get_id())
 
     tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
@@ -51,7 +51,7 @@ def view_task_state(bot, update):
     task_id = args[1]
 
     chat = update.message.chat
-    user = user_service.find_one_by_id(chat.id)
+    user = user_service.create_or_get_user(chat)
 
     task = task_service.find_task_by_id(task_id, user.get_id())
     if task:
@@ -66,7 +66,20 @@ def view_task_state(bot, update):
 def edit_date_state(bot, update, context):
     args = update.message.text.split()
     datetime = args[1]
+    latest_task_id = context.get_task()
 
-    # TODO get task_id from context
+    if latest_task_id:
+        user_id = update.message.chat.id
+        latest_task = task_service.find_task_by_id(latest_task_id, user_id)
 
-    update.message.reply_text(f'Setting date to {datetime}')
+        update.message.reply_text(f'Setting date to {datetime} for task:')
+        update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+
+    else:
+        update.message.reply_text(f'Sorry, I could not find that task')
+
+
+def error_state(bot, update, context):
+
+    update.message.reply_text('Error')
+    update.message.reply_text('Error')

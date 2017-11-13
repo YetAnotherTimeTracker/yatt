@@ -4,8 +4,6 @@ Main bot file
 Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
-import inspect
-
 from telegram.ext import Updater
 from config import bot_config
 import handlers.start_handler, handlers.echo_handler, handlers.task_write_handler, \
@@ -58,10 +56,7 @@ def main():
     init_db()
     init_job_queue()
     init_automata()
-    print(len(inspect.stack()))
-
     init_bot()
-
 
 
 if __name__ == '__main__':
