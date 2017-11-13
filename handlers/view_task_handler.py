@@ -5,7 +5,7 @@ view_task_handler
 from telegram.ext import CommandHandler
 
 import g
-from config.state_config import State
+from config.state_config import State, Command
 import services.state_service as ss
 
 
@@ -17,9 +17,6 @@ def handle(bot, update):
     chat = update.message.chat
     args = update.message.text.split()
     task_id = args[1]
-    reply_on_error = f'viewing task {task_id}'
-    update.message.reply_text(reply_on_error)
-
     try:
         curr_state = g.automata.get_state(chat.id)
 
@@ -32,6 +29,10 @@ def handle(bot, update):
         else:
             ss.view_task_state(bot, update)
             g.automata.set_state(chat.id, State.VIEW_TASK)
+            g.automata.get_context(chat.id).set_task(task_id)
+
+        g.automata.get_context(chat.id).set_command(Command.TASK)
+        update.message.reply_text(str(g.automata.get_context(chat.id)))
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'

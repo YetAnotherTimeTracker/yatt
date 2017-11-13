@@ -2,17 +2,18 @@
 Created by anthony on 12.11.17
 automata_config
 """
+import collections
 from enum import Enum
 
 
 TRANSITION_TABLE = [
-    # start echo    task    date
-    [1,     0,      0,      0],     # 0. start
-    [1,     2,      3,      5],     # 1. all tasks
-    [5,     2,      3,      4],     # 2. new task
-    [5,     2,      3,      4],     # 3. view task
-    [4,     2,      3,      4],     # 4. edit date
-    [1,     2,      3,      5]      # 5. error
+    # start echo    task    date    all
+    [1,     0,      0,      0,      0],     # 0. start
+    [1,     2,      3,      5,      1],     # 1. all tasks
+    [5,     2,      3,      4,      1],     # 2. new task
+    [5,     2,      3,      4,      1],     # 3. view task
+    [4,     2,      3,      4,      1],     # 4. edit date
+    [1,     2,      3,      5,      1]      # 5. error
 ]
 
 
@@ -30,6 +31,7 @@ class Command(Enum):
     ECHO = 1
     TASK = 2
     DATE = 3
+    ALL = 4
 
 
 class Automata:
@@ -57,17 +59,49 @@ class Automata:
             return self.user_to_context[chat_id]
 
         else:
-            self.user_to_context[chat_id] = {}
+            self.user_to_context[chat_id] = Context(5)
             return self.user_to_context[chat_id]
 
-    def set_context(self, chat_id, new_context):
-        chat_id = int(chat_id)
-        self.user_to_context[chat_id] = new_context
-        return new_context
+    # def set_context(self, chat_id, new_context):
+    #     chat_id = int(chat_id)
+    #     self.user_to_context[chat_id] = new_context
+    #     return new_context
 
     @staticmethod
     def if_can_transit_to(curr_state, command, new_state):
         return new_state == TRANSITION_TABLE[curr_state][command]
 
-    def update_context(self, old_context, new_context):
-        pass
+
+class Context:
+    def __init__(self, history_len):
+        self.history_len = history_len
+        self.tasks_history = collections.deque(maxlen=history_len)
+        self.commands_history = collections.deque(maxlen=history_len)
+
+    def set_task(self, task):
+        self.tasks_history.append(task)
+
+    def get_task(self):
+        latest_task = None
+        if 0 != len(self.tasks_history):
+            latest_task = self.tasks_history[len(self.tasks_history) - 1]
+        return latest_task
+
+    def set_command(self, command):
+        self.commands_history.append(command)
+
+    def get_command(self):
+        latest_command = None
+        if 0 != len(self.commands_history):
+            latest_command = self.commands_history[len(self.commands_history) - 1]
+        return latest_command
+
+    def tasks(self):
+        return self.tasks_history
+
+    def commands(self):
+        return self.commands_history
+
+    def __repr__(self):
+        commands_simplified = [c.name for c in self.commands_history]
+        return str(commands_simplified)

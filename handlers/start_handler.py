@@ -5,7 +5,7 @@ start_handler
 from telegram.ext import CommandHandler
 
 import g
-from config.state_config import State
+from config.state_config import State, Command
 import services.state_service as ss
 
 
@@ -20,6 +20,7 @@ def handle(bot, update):
     chat = update.message.chat
     try:
         curr_state = g.automata.get_state(chat.id)
+        curr_context = g.automata.get_context(chat.id)
 
         if State.START == curr_state or State.ALL_TASKS == curr_state or State.ERROR == curr_state:
 
@@ -32,7 +33,7 @@ def handle(bot, update):
             g.automata.set_state(chat.id, State.EDIT_DATE)
 
         else:
-            update.message.reply_text('Error!')
+            ss.error_state(bot, update, curr_context)
             g.automata.set_state(chat.id, State.ERROR)
         # elif 2 == g.automata.get_state(chat.id):
         #     g.automata.set_state(chat.id, 3)
@@ -44,6 +45,9 @@ def handle(bot, update):
         #     enc_num_value = g.automata.get_context(chat.id)[ENC_NUM] + 1
         #     g.automata.set_context(chat.id, {ENC_NUM: enc_num_value})
         #     update.message.reply_text(f'Hi! It\'s  the {enc_num_value} we meet :)')
+
+        g.automata.get_context(chat.id).set_command(Command.START)
+        update.message.reply_text(str(g.automata.get_context(chat.id)))
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'

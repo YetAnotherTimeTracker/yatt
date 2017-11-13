@@ -5,7 +5,7 @@ echo_handler
 from telegram.ext import MessageHandler, Filters
 
 import g
-from config.state_config import State
+from config.state_config import State, Command
 import services.state_service as ss
 
 
@@ -29,6 +29,9 @@ def _handle(bot, update):
         else:
             ss.new_task_state(bot, update)
             g.automata.set_state(chat.id, State.NEW_TASK)
+
+        g.automata.get_context(chat.id).set_command(Command.ECHO)
+        update.message.reply_text(str(g.automata.get_context(chat.id)))
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'

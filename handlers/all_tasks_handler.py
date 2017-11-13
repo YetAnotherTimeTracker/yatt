@@ -5,7 +5,7 @@ task_read_handler
 from telegram.ext import CommandHandler
 
 import g
-from config.state_config import State
+from config.state_config import State, Command
 import services.state_service as ss
 
 
@@ -26,6 +26,9 @@ def handle(bot, update):
         else:
             ss.all_tasks_state(bot, update)
             g.automata.set_state(chat.id, State.ALL_TASKS)
+
+        g.automata.get_context(chat.id).set_command(Command.ALL)
+        update.message.reply_text(str(g.automata.get_context(chat.id)))
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'
