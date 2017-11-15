@@ -62,11 +62,6 @@ class Automata:
             self.user_to_context[chat_id] = Context(5)
             return self.user_to_context[chat_id]
 
-    # def set_context(self, chat_id, new_context):
-    #     chat_id = int(chat_id)
-    #     self.user_to_context[chat_id] = new_context
-    #     return new_context
-
     @staticmethod
     def if_can_transit_to(curr_state, command, new_state):
         return new_state == TRANSITION_TABLE[curr_state][command]
@@ -96,10 +91,10 @@ class Context:
             latest_command = self.commands_history[len(self.commands_history) - 1]
         return latest_command
 
-    def tasks(self):
+    def all_tasks(self):
         return self.tasks_history
 
-    def commands(self):
+    def all_commands(self):
         return self.commands_history
 
     def __repr__(self):

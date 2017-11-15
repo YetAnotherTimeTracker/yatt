@@ -13,9 +13,6 @@ def start():
     return CommandHandler('start', handle)
 
 
-ENC_NUM = 'encounter_num'
-
-
 def handle(bot, update):
     chat = update.message.chat
     try:
@@ -35,16 +32,6 @@ def handle(bot, update):
         else:
             ss.error_state(bot, update, curr_context)
             g.automata.set_state(chat.id, State.ERROR)
-        # elif 2 == g.automata.get_state(chat.id):
-        #     g.automata.set_state(chat.id, 3)
-        #     update.message.reply_text('Hello my dear friend')
-        #     enc_num_value = g.automata.get_context(chat.id)[ENC_NUM] + 1
-        #     g.automata.set_context(chat.id, {ENC_NUM: enc_num_value})
-        #
-        # else:
-        #     enc_num_value = g.automata.get_context(chat.id)[ENC_NUM] + 1
-        #     g.automata.set_context(chat.id, {ENC_NUM: enc_num_value})
-        #     update.message.reply_text(f'Hi! It\'s  the {enc_num_value} we meet :)')
 
         g.automata.get_context(chat.id).set_command(Command.START)
         update.message.reply_text(str(g.automata.get_context(chat.id)))

@@ -26,7 +26,7 @@ def find_task_by_id(task_id_value, user_id):
     task_id = int(task_id_value)
     task_by_id = find_one_by_id(task_id, Task)
 
-    if task_by_id.get_user_id() == user_id:
+    if task_by_id and task_by_id.get_user_id() == user_id:
         return task_by_id
 
     else:

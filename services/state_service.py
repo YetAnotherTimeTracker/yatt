@@ -82,4 +82,3 @@ def edit_date_state(bot, update, context):
 def error_state(bot, update, context):
 
     update.message.reply_text('Error')
-    update.message.reply_text('Error')

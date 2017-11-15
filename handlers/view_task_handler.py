@@ -23,7 +23,7 @@ def handle(bot, update):
         if State.START == curr_state:
 
             ss.start_state(bot, update)
-            g.automata.set_state(chat.id, State.VIEW_TASK)
+            g.automata.set_state(chat.id, State.START)
             # g.automata.set_context(chat.id, {ENC_NUM: 0})
 
         else:
