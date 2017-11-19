@@ -49,4 +49,4 @@ def callback_notifier(bot, job):
     chat_id = context['chat_id']
     message = context['text']
 
-    g.send_message(chat_id=chat_id, text=message)
+    bot.send_message(chat_id=chat_id, text=message)

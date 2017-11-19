@@ -6,7 +6,7 @@ Should just assemble and run bot
 """
 from telegram.ext import Updater
 from config import bot_config
-import handlers.start_handler, handlers.echo_handler, handlers.task_write_handler, \
+import handlers.start_handler, handlers.echo_handler, \
     handlers.all_tasks_handler, handlers.notification_handler, \
     handlers.view_task_handler, handlers.edit_date_handler
 from config.db_config import init_db
@@ -38,7 +38,6 @@ def init_bot():
     dispatcher.add_handler(handlers.view_task_handler.view_task())
     dispatcher.add_handler(handlers.edit_date_handler.edit_date())
     dispatcher.add_handler(handlers.notification_handler.notify())
-    dispatcher.add_handler(handlers.task_write_handler.task_write())
     dispatcher.add_handler(handlers.all_tasks_handler.all_tasks())
     dispatcher.add_handler(handlers.echo_handler.echo())
 

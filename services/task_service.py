@@ -22,7 +22,7 @@ def find_tasks_by_title(title):
     return res
 
 
-def find_task_by_id(task_id_value, user_id):
+def find_task_by_id_and_user_id(task_id_value, user_id):
     task_id = int(task_id_value)
     task_by_id = find_one_by_id(task_id, Task)
 

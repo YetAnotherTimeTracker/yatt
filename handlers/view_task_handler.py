@@ -24,7 +24,6 @@ def handle(bot, update):
 
             ss.start_state(bot, update)
             g.automata.set_state(chat.id, State.START)
-            # g.automata.set_context(chat.id, {ENC_NUM: 0})
 
         else:
             ss.view_task_state(bot, update)
