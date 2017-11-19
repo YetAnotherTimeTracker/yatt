@@ -3,7 +3,19 @@ Created by anthony on 12.11.17
 state_service
 """
 from services import user_service, task_service
+from config.state_config import State
 import datetime
+
+
+def states():
+    return {
+        State.START: start_state,
+        State.ALL_TASKS: all_tasks_state,
+        State.NEW_TASK: new_task_state,
+        State.VIEW_TASK: view_task_state,
+        State.EDIT_DATE: edit_date_state,
+        State.ERROR: error_state
+    }
 
 
 def start_state(bot, update):
@@ -17,7 +29,7 @@ def start_state(bot, update):
     update.message.reply_text(reply_msg)
 
 
-def all_tasks_state(bot, update):
+def all_tasks_state(bot, update, context):
     chat = update.message.chat
     user = user_service.create_or_get_user(chat)
     user_tasks = task_service.find_tasks_by_user_id(user.get_id())

@@ -7,6 +7,7 @@ from telegram.ext import CommandHandler
 import g
 from config.state_config import State, Command
 import services.state_service as ss
+from services import state_service
 
 
 def start():
@@ -18,23 +19,17 @@ def handle(bot, update):
     try:
         curr_state = g.automata.get_state(chat.id)
         curr_context = g.automata.get_context(chat.id)
+        curr_command = Command.START
 
-        if State.START == curr_state or State.ALL_TASKS == curr_state or State.ERROR == curr_state:
+        state = g.automata.get_transition(curr_state, curr_command)
+        handler = state_service.states()[state]
+        handler(bot, update, curr_context)
 
-            ss.all_tasks_state(bot, update)
-            g.automata.set_state(chat.id, State.ALL_TASKS)
-
-        elif State.EDIT_DATE == curr_state:
-
-            update.message.reply_text('Please complete date edit')
-            g.automata.set_state(chat.id, State.EDIT_DATE)
-
-        else:
-            ss.error_state(bot, update, curr_context)
-            g.automata.set_state(chat.id, State.ERROR)
-
+        g.automata.set_state(chat.id, State.ALL_TASKS)
         g.automata.get_context(chat.id).set_command(Command.START)
-        update.message.reply_text(str(g.automata.get_context(chat.id)))
+
+        # if mode is development:
+        #update.message.reply_text(str(g.automata.get_context(chat.id)))
 
     except Exception as e:
         reply_on_error = f'Sorry, there were an error: {e}'

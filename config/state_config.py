@@ -64,7 +64,14 @@ class Automata:
 
     @staticmethod
     def if_can_transit_to(curr_state, command, new_state):
-        return new_state == TRANSITION_TABLE[curr_state][command]
+        allowed_state_id = TRANSITION_TABLE[curr_state][command]
+        return allowed_state_id == new_state.value
+
+    @staticmethod
+    def get_transition(curr_state, command):
+        # curr_state and command should instances of classes from above
+        new_state_id = TRANSITION_TABLE[curr_state.value][command.value]
+        return State(new_state_id)
 
 
 class Context:
