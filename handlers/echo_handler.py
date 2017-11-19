@@ -17,17 +17,15 @@ def _handle(bot, update):
     chat = update.message.chat
     try:
         curr_state = g.automata.get_state(chat.id)
+        curr_context = g.automata.get_context(chat.id)
 
         if State.START == curr_state:
 
             ss.start_state(bot, update)
-
-            # update.message.reply_text('Haven\'t we met yet?')
             g.automata.set_state(chat.id, State.START)
-            # g.automata.set_context(chat.id, {ENC_NUM: 0})
 
         else:
-            ss.new_task_state(bot, update)
+            ss.new_task_state(bot, update, curr_context)
             g.automata.set_state(chat.id, State.NEW_TASK)
 
         g.automata.get_context(chat.id).set_command(Command.ECHO)
