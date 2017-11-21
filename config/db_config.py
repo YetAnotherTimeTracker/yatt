@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 DB_NAME = 'yatt_db'
 DB_USER = 'yatt_user'
 DB_PASSWORD = 'root'
-DB_HOST = 'localhost'
+DB_HOST = 'postgres'    # container name from docker-compose
 DB_PORT = 5432
 
 
