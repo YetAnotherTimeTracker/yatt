@@ -2,8 +2,13 @@
 Created by anthony on 21.11.2017
 automata
 """
-from components.context import Context
+import collections
+
 from config.state_config import CommandType, TRANSITION_TABLE, State
+
+
+CONTEXT_TASK = 'context_task'
+CONTEXT_COMMANDS = 'context_commands'
 
 
 class Automata:
@@ -31,7 +36,11 @@ class Automata:
             return self.user_to_context[chat_id]
 
         else:
-            self.user_to_context[chat_id] = Context(len(CommandType.__members__))
+            self.user_to_context[chat_id] = {
+                # TODO keep whole view history (linked hash set deque-like)
+                CONTEXT_TASK: None,
+                CONTEXT_COMMANDS: []
+            }
             return self.user_to_context[chat_id]
 
     @staticmethod

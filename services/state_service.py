@@ -2,6 +2,7 @@
 Created by anthony on 12.11.17
 state_service
 """
+from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS
 from services import user_service, task_service
 from config.state_config import State
 import datetime
@@ -18,7 +19,7 @@ def states():
     }
 
 
-def start_state(bot, update):
+def start_state(bot, update, context):
     chat = update.message.chat
     user = user_service.create_or_get_user(chat)
 
@@ -50,7 +51,7 @@ def new_task_state(bot, update, context):
     new_task = task_service.create_task(update)
 
     if new_task:
-        context.set_task(new_task.get_id())
+        context[CONTEXT_TASK] = new_task
 
         reply_on_success = f'task with id "{new_task.get_id()}" has been created!'
         user = user_service.create_or_get_user(chat)
@@ -60,7 +61,7 @@ def new_task_state(bot, update, context):
         update.message.reply_text(reply_on_success.capitalize())
 
 
-def view_task_state(bot, update):
+def view_task_state(bot, update, context):
     args = update.message.text.split()
     task_id = args[1]
 
@@ -69,6 +70,8 @@ def view_task_state(bot, update):
 
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
     if task:
+        context[CONTEXT_TASK] = task
+
         task_descr = task.get_description()
         update.message.reply_text(f'[{task_id}]: {task_descr}')
 
@@ -79,15 +82,15 @@ def view_task_state(bot, update):
 
 def edit_date_state(bot, update, context):
     args = update.message.text.split()
-    time_delata_sonconds = int(args[1])
-    latest_task_id = context.get_task()
+    time_delta_seconds = int(args[1])
+    latest_task = context[CONTEXT_TASK]
 
-    if latest_task_id:
+    if latest_task:
         user_id = update.message.chat.id
-        latest_task = task_service.find_task_by_id_and_user_id(latest_task_id, user_id)
+        latest_task = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
 
         # TODO switch to real parsed value here
-        parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=time_delata_sonconds)
+        parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=time_delta_seconds)
         latest_task.set_next_remind_date(parsed_datetime)
 
         update.message.reply_text(f'Setting date to {parsed_datetime} for task:')
@@ -98,5 +101,7 @@ def edit_date_state(bot, update, context):
 
 
 def error_state(bot, update, context):
+    lastest_task_id = context[CONTEXT_TASK].get_id()
+    command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
 
-    update.message.reply_text('Error')
+    update.message.reply_text(f'Error. Latest task id: {lastest_task_id}. Command trace: {command_trace}')
