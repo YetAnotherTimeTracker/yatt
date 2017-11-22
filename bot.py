@@ -5,12 +5,11 @@ Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
 from telegram.ext import Updater
+
+from components.automata import Automata
 from config import bot_config
-import handlers.start_handler, handlers.echo_handler, \
-    handlers.all_tasks_handler, handlers.notification_handler, \
-    handlers.view_task_handler, handlers.edit_date_handler
+import handlers.interaction_handler
 from config.db_config import init_db
-from config.state_config import Automata
 import g
 
 
@@ -33,13 +32,8 @@ def init_bot():
     # registers handlers
     dispatcher = g.updater.dispatcher
 
-    # handlers are invoked from top to bottom till first match
-    dispatcher.add_handler(handlers.start_handler.start())
-    dispatcher.add_handler(handlers.view_task_handler.view_task())
-    dispatcher.add_handler(handlers.edit_date_handler.edit_date())
-    dispatcher.add_handler(handlers.notification_handler.notify())
-    dispatcher.add_handler(handlers.all_tasks_handler.all_tasks())
-    dispatcher.add_handler(handlers.echo_handler.echo())
+    # handlers are invoked till the first match
+    dispatcher.add_handler(handlers.interaction_handler.command_handler())
 
     # runs
     g.updater.start_polling()
