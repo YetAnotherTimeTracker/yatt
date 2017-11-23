@@ -9,8 +9,8 @@ TRANSITION_TABLE = [
     # start echo    task    date    all
     [1,     0,      0,      0,      0],     # 0. start
     [1,     2,      3,      5,      1],     # 1. all tasks
-    [5,     2,      3,      4,      1],     # 2. new task
-    [5,     2,      3,      4,      1],     # 3. view task
+    [1,     2,      3,      4,      1],     # 2. new task
+    [1,     2,      3,      4,      1],     # 3. view task
     [4,     2,      3,      4,      1],     # 4. edit date
     [1,     2,      3,      5,      1]      # 5. error
 ]

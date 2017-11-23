@@ -7,7 +7,6 @@ from telegram.ext import MessageHandler
 import g
 from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK
 from components.filter import command_filter
-from config.state_config import CommandType, CommandAliases
 from services import state_service
 from utils.handler_utils import get_command_type
 
@@ -21,14 +20,17 @@ def handle(bot, update):
         chat = update.message.chat
         text = update.message.text
 
-        # get all params that needed to render state
+        # get all params needed to render state
         curr_state = g.automata.get_state(chat.id)
         curr_context = g.automata.get_context(chat.id)
         curr_command = get_command_type(text)
 
+
         # find out state to be rendered
         state = g.automata.get_transition(curr_state, curr_command)
-        update.message.reply_text('rendering state: ' + state.name)
+        update.message.reply_text(f'state: {curr_state.name} ({curr_state.value})\n'
+                                  f'cmd: {curr_command.name} ({curr_command.value})\n'
+                                  f'new state: {state.name} ({state.value})')
 
         # get state from service and render
         handler = state_service.states()[state]

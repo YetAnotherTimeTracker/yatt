@@ -2,10 +2,11 @@
 Created by anthony on 21.11.2017
 automata
 """
-import collections
+from collections import deque
 
-from config.state_config import CommandType, TRANSITION_TABLE, State
-
+from config.state_config import TRANSITION_TABLE, State
+from models.user import User
+from utils import service_utils
 
 CONTEXT_TASK = 'context_task'
 CONTEXT_COMMANDS = 'context_commands'
@@ -22,13 +23,24 @@ class Automata:
             return self.user_to_state[chat_id]
 
         else:
-            self.user_to_state[chat_id] = State.START
+            self.user_to_state[chat_id] = self.select_initial_state(chat_id)
             return self.user_to_state[chat_id]
 
     def set_state(self, chat_id, new_state):
         chat_id = int(chat_id)
         self.user_to_state[chat_id] = new_state
         return new_state
+
+    @staticmethod
+    def select_initial_state(chat_id):
+        user_by_id = service_utils.find_one_by_id(chat_id, User)
+        # if we already know this user then no need make him sign (/start) up again
+        if user_by_id:
+            return State.ALL_TASKS
+
+        else:
+            return State.START
+
 
     def get_context(self, chat_id_value):
         chat_id = int(chat_id_value)
@@ -39,7 +51,7 @@ class Automata:
             self.user_to_context[chat_id] = {
                 # TODO keep whole view history (linked hash set deque-like)
                 CONTEXT_TASK: None,
-                CONTEXT_COMMANDS: []
+                CONTEXT_COMMANDS: deque(maxlen=10)
             }
             return self.user_to_context[chat_id]
 
