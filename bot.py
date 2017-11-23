@@ -6,7 +6,7 @@ Should just assemble and run bot
 """
 from telegram.ext import Updater
 from config import bot_config
-from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler
+from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler,date_handler
 from config.db_config import init_db
 
 
@@ -28,6 +28,7 @@ def init_bot():
     dispatcher.add_handler(task_write_handler.task_write())
     dispatcher.add_handler(task_read_handler.task_read())
     dispatcher.add_handler(echo_handler.echo())
+    dispatcher.add_handler(date_handler.date())
 
     # runs
     updater.start_polling()
