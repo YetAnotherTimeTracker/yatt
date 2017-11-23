@@ -32,6 +32,7 @@ def log_duration(func):
 
     return inner_func
 
+
 def parse_date_msg(basedate):
 
     day = basedate[0]
@@ -44,7 +45,7 @@ def parse_date_msg(basedate):
         if len(num) < 2:
             num = '0' + num
     if month_prefix not in months:
-        return 'error, please, enter date again'
+        raise ValueError('Could not recognize provided month')
 
     if basedate[-1][0: 3] in months:
         time='0.01'

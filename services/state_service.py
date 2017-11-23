@@ -7,6 +7,8 @@ from services import user_service, task_service
 from config.state_config import State
 import datetime
 
+from utils import handler_utils
+
 
 def states():
     return {
@@ -82,22 +84,22 @@ def view_task_state(bot, update, context):
 
 def edit_date_state(bot, update, context):
     args = update.message.text.split()
-    time_delta_seconds = int(args[1])
+    datetime_args = args[1:]
     latest_task = context[CONTEXT_TASK]
 
     if latest_task:
         user_id = update.message.chat.id
-        latest_task = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
+        latest_task_by_user = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
 
-        # TODO switch to real parsed value here
-        parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=time_delta_seconds)
-        latest_task.set_next_remind_date(parsed_datetime)
+        if latest_task_by_user:
+            parsed_datetime = handler_utils.parse_date_msg(datetime_args)
+            latest_task_by_user.set_next_remind_date(parsed_datetime)
 
-        update.message.reply_text(f'Setting date to {parsed_datetime} for task:')
-        update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+            update.message.reply_text(f'Setting date to {parsed_datetime} for task:')
+            update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+            return
 
-    else:
-        update.message.reply_text(f'Sorry, I could not find that task')
+    update.message.reply_text(f'Sorry, I could not find that task')
 
 
 def error_state(bot, update, context):
