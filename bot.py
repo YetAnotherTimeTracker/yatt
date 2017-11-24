@@ -5,43 +5,50 @@ Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
 from telegram.ext import Updater
+
+from components.automata import Automata
 from config import bot_config
-from handlers import start_handler, echo_handler, task_write_handler, task_read_handler, notification_handler,date_handler
+import handlers.interaction_handler
 from config.db_config import init_db
+import g
 
 
-print('Starting job queue')
-updater = Updater(token=bot_config.BOT_API_TOKEN)
-queue = updater.job_queue
-print('Job queue has started')
+def init_job_queue():
+    print('> Starting job queue')
+    g.updater = Updater(token=bot_config.TOKEN)
+    g.queue = g.updater.job_queue
+    print('Job queue has started')
+
+
+def init_automata():
+    print('> Starting state automata')
+    g.automata = Automata()
+    print('State automata has started')
 
 
 def init_bot():
-    print(f'Starting {bot_config.BOT_NAME}')
+    print(f'> Starting {bot_config.BOT_NAME}')
 
     # registers handlers
-    dispatcher = updater.dispatcher
+    dispatcher = g.updater.dispatcher
 
-    # handlers are invoked from top to bottom till first match
-    dispatcher.add_handler(start_handler.start())
-    dispatcher.add_handler(notification_handler.notify())
-    dispatcher.add_handler(task_write_handler.task_write())
-    dispatcher.add_handler(task_read_handler.task_read())
-    dispatcher.add_handler(echo_handler.echo())
-    dispatcher.add_handler(date_handler.date())
+    # handlers are invoked till the first match
+    dispatcher.add_handler(handlers.interaction_handler.command_handler())
 
     # runs
-    updater.start_polling()
+    g.updater.start_polling()
     print('Bot has started')
 
     # listens for Ctrl-C on process to stop
-    updater.idle()
+    g.updater.idle()
     print('Bot has stopped')
 
 
 def main():
-    # TODO handle db startup error
+    # TODO handle startup error
     init_db()
+    init_job_queue()
+    init_automata()
     init_bot()
 
 

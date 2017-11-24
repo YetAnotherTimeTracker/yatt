@@ -6,6 +6,8 @@ from sqlalchemy import BigInteger, Column, String, DateTime, SmallInteger, Forei
 from config.db_config import Base
 import datetime
 
+from services import notification_service as ns
+
 
 class Task(Base):
     __tablename__ = 'tasks'
@@ -35,6 +37,7 @@ class Task(Base):
         self.set_priority(1)
         # original message
         self.set_message_text(description)
+        self.notification_job = None
 
     def get_id(self):
         return self.id
@@ -84,6 +87,9 @@ class Task(Base):
     def set_next_remind_date(self, next_remind_date):
         if next_remind_date < datetime.datetime.now():
             raise ValueError('Next remind date cannot be in past')
+
+        notification = ns.create_notification(self.get_user_id(), self.description, next_remind_date)
+        self.notification_job = notification
         self.next_remind_date = next_remind_date
 
     def set_is_periodic(self, periodic_flag):

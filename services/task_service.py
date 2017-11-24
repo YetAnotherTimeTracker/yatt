@@ -8,10 +8,8 @@ e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_
 """
 from config.db_config import db_session
 from models.task import Task
-from models.project import Project
-from models.user import User
 from services import project_service, user_service
-from utils.service_utils import save, flush, find_all
+from utils.service_utils import save, find_all, find_one_by_id
 
 
 def find_tasks_by_title(title):
@@ -22,6 +20,17 @@ def find_tasks_by_title(title):
             res.append(t)
 
     return res
+
+
+def find_task_by_id_and_user_id(task_id_value, user_id):
+    task_id = int(task_id_value)
+    task_by_id = find_one_by_id(task_id, Task)
+
+    if task_by_id and task_by_id.get_user_id() == user_id:
+        return task_by_id
+
+    else:
+        return None
 
 
 def find_tasks_by_user_id(user_id_value):
