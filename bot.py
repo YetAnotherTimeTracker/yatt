@@ -5,12 +5,17 @@ Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
 from telegram.ext import Updater
+import logging
 
 from components.automata import Automata
 from config import bot_config
 import handlers.interaction_handler
 from config.db_config import init_db
 import g
+
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 
 def init_job_queue():

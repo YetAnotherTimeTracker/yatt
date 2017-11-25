@@ -2,6 +2,8 @@
 Created by anthony on 15.10.17
 start_handler
 """
+import logging
+
 from telegram.ext import MessageHandler
 
 import g
@@ -19,6 +21,7 @@ def handle(bot, update):
     try:
         chat = update.message.chat
         text = update.message.text
+        logging.info("logging handler")
 
         # get all params needed to render state
         curr_state = g.automata.get_state(chat.id)
