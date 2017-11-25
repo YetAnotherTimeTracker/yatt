@@ -32,7 +32,7 @@ def init_automata():
 
 
 def init_bot():
-    print(f'> Starting {bot_config.BOT_NAME}')
+    logging.info(f'> Starting {bot_config.BOT_NAME}')
 
     # registers handlers
     dispatcher = g.updater.dispatcher
