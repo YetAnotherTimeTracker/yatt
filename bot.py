@@ -15,7 +15,7 @@ import g
 
 def init_job_queue():
     print('> Starting job queue')
-    g.updater = Updater(token=bot_config.TOKEN)
+    g.updater = Updater(token=bot_config.BOT_API_TOKEN)
     g.queue = g.updater.job_queue
     print('Job queue has started')
 
