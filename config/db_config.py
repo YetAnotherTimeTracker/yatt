@@ -5,12 +5,18 @@ db_config
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import logging
+
+import g
+
+
+log = logging.getLogger(__name__)
 
 
 DB_NAME = 'yatt_db'
 DB_USER = 'yatt_user'
 DB_PASSWORD = 'root'
-DB_HOST = 'postgres'    # container name from docker-compose
+DB_HOST = 'localhost' if g.dev_mode else 'postgres'    # container name from docker-compose
 DB_PORT = 5432
 
 
@@ -24,14 +30,16 @@ Base = declarative_base()
 
 
 def init_db():
-    print('Starting database')
+    log.info('> Starting database')
+    log.info(f'Connecting to {DB_HOST}:{DB_PORT}')
 
     import models.user, models.project, models.task
     try:
         Base.metadata.create_all(bind=db_engine)
 
     except Exception as e:
-        print('Could not start database. Cause: ' + str(e))
+        log.error('Could not start database')
+        raise e
 
     else:
-        print('Database has started')
+        log.info('Database has started')

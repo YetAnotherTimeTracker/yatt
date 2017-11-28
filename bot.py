@@ -25,9 +25,9 @@ def init_job_queue():
 
 
 def init_automata():
-    log.info('> Starting state automata')
+    log.info('> Starting automata')
     g.automata = Automata()
-    log.info('State automata has started')
+    log.info('Automata has started')
 
 
 def init_bot():
