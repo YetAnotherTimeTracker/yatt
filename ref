@@ -24,3 +24,8 @@ pip3 install sqlalchemy
 # на Mac docker устанавливается в один клик: https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac
 # дополнительно нужно будет установить docker-compose (через homebrew например) если он не идет в комплекте
 # (проверить: docker-compose --version)
+
+
+# ENV_VAR
+# для запуска в режиме разработки нужно установить переменную окружения BOT_ENV=dev
+# в прод режиме: BOT_ENV=prod

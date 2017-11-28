@@ -2,23 +2,23 @@
 Created by anthony on 21.11.2017
 filter
 """
-from telegram.ext import BaseFilter
+import logging
 
 from config.state_config import CommandAliases, CommandType
 
 
-class CustomFilter(BaseFilter):
+class CustomFilter:
     def __init__(self):
-        super()
         self.supported_commands = self.get_supported_commands()
 
     '''
-    messages required to access bot for the first time (/start) is handled at first 
-    all messages that start with '/' should be treated like commands and should have at least one arg
-    other messages are passed further (where they create a new task)
+    message required to access bot for the first time (/start) is handled at first 
+    all messages that start with '/' should be treated as commands and should have at least one arg
+    other messages (echo) are passed further
     '''
-    def filter(self, message):
-        text = message.text.strip()
+    def known_command(self, text):
+        logging.debug(f'filtering message {text}')
+        text = text.strip()
         if text.startswith('/'):
             args = text.split()
 
