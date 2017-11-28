@@ -13,7 +13,7 @@ RUN pip install --trusted-host pypi.python.org -r bot_requirements.txt
 EXPOSE 80
 
 # Define environment variable
-ENV MODE development
+ENV BOT_ENV prod
 
 # Run app.py when the container launches
 CMD ["python3", "bot.py"]
