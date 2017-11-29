@@ -29,3 +29,14 @@ pip3 install sqlalchemy
 # ENV_VAR
 # для запуска в режиме разработки нужно установить переменную окружения BOT_ENV=dev
 # в прод режиме: BOT_ENV=prod
+
+
+# Деплой:
+# сборка image: выполнить /scripts/deploy/push-image.sh
+# залогиниться в докере: docker login --username=xxx --password=yyy
+# запушить image: docker push yattbot/bots:<version>
+# на виртуалке создать папку и в ней docker-compose.yml: mkdir test && cd test && touch docker-compose.yml
+# скопировать имеющийся docker-compose, заменив в боте строку build на следующую: image: yattbot/bots:<version>
+# остановить текущие контейнеры: docker ps. затем docker stop <containerid>
+# запустить контейнер: docker-compose up. если скажет что уже еть такой то: docker rm <containerid>
+# запустить снова, убедившись что бд поднялась, а бот к ней подключился: docker-compose up -d
