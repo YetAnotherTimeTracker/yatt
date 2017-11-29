@@ -7,3 +7,5 @@ cd ../../..
 
 # secure copy to remote dir
 scp -r /yatt root@188.226.181.58:/home/scptest/yatt
+
+# TODO need to ignore .pyc files or even all files outside /src
