@@ -73,7 +73,7 @@ def reply_on_unknown(bot, update):
     log.info('Replying on unknown command')
     reply_text = 'Go fuck yourself, please'
     bot.send_message(chat_id=update.message.chat.id,
-                     text='Go <b>fuck</b> <i>yourself</i>, please',
+                     text='error command :(',
                      parse_mode=telegram.ParseMode.HTML)
 
 
