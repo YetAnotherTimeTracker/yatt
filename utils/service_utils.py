@@ -5,10 +5,7 @@ service_utils
 only generics should be here
 """
 from config.db_config import db_session
-import copy
-import logging
-import regex as re
-from dateutil import tz, parser
+
 
 def find_all(entity_class):
     all_entities = db_session.query(entity_class)
@@ -91,85 +88,10 @@ class JsonDeserializable:
         """
         raise NotImplementedError
 
-    @staticmethod
-    def check_json(json_type):
-        """
-        Checks whether json_type is a dict or a string. If it is already a dict, it is returned as-is.
-        If it is not, it is converted to a dict by means of json.loads(json_type)
-        :param json_type:
-        :return:
-        """
-        try:
-            str_types = (str, unicode)
-        except NameError:
-            str_types = (str,)
-
-        if type(json_type) == dict:
-            return json_type
-        elif type(json_type) in str_types:
-            return json.loads(json_type)
-        else:
-            raise ValueError("json_type should be a json dict or string.")
-
-    def __str__(self):
-        d = {}
-        for x, y in six.iteritems(self.__dict__):
-            if hasattr(y, '__dict__'):
-                d[x] = y.__dict__
-            else:
-                d[x] = y
-
-        return six.text_type(d)
 
 
-class Update(JsonDeserializable):
-    @classmethod
-    def de_json(cls, json_type):
-        obj = cls.check_json(json_type)
-        update_id = obj['update_id']
-        message = None
-        edited_message = None
-        channel_post = None
-        edited_channel_post = None
-        inline_query = None
-        chosen_inline_result = None
-        callback_query = None
-        shipping_query = None
-        pre_checkout_query = None
-        if 'message' in obj:
-            message = Message.de_json(obj['message'])
-        if 'edited_message' in obj:
-            edited_message = Message.de_json(obj['edited_message'])
-        if 'channel_post' in obj:
-            channel_post = Message.de_json(obj['channel_post'])
-        if 'edited_channel_post' in obj:
-            edited_channel_post = Message.de_json(obj['edited_channel_post'])
-        if 'inline_query' in obj:
-            inline_query = InlineQuery.de_json(obj['inline_query'])
-        if 'chosen_inline_result' in obj:
-            chosen_inline_result = ChosenInlineResult.de_json(obj['chosen_inline_result'])
-        if 'callback_query' in obj:
-            callback_query = CallbackQuery.de_json(obj['callback_query'])
-        if 'shipping_query' in obj:
-            shipping_query = ShippingQuery.de_json(obj['shipping_query'])
-        if 'pre_checkout_query' in obj:
-            pre_checkout_query = PreCheckoutQuery.de_json(obj['pre_checkout_query'])
-        return cls(update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
-                   chosen_inline_result, callback_query, shipping_query, pre_checkout_query)
 
-    def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
-                 chosen_inline_result, callback_query, shipping_query, pre_checkout_query):
-        self.update_id = update_id
-        self.edited_message = edited_message
-        self.message = message
-        self.edited_message = edited_message
-        self.channel_post = channel_post
-        self.edited_channel_post = edited_channel_post
-        self.inline_query = inline_query
-        self.chosen_inline_result = chosen_inline_result
-        self.callback_query = callback_query
-        self.shipping_query = shipping_query
-        self.pre_checkout_query = pre_checkout_query
+
 
 
 class WebhookInfo(JsonDeserializable):
@@ -318,26 +240,6 @@ class Update(JsonDeserializable):
         callback_query = None
         shipping_query = None
         pre_checkout_query = None
-        if 'message' in obj:
-            message = Message.de_json(obj['message'])
-        if 'edited_message' in obj:
-            edited_message = Message.de_json(obj['edited_message'])
-        if 'channel_post' in obj:
-            channel_post = Message.de_json(obj['channel_post'])
-        if 'edited_channel_post' in obj:
-            edited_channel_post = Message.de_json(obj['edited_channel_post'])
-        if 'inline_query' in obj:
-            inline_query = InlineQuery.de_json(obj['inline_query'])
-        if 'chosen_inline_result' in obj:
-            chosen_inline_result = ChosenInlineResult.de_json(obj['chosen_inline_result'])
-        if 'callback_query' in obj:
-            callback_query = CallbackQuery.de_json(obj['callback_query'])
-        if 'shipping_query' in obj:
-            shipping_query = ShippingQuery.de_json(obj['shipping_query'])
-        if 'pre_checkout_query' in obj:
-            pre_checkout_query = PreCheckoutQuery.de_json(obj['pre_checkout_query'])
-        return cls(update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
-                   chosen_inline_result, callback_query, shipping_query, pre_checkout_query)
 
     def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                  chosen_inline_result, callback_query, shipping_query, pre_checkout_query):
@@ -507,9 +409,7 @@ class DateFinder(object):
         extra_tokens=EXTRA_TOKENS_PATTERN
     )
 
-    DATE_REGEX = re.compile(DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
-    TIME_REGEX = re.compile(TIME_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
     ## These tokens can be in original text but dateutil
     ## won't handle them without modification
@@ -558,75 +458,7 @@ class DateFinder(object):
                 returnables = returnables[0]
             yield returnables
 
-    def _find_and_replace(self, date_string, captures):
-        """
-        :warning: when multiple tz matches exist the last sorted capture will trump
-        :param date_string:
-        :return: date_string, tz_string
-        """
-        # add timezones to replace
-        cloned_replacements = copy.copy(self.REPLACEMENTS)  # don't mutate
-        for tz_string in captures.get('timezones', []):
-            cloned_replacements.update({tz_string: ' '})
 
-        date_string = date_string.lower()
-        for key, replacement in cloned_replacements.items():
-            # we really want to match all permutations of the key surrounded by whitespace chars except one
-            # for example: consider the key = 'to'
-            # 1. match 'to '
-            # 2. match ' to'
-            # 3. match ' to '
-            # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
-            date_string = re.sub(r'(^|\s)' + key + '(\s|$)', replacement, date_string, flags=re.IGNORECASE)
-
-        return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
-
-    def _pop_tz_string(self, list_of_timezones):
-        try:
-            tz_string = list_of_timezones.pop()
-            # make sure it's not a timezone we
-            # want replaced with better abbreviation
-            return self.TIMEZONE_REPLACEMENTS.get(tz_string, tz_string)
-        except IndexError:
-            return ''
-
-    def _add_tzinfo(self, datetime_obj, tz_string):
-        """
-        take a naive datetime and add dateutil.tz.tzinfo object
-        :param datetime_obj: naive datetime object
-        :return: datetime object with tzinfo
-        """
-        if datetime_obj is None:
-            return None
-
-        tzinfo_match = tz.gettz(tz_string)
-        return datetime_obj.replace(tzinfo=tzinfo_match)
-
-    def parse_date_string(self, date_string, captures):
-        # For well formatted string, we can already let dateutils parse them
-        # otherwise self._find_and_replace method might corrupt them
-        try:
-            as_dt = parser.parse(date_string, default=self.base_date)
-        except ValueError:
-            # replace tokens that are problematic for dateutil
-            date_string, tz_string = self._find_and_replace(date_string, captures)
-
-            ## One last sweep after removing
-            date_string = date_string.strip(self.STRIP_CHARS)
-            ## Match strings must be at least 3 characters long
-            ## < 3 tends to be garbage
-            if len(date_string) < 3:
-                return None
-
-            try:
-                logger.debug('Parsing {0} with dateutil'.format(date_string))
-                as_dt = parser.parse(date_string, default=self.base_date)
-            except Exception as e:
-                logger.debug(e)
-                as_dt = None
-            if tz_string:
-                as_dt = self._add_tzinfo(as_dt, tz_string)
-        return as_dt
 
     def extract_date_strings(self, text, strict=False):
         """
@@ -635,41 +467,6 @@ class DateFinder(object):
         index: also return the indices of the date string in the text
         strict: Strict mode will only return dates sourced with day, month, and year
         """
-        for match in self.DATE_REGEX.finditer(text):
-            match_str = match.group(0)
-            indices = match.span(0)
-
-            ## Get individual group matches
-            captures = match.capturesdict()
-            time = captures.get('time')
-            digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
-            days = captures.get('days')
-            months = captures.get('months')
-            timezones = captures.get('timezones')
-            delimiters = captures.get('delimiters')
-            time_periods = captures.get('time_periods')
-            extra_tokens = captures.get('extra_tokens')
-
-            if strict:
-                complete = False
-                ## 12-05-2015
-                if len(digits) == 3:
-                    complete = True
-                ## 19 February 2013 year 09:10
-                elif (len(months) == 1) and (len(digits) == 2):
-                    complete = True
-
-                if not complete:
-                    continue
-
-            ## sanitize date string
-            ## replace unhelpful whitespace characters with single whitespace
-            match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
-            match_str = match_str.strip(self.STRIP_CHARS)
-
-            ## Save sanitized source string
-            yield match_str, indices, captures
 
 
 def find_dates(
