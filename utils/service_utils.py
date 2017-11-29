@@ -222,14 +222,7 @@ class User(JsonDeserializable):
         self.last_name = last_name
         self.language_code = language_code# -*- coding: utf-8 -*-
 
-try:
-    import ujson as json
-except ImportError:
-    import json
 
-import six
-
-from telebot import util
 
 
 class JsonSerializable:
@@ -413,13 +406,9 @@ class User(JsonDeserializable):
 
 
 
-import copy
-import logging
-import regex as re
-from dateutil import tz, parser
 
 
-logger = logging.getLogger('datefinder')
+
 
 
 class DateFinder(object):
