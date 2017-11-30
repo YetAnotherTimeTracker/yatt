@@ -8,3 +8,4 @@
 out
 gen
 /scripts/deploy/credentials.txt
+/config/bot_config.py
