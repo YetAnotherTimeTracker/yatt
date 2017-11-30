@@ -1,5 +1,4 @@
 FROM python:3.6
-# TODO alpine
 
 # Set the working directory to /app
 WORKDIR /app

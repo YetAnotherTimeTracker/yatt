@@ -5,12 +5,9 @@ state_service
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS
 from services import user_service, task_service
 from config.state_config import State
-import logging
+import datetime
 
 from utils import handler_utils
-
-
-log = logging.getLogger(__name__)
 
 
 def states():
@@ -90,28 +87,23 @@ def edit_date_state(bot, update, context):
     datetime_args = args[1:]
     latest_task = context[CONTEXT_TASK]
 
-    err_cause = None
     if latest_task:
         user_id = update.message.chat.id
+        latest_task_by_user = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
 
-        parsed_datetime = handler_utils.parse_date_msg(datetime_args)
-        latest_task.set_next_remind_date(parsed_datetime)
+        if latest_task_by_user:
+            parsed_datetime = handler_utils.parse_date_msg(datetime_args)
+            latest_task_by_user.set_next_remind_date(parsed_datetime)
 
-        # TODO add responseBuilder that can be used this way: rb.append(x), rb.appendNewLine(x)
-        update.message.reply_text(f'Setting date to {parsed_datetime} for task:\n'
-                                  f'[{latest_task.get_id()}]: {latest_task.get_description()}')
-        return
+            update.message.reply_text(f'Setting date to {parsed_datetime} for task:')
+            update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+            return
 
-    else:
-        err_cause = 'Task does not exist'
-
-    if err_cause:
-        log.error(err_cause)
-        update.message.reply_text(f'Sorry, I could not find that task')
+    update.message.reply_text(f'Sorry, I could not find that task')
 
 
 def error_state(bot, update, context):
-    latest_task_id = context[CONTEXT_TASK].get_id()
+    lastest_task_id = context[CONTEXT_TASK].get_id()
     command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
 
-    update.message.reply_text(f'Error. Latest task id: {latest_task_id}. Command trace: {command_trace}')
+    update.message.reply_text(f'Error. Latest task id: {lastest_task_id}. Command trace: {command_trace}')
