@@ -23,5 +23,5 @@ docker tag $img_name yattbot/bots:$BOT_VERSION
 
 #echo "> Pushing image"
 #docker push yattbot/bots:$BOT_VERSION
-#
+
 #echo "> All done"
