@@ -7,4 +7,4 @@ get your own for safe local usage
 BOT_NAME = 'Yet Another TimeTracker Bot'
 
 # FIXME
-BOT_API_TOKEN = ''
+BOT_API_TOKEN = '479912516:AAH-Q10wcw7ML551IgVkuDx0HmAWpY-__FE'
