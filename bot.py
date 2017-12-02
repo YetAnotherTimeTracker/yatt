@@ -1,3 +1,4 @@
+
 """
 Created by anthony on 15.10.17
 Main bot file
@@ -5,6 +6,7 @@ Only _register_ modules here (no logic)
 Should just assemble and run bot
 """
 from telegram.ext import Updater
+import logging
 from telegram.ext import CallbackQueryHandler
 from components.automata import Automata
 from config import bot_config
@@ -14,21 +16,24 @@ from config.db_config import init_db
 import g
 
 
+log = logging.getLogger(__name__)
+
+
 def init_job_queue():
-    print('> Starting job queue')
+    log.info('> Starting job queue')
     g.updater = Updater(token=bot_config.BOT_API_TOKEN)
     g.queue = g.updater.job_queue
-    print('Job queue has started')
+    log.info('Job queue has started')
 
 
 def init_automata():
-    print('> Starting state automata')
+    log.info('> Starting automata')
     g.automata = Automata()
-    print('State automata has started')
+    log.info('Automata has started')
 
 
 def init_bot():
-    print(f'> Starting {bot_config.BOT_NAME}')
+    log.info(f'> Starting {bot_config.BOT_NAME}')
 
     # registers handlers
     dispatcher = g.updater.dispatcher
@@ -38,11 +43,11 @@ def init_bot():
     dispatcher.add_handler(CallbackQueryHandler(services.state_service.button))
     # runs
     g.updater.start_polling()
-    print('Bot has started')
+    log.info('Bot has started')
 
     # listens for Ctrl-C on process to stop
     g.updater.idle()
-    print('Bot has stopped')
+    log.info('Bot has stopped')
 
 
 def main():
