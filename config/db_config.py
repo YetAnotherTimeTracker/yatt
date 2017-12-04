@@ -23,7 +23,7 @@ DB_PORT = 5432
 connection_string = f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 db_engine = create_engine(connection_string)
 
-Session = sessionmaker(bind=db_engine)
+Session = sessionmaker(bind=db_engine, expire_on_commit=False, autocommit=True)
 db_session = Session()
 
 Base = declarative_base()

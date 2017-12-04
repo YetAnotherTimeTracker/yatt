@@ -14,16 +14,16 @@ log = logging.getLogger(__name__)
 def find_all(entity_class):
     try:
         all_entries = db_session.query(entity_class)
-        db_session.commit()
+        # db_session.commit()
         return all_entries
 
     except:
         log.critical(f'Rolling back and closing "find_all" session for entity {entity_class}!')
         db_session.rollback()
-
-    finally:
-        db_session.close()
         return []
+
+    # finally:
+    #     db_session.close()
 
 
 def find_one_by_id(id_value, entity_class):
@@ -41,17 +41,17 @@ def find_one_by_id(id_value, entity_class):
             .filter_by(id=id_int) \
             .first()
         # here can be none if nothing found!
-        db_session.commit()
+        # db_session.commit()
         return entity_by_id
 
     except:
         log.critical(f'Rolling back and closing "find_one_by_id" session '
                      f'for id ({id_int}) of {entity_class} class!')
         db_session.rollback()
-
-    finally:
-        db_session.close()
         return None
+
+    # finally:
+    #     db_session.close()
 
 
 def save(entity):
@@ -64,10 +64,10 @@ def save(entity):
     except:
         log.critical(f'Rolling back and closing "save" session for entity {entity}!')
         db_session.rollback()
+        return entity
 
-    finally:
-        db_session.close()
-        return None
+    # finally:
+        # db_session.close()
 
 
 def flush(entity):
@@ -80,7 +80,7 @@ def flush(entity):
     except:
         log.critical(f'Rolling back and closing "flush" session for entity {entity}!')
         db_session.rollback()
+        return entity
 
-    finally:
-        db_session.close()
-        return None
+    # finally:
+    #     db_session.close()
