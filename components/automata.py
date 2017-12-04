@@ -16,6 +16,7 @@ class Automata:
     def __init__(self):
         self.user_to_state = {}
         self.user_to_context = {}
+        self.user_to_lang = {}
 
     def get_state(self, chat_id_value):
         chat_id = int(chat_id_value)
@@ -41,6 +42,28 @@ class Automata:
         else:
             return State.START
 
+    def get_lang(self, chat_id_value):
+        chat_id = int(chat_id_value)
+
+
+        if chat_id in self.user_to_lang.keys():
+
+            return self.user_to_lang[chat_id]
+
+        else:
+               self.user_to_lang[chat_id] = 'eng'
+
+        return self.user_to_lang[chat_id]
+
+
+
+
+    def set_lang(self, chat_id, lang):
+        chat_id = int(chat_id)
+
+        self.user_to_lang[chat_id] = lang
+
+        return lang
 
     def get_context(self, chat_id_value):
         chat_id = int(chat_id_value)
