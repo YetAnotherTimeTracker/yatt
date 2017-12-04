@@ -5,12 +5,10 @@ state_service
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS
 from services import user_service, task_service
 from config.state_config import State
-import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
 from utils import handler_utils
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 
 log = logging.getLogger(__name__)

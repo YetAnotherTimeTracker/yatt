@@ -6,7 +6,6 @@ if you are not sure which service should implement function
 then implement it in it's return type service
 e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_id
 """
-from config.db_config import db_session
 from models.task import Task
 from services import project_service, user_service
 from utils.service_utils import save, find_all, find_one_by_id

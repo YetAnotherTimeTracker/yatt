@@ -2,7 +2,6 @@
 Created by anthony on 23.10.17
 user_service.py
 """
-from config.db_config import db_session
 import datetime
 from models.task import Task
 from models.project import Project

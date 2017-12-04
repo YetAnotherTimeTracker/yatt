@@ -5,11 +5,25 @@ service_utils
 only generics should be here
 """
 from config.db_config import db_session
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 def find_all(entity_class):
-    all_entities = db_session.query(entity_class)
-    return all_entities
+    try:
+        all_entries = db_session.query(entity_class)
+        db_session.commit()
+        return all_entries
+
+    except:
+        log.critical(f'Rolling back and closing "find_all" session for entity {entity_class}!')
+        db_session.rollback()
+
+    finally:
+        db_session.close()
+        return []
 
 
 def find_one_by_id(id_value, entity_class):
@@ -22,21 +36,51 @@ def find_one_by_id(id_value, entity_class):
         err_cause = 'Provided value is not valid id'
         raise ValueError(err_cause)
 
-    entity_by_id = db_session.query(entity_class) \
-        .filter_by(id=id_int) \
-        .first()
-    # here can be none if nothing found!
-    return entity_by_id
+    try:
+        entity_by_id = db_session.query(entity_class) \
+            .filter_by(id=id_int) \
+            .first()
+        # here can be none if nothing found!
+        db_session.commit()
+        return entity_by_id
+
+    except:
+        log.critical(f'Rolling back and closing "find_one_by_id" session '
+                     f'for id ({id_int}) of {entity_class} class!')
+        db_session.rollback()
+
+    finally:
+        db_session.close()
+        return None
 
 
 def save(entity):
     """ insert entity into db """
-    db_session.add(entity)
-    db_session.commit()
-    return entity
+    try:
+        db_session.add(entity)
+        db_session.commit()
+        return entity
+
+    except:
+        log.critical(f'Rolling back and closing "save" session for entity {entity}!')
+        db_session.rollback()
+
+    finally:
+        db_session.close()
+        return None
 
 
 def flush(entity):
     """ prepare entity for insertion (fill id attribute but do _not_ insert) """
-    db_session.add(entity)
-    db_session.flush()
+    try:
+        db_session.add(entity)
+        db_session.flush()
+        return entity
+
+    except:
+        log.critical(f'Rolling back and closing "flush" session for entity {entity}!')
+        db_session.rollback()
+
+    finally:
+        db_session.close()
+        return None

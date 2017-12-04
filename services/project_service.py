@@ -2,7 +2,6 @@
 Created by anthony on 23.10.17
 project_service
 """
-from config.db_config import db_session
 from models.project import Project
 from models.task import Task
 from services import task_service, user_service
