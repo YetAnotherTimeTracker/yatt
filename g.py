@@ -19,6 +19,7 @@ updater = None
 queue = None
 automata = None
 
+TOKEN = os.environ['TOKEN']
 BOT_ENV = os.environ['BOT_ENV']
 log.info(f'BOT_ENV set to "{BOT_ENV}" mode')
 
