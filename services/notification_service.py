@@ -2,7 +2,12 @@
 Created by anthony on 17.11.17
 notification_service
 """
+import logging
+
 import g
+
+
+log = logging.getLogger(__name__)
 
 
 CTX_CHAT_ID = 'chat_id'
@@ -15,6 +20,7 @@ def create_notification(chat_id, message, datetime):
         CTX_CHAT_ID: chat_id,
         CTX_TEXT: message
     }
+    log.info(f'Creating notification for chat ({chat_id}) on time ({datetime})')
     job = g.queue.run_once(notification_callback, datetime, context=job_context)
     return job
 
@@ -30,3 +36,7 @@ def notification_callback(bot, job):
 
         bot.send_message(chat_id=chat_id, text=message_wrapped)
         # TODO deactivate job notification when notification is fired
+
+    else:
+        log.error('No job context found')
+        raise AttributeError('No job context provided to callback')
