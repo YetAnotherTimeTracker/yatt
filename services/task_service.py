@@ -68,4 +68,4 @@ def create_task(update):
         return saved_task
 
     else:
-        raise ValueError('Project/User could not be created')
+        raise ValueError('Project or User could not be created')
