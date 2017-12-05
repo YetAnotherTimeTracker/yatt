@@ -7,9 +7,14 @@ from services import user_service, task_service
 from config.state_config import State, Language
 import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+import logging
+
 from utils import handler_utils
 from components.message_source import message_source
 import g
+
+
+log = logging.getLogger(__name__)
 
 
 def states():
@@ -104,6 +109,7 @@ def new_task_state(bot, update, context):
         context[CONTEXT_TASK] = new_task
         reply_on_success = message_source[lang]['task_created'].format(new_task.get_id())
 
+
         user = user_service.create_or_get_user(chat)
         if user:
             reply_on_success = user.get_first_name() + ', ' + reply_on_success
@@ -135,24 +141,29 @@ def edit_date_state(bot, update, context):
     datetime_args = args[1:]
     latest_task = context[CONTEXT_TASK]
 
+    err_cause = None
     lang = context[CONTEXT_LANG]
     if latest_task:
         user_id = update.message.chat.id
-        latest_task_by_user = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
 
-        if latest_task_by_user:
-            parsed_datetime = handler_utils.parse_date_msg(datetime_args)
-            latest_task_by_user.set_next_remind_date(parsed_datetime)
-            update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
+        parsed_datetime = handler_utils.parse_date_msg(datetime_args)
+        latest_task.set_next_remind_date(parsed_datetime)
+        update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
 
-            update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
-            return
+        update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+        return
 
-    update.message.reply_text(f'Sorry, I could not find that task')
+    else:
+
+        err_cause = 'Task does not exist'
+
+    if err_cause:
+        log.error(err_cause)
+        update.message.reply_text(f'Sorry, I could not find that task')
 
 
 def error_state(bot, update, context):
-    lastest_task_id = context[CONTEXT_TASK].get_id()
+    latest_task_id = context[CONTEXT_TASK].get_id()
     command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
     lang = context[CONTEXT_LANG]
     update.message.reply_text(message_source[lang]['error'].format(lastest_task_id, command_trace))
