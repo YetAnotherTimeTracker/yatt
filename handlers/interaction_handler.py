@@ -7,7 +7,7 @@ import telegram
 from telegram.ext import MessageHandler, Filters
 
 import g
-from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK
+from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK, CONTEXT_LANG
 from components.filter import command_filter
 from services import state_service
 from utils.handler_utils import get_command_type
@@ -25,7 +25,7 @@ def handle(bot, update):
     try:
         chat = update.message.chat
         text = update.message.text
-        curr_lang = g.automata.get_lang(chat.id)
+
         log.info(f'Incoming message from {chat.username} ({chat.id})): {text}')
 
         if not command_filter.known_command(text):
@@ -36,8 +36,8 @@ def handle(bot, update):
         curr_state = g.automata.get_state(chat.id)
         curr_context = g.automata.get_context(chat.id)
         curr_command = get_command_type(text)
-        curr_lang = g.automata.get_lang(chat.id)
-        log.info(f'curr_state: {curr_state}, curr_command: {curr_command}, curr_lang: {curr_lang}')
+
+        log.info(f'curr_state: {curr_state}, curr_command: {curr_command}, curr_lang: {curr_context[CONTEXT_LANG]}')
 
 
         # find out state to be rendered

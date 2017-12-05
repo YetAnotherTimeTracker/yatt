@@ -2,13 +2,13 @@
 Created by anthony on 12.11.17
 state_service
 """
-from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS
+from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
 from services import user_service, task_service
-from config.state_config import State
+from config.state_config import State, Language
 import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from utils import handler_utils
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from components.message_source import message_source
 import g
 
 
@@ -39,17 +39,15 @@ def all_tasks_state(bot, update, context):
     chat = update.message.chat
     user = user_service.create_or_get_user(chat)
     user_tasks = task_service.find_tasks_by_user_id(user.get_id())
-
+    lang = context[CONTEXT_LANG]
     tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
 
     first_name = user.get_first_name()
     if 0 == len(tasks_to_show):
-        if g.automata.get_lang(chat.id) == 'eng':
-            update.message.reply_text(f'{first_name}, you don\'t have any tasks yet')
-            update.message.reply_text('Just write me something to create a new one :)')
-        elif g.automata.get_lang(chat.id) == 'rus':
-            update.message.reply_text(f'{first_name}, у вас еще нет задач')
-            update.message.reply_text('Просто напишите мне что-нибудь чтобы создать :)')
+
+            update.message.reply_text(message_source[lang]['no_tasks_yet'])
+            update.message.reply_text(message_source[lang]['write_me'])
+
 
     else:
         keyboard = []
@@ -58,10 +56,8 @@ def all_tasks_state(bot, update, context):
             keyboard.append([InlineKeyboardButton(str(task), callback_data=str(id))])
             id = id + 1
         reply_markup = InlineKeyboardMarkup(keyboard)
-        if g.automata.get_lang(chat.id) == 'eng':
-            update.message.reply_text(first_name + ', here are your tasks:\n', reply_markup=reply_markup)
-        if g.automata.get_lang(chat.id) == 'rus':
-            update.message.reply_text(first_name + ', ваши задачи:\n', reply_markup=reply_markup)
+        update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
+
 
 
 def select_lang_state(bot, update, context):
@@ -70,8 +66,8 @@ def select_lang_state(bot, update, context):
 
     reply_msg = 'Hello'
     if user:
-        reply_msg += ', ' + user.get_first_name() + '\n'
-    reply_msg += "Select language:"
+        reply_msg += ', ' + user.get_first_name()
+    reply_msg += "\nSelect language:"
     keyboard = [[InlineKeyboardButton("Русский", callback_data='rus'),
                  InlineKeyboardButton("English", callback_data='eng')],
                 ]
@@ -81,18 +77,14 @@ def select_lang_state(bot, update, context):
 
 def button(bot, update):
     query = update.callback_query
-    if query.data == 'eng':
-        g.automata.set_lang(query.message.chat_id, query.data)
-        bot.edit_message_text(text="Selected english language",
+    lang_values = [item.value for item in Language]
+    if query.data in lang_values:
+        lang = g.automata.set_lang(query.message.chat_id, query.data)
+        bot.edit_message_text(text=message_source[lang]['selected_lang'],
                               chat_id=query.message.chat_id,
                               message_id=query.message.message_id)
         return
-    if query.data == 'rus':
-        g.automata.set_lang(query.message.chat_id, query.data)
-        bot.edit_message_text(text="Выбран русский язык",
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
-        return
+
     task_id = query.data
     chat = query.message.chat
     user = user_service.create_or_get_user(chat)
@@ -107,13 +99,11 @@ def button(bot, update):
 def new_task_state(bot, update, context):
     chat = update.message.chat
     new_task = task_service.create_task(update)
-
+    lang = context[CONTEXT_LANG]
     if new_task:
         context[CONTEXT_TASK] = new_task
-        if g.automata.get_lang(chat.id) == 'eng':
-            reply_on_success = f'task with id "{new_task.get_id()}" has been created!'
-        if g.automata.get_lang(chat.id) == 'rus':
-            reply_on_success = f'задача с id "{new_task.get_id()}" была создана!'
+        reply_on_success = message_source[lang]['task_created'].format(new_task.get_id())
+
         user = user_service.create_or_get_user(chat)
         if user:
             reply_on_success = user.get_first_name() + ', ' + reply_on_success
@@ -124,7 +114,7 @@ def new_task_state(bot, update, context):
 def view_task_state(bot, update, context):
     args = update.message.text.split()
     task_id = args[1]
-
+    lang = context[CONTEXT_LANG]
     chat = update.message.chat
     user = user_service.create_or_get_user(chat)
 
@@ -137,18 +127,15 @@ def view_task_state(bot, update, context):
         update.message.reply_text(f'[{task_id}]: {task_descr}')
 
     else:
-        first_name = user.get_first_name()
-        if g.automata.get_lang(chat.id) == 'eng':
-            update.message.reply_text(f'Sorry, {first_name}, I couldn\'t find task with id "{task_id}"')
-        if g.automata.get_lang(chat.id) == 'rus':
-            update.message.reply_text(f'Извините, {first_name}, не могу найти задачу с таким id "{task_id}"')
+        update.message.reply_text(message_source[lang]['cant_find_task'].format(task.get_id()))
 
 
 def edit_date_state(bot, update, context):
     args = update.message.text.split()
     datetime_args = args[1:]
     latest_task = context[CONTEXT_TASK]
-    chat = update.message.chat
+
+    lang = context[CONTEXT_LANG]
     if latest_task:
         user_id = update.message.chat.id
         latest_task_by_user = task_service.find_task_by_id_and_user_id(latest_task.get_id(), user_id)
@@ -156,10 +143,8 @@ def edit_date_state(bot, update, context):
         if latest_task_by_user:
             parsed_datetime = handler_utils.parse_date_msg(datetime_args)
             latest_task_by_user.set_next_remind_date(parsed_datetime)
-            if g.automata.get_lang(chat.id) == 'eng':
-                update.message.reply_text(f'Setting date to {parsed_datetime} for task:')
-            if g.automata.get_lang(chat.id) == 'rus':
-                update.message.reply_text(f'Поставлена дата {parsed_datetime} для задачи:')
+            update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
+
             update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
             return
 
@@ -169,9 +154,6 @@ def edit_date_state(bot, update, context):
 def error_state(bot, update, context):
     lastest_task_id = context[CONTEXT_TASK].get_id()
     command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
-    chat = update.message.chat
-    if g.automata.get_lang(chat.id) == 'eng':
-        update.message.reply_text(f'Error. Latest task id: {lastest_task_id}. Command trace: {command_trace}')
-    if g.automata.get_lang(chat.id) == 'rus':
-        update.message.reply_text(f'Ошибка. id последней задачи: {lastest_task_id}. Command trace: {command_trace}')
+    lang = context[CONTEXT_LANG]
+    update.message.reply_text(message_source[lang]['error'].format(lastest_task_id, command_trace))
 
