@@ -64,11 +64,14 @@ def button(bot, update):
     chat = query.message.chat
     user = user_service.create_or_get_user(chat)
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
+    # TODO deal with context
     #context[CONTEXT_TASK] = task
-    task_descr = task.get_description()
-    bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
-                          chat_id=query.message.chat_id,
-                          message_id=query.message.message_id)
+
+    if task:
+        task_descr = task.get_description()
+        bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id)
 
 
 def new_task_state(bot, update, context):
@@ -131,7 +134,12 @@ def edit_date_state(bot, update, context):
 
 
 def error_state(bot, update, context):
-    latest_task_id = context[CONTEXT_TASK].get_id()
-    command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
+    latest_task = context[CONTEXT_TASK]
 
-    update.message.reply_text(f'Error. Latest task id: {latest_task_id}. Command trace: {command_trace}')
+    if latest_task:
+        command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
+        update.message.reply_text(f'Error. Latest task id: {latest_task.get_id()}. '
+                                  f'Command trace: {command_trace}')
+
+    else:
+        log.info("Not task found in context")
