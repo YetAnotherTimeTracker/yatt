@@ -7,12 +7,13 @@ from enum import Enum
 
 TRANSITION_TABLE = [
     # start echo    task    date    all
-    [1,     0,      0,      0,      0],     # 0. start
-    [1,     2,      3,      5,      1],     # 1. all tasks
+    [6,     0,      0,      0,      0],     # 0. start
+    [6,     2,      3,      5,      1],     # 1. all tasks
     [1,     2,      3,      4,      1],     # 2. new task
-    [1,     2,      3,      4,      1],     # 3. view task
+    [3,     2,      3,      4,      1],     # 3. view task
     [4,     2,      3,      4,      1],     # 4. edit date
-    [1,     2,      3,      5,      1]      # 5. error
+    [6,     2,      3,      5,      1],     # 5. error
+    [6,     1,      5,      5,      1]      # 6. select language
 ]
 
 
@@ -23,6 +24,7 @@ class State(Enum):
     VIEW_TASK = 3
     EDIT_DATE = 4
     ERROR = 5
+    SELECT_LANG = 6
 
 
 class CommandType(Enum):
@@ -34,6 +36,11 @@ class CommandType(Enum):
     ALL = 4
 
 
+class Language(Enum):
+    ENG = 'eng'
+    RUS = 'rus'
+
+
 CommandAliases = {
     CommandType.START: ['/start', '/hi'],
     CommandType.ALL: ['/all'],
@@ -41,3 +48,4 @@ CommandAliases = {
     CommandType.DATE: ['/date'],
     # CommandType.ECHO: ['']
 }
+
