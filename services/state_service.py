@@ -58,8 +58,8 @@ def all_tasks_state(bot, update, context):
     else:
         keyboard = []
 
-        for task, id in zip(tasks_to_show,user_tasks):
-            keyboard.append([InlineKeyboardButton(str(task), callback_data=str(id.get_id()))])
+        for task_as_string, task_object  in zip(tasks_to_show,user_tasks):
+            keyboard.append([InlineKeyboardButton(str(task_as_string), callback_data=str(task_object.get_id()))])
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
 
@@ -73,8 +73,8 @@ def select_lang_state(bot, update, context):
     if user:
         reply_msg += ', ' + user.get_first_name()
     reply_msg += "\nSelect language:"
-    keyboard = [[InlineKeyboardButton("Русский", callback_data=Language.RUS),
-                 InlineKeyboardButton("English", callback_data=Language.ENG)],
+    keyboard = [[InlineKeyboardButton("Русский", callback_data=Language.RUS.value),
+                 InlineKeyboardButton("English", callback_data=Language.ENG.value)],
                 ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(reply_msg, reply_markup=reply_markup)
