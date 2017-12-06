@@ -5,8 +5,6 @@ state_service
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
 from services import user_service, task_service
 from config.state_config import State, Language
-import datetime
-from config.state_config import State
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
@@ -54,7 +52,6 @@ def all_tasks_state(bot, update, context):
             update.message.reply_text(message_source[lang]['no_tasks_yet'])
             update.message.reply_text(message_source[lang]['write_me'])
 
-
     else:
         keyboard = []
 
@@ -62,7 +59,6 @@ def all_tasks_state(bot, update, context):
             keyboard.append([InlineKeyboardButton(str(task_as_string), callback_data=str(task_object.get_id()))])
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
-
 
 
 def select_lang_state(bot, update, context):
@@ -84,7 +80,7 @@ def button(bot, update):
     query = update.callback_query
     lang_values = [item.value for item in Language]
     if query.data in lang_values:
-        lang = g.automata.set_lang(query.message.chat_id, query.data)
+        lang = g.automata.get_context(query.message.chat_id)[CONTEXT_LANG] = Language(query.data)
         bot.edit_message_text(text=message_source[lang]['selected_lang'],
                               chat_id=query.message.chat_id,
                               message_id=query.message.message_id)
@@ -112,7 +108,6 @@ def new_task_state(bot, update, context):
         context[CONTEXT_TASK] = new_task
         reply_on_success = message_source[lang]['task_created'].format(new_task.get_id())
 
-
         user = user_service.create_or_get_user(chat)
         if user:
             reply_on_success = user.get_first_name() + ', ' + reply_on_success
@@ -132,7 +127,6 @@ def view_task_state(bot, update, context):
         context[CONTEXT_TASK] = task
 
         task_descr = task.get_description()
-
         update.message.reply_text(f'[{task_id}]: {task_descr}')
 
     else:

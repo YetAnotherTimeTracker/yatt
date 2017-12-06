@@ -27,10 +27,12 @@ class Automata:
             self.user_to_state[chat_id] = self.select_initial_state(chat_id)
             return self.user_to_state[chat_id]
 
+
     def set_state(self, chat_id, new_state):
         chat_id = int(chat_id)
         self.user_to_state[chat_id] = new_state
         return new_state
+
 
     @staticmethod
     def select_initial_state(chat_id):
@@ -42,6 +44,7 @@ class Automata:
         else:
             return State.START
 
+
     def get_context(self, chat_id_value):
         chat_id = int(chat_id_value)
         if chat_id in self.user_to_context.keys():
@@ -52,20 +55,16 @@ class Automata:
                 # TODO keep whole view history (linked hash set deque-like)
                 CONTEXT_TASK: None,
                 CONTEXT_COMMANDS: deque(maxlen=10),
-                CONTEXT_LANG : Language.ENG
+                CONTEXT_LANG: Language.ENG
             }
             return self.user_to_context[chat_id]
 
-    def set_lang (self, chat_id, language_value):
-        chat_id = int(chat_id)
-        language = Language(language_value)
-        self.user_to_context[chat_id][CONTEXT_LANG] = language
-        return language
 
     @staticmethod
     def if_can_transit_to(curr_state, command, new_state):
         allowed_state_id = TRANSITION_TABLE[curr_state][command]
         return allowed_state_id == new_state.value
+
 
     @staticmethod
     def get_transition(curr_state, command):
