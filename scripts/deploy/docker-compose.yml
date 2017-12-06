@@ -13,9 +13,9 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   bot:
-    image: yattbot/bots:latest
+    image: yattbot/bots:<version_from_version.txt - 1>
     environment:
-      - TOKEN=479912516:AAH-Q10wcw7ML551IgVkuDx0HmAWpY-__FE
+      - TOKEN=<your_token>
     ports:
       - "80:80"
     depends_on:
