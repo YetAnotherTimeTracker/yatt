@@ -4,7 +4,7 @@
 
 1) Команда №5
 2) Yet Another Time Tracker
-3) Тайм трекер, контролирующий задачи и распределение рабочего времени пользователя. Взаимодействие с пользователем происходит через Телеграмм (создание задач посредством репоста сообщения боту). Опционально - веб интерфейс для просмотра статистики
+3) Тайм трекер, контролирующий задачи и распределение рабочего времени пользователя. Взаимодействие с пользователем происходит через Телеграмм (создание задач посредством репоста сообщения боту), а так же посредством отправки голосовых сообщений. Опционально - веб интерфейс для просмотра статистики
 4) [Telegram bot repo](https://github.com/YetAnotherTimeTracker/yatt)
 5) Команда:
  - Беляев Антон
@@ -18,12 +18,10 @@
 - Склонируйте себе этот репозиторий: `git clone https://github.com/YetAnotherTimeTracker/yatt.git`
 - Установите [Docker, Docker Compose](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac) (Docker не ниже версии 17.09)
 - Запустите Docker Compose с PostgreSQL из корня проекта: `docker-compose up`
-- Добавьте API токен в соответствующую переменную в `config/bot_config.py` 
-- Запустите бота c переменной окружения: `BOT_ENV=dev python3 bot.py`
+- Запустите бота c переменной окружения `BOT_ENV=dev` или `BOT_ENV=prod` и перменной-токеном `TOKEN=<your_token>`: `BOT_ENV=dev TOKEN=MY-TOKEN python3 bot.py`
 
 
 ## Deploy (prod mode)
-- Добавьте API токен в соответствующую переменную в `config/bot_config.py`
 - Добавьте логин аккаунта DockerHub в переменную в `scripts/deploy/creds/credentials.txt`
 - Добавьте пароль аккаунта в `scripts/deploy/creds/dockerhub_psw.txt`
 - Выполните сборку образа и пуш на DockerHub скриптом `scripts/deploy/push-image.sh`
