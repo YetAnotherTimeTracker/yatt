@@ -4,18 +4,19 @@ automata
 """
 from collections import deque
 
-from config.state_config import TRANSITION_TABLE, State
+from config.state_config import TRANSITION_TABLE, State, Language
 from models.user import User
 from utils import service_utils
 
 CONTEXT_TASK = 'context_task'
 CONTEXT_COMMANDS = 'context_commands'
-
+CONTEXT_LANG = 'context_lang'
 
 class Automata:
     def __init__(self):
         self.user_to_state = {}
         self.user_to_context = {}
+
 
     def get_state(self, chat_id_value):
         chat_id = int(chat_id_value)
@@ -41,7 +42,6 @@ class Automata:
         else:
             return State.START
 
-
     def get_context(self, chat_id_value):
         chat_id = int(chat_id_value)
         if chat_id in self.user_to_context.keys():
@@ -51,9 +51,16 @@ class Automata:
             self.user_to_context[chat_id] = {
                 # TODO keep whole view history (linked hash set deque-like)
                 CONTEXT_TASK: None,
-                CONTEXT_COMMANDS: deque(maxlen=10)
+                CONTEXT_COMMANDS: deque(maxlen=10),
+                CONTEXT_LANG : Language.ENG
             }
             return self.user_to_context[chat_id]
+
+    def set_lang (self, chat_id, language_value):
+        chat_id = int(chat_id)
+        language = Language(language_value)
+        self.user_to_context[chat_id][CONTEXT_LANG] = language
+        return language
 
     @staticmethod
     def if_can_transit_to(curr_state, command, new_state):

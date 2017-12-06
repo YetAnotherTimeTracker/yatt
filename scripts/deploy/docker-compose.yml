@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  postgres:
+    container_name: postgresql
+    restart: always
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=yatt_user
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=yatt_db
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  bot:
+    image: yattbot/bots:<version_from_version.txt - 1>
+    environment:
+      - TOKEN=<your_token>
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+    restart: always

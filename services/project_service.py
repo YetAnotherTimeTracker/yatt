@@ -2,12 +2,16 @@
 Created by anthony on 23.10.17
 project_service
 """
-from config.db_config import db_session
+import logging
+
 from models.project import Project
 from models.task import Task
 from services import task_service, user_service
 from utils.message_parser import message_parser
 from utils.service_utils import save, flush, find_all, find_one_by_id
+
+
+log = logging.getLogger(__name__)
 
 
 def find_all_by_user_id(user_id):
@@ -21,25 +25,27 @@ def create_or_get_project(message, user_id):
     title = message_parser.parse_message_for_project(message)
 
     projects_of_user = find_all_by_user_id(user_id)
-    # check if theres already a project with same title(category)
+    # check if there is already a project with same title(category)
     for p in projects_of_user:
         if title == p.get_title():
             return p
 
-    # there is no project with this title -> create new
-    new_proj = flush(Project(title, user_id))
-    saved_proj = save(new_proj)
+    # there is no project withb this title -> create new
+    flushed_proj = flush(Project(title, user_id))
+    saved_proj = save(flushed_proj)
     return saved_proj
 
 
-def update_nearest_task_for_project(project_id_value):
+def update_nearest_task_for_user_project(project_id_value, user_id_value):
     # try cast to int to prevent getting project here. we need only it's id here
+    user_id = int(user_id_value)
     project_id = int(project_id_value)
     project = find_one_by_id(project_id, Project)
 
     if project:
-        all_tasks = find_all(Task)
-        tasks_by_project_id = [t for t in all_tasks
+
+        user_tasks = task_service.find_tasks_by_user_id(user_id)
+        tasks_by_project_id = [t for t in user_tasks
                                if t.get_project_id() == project_id and t.get_next_remind_date() is not None]
         sorted_by_next_remind_date = sorted(tasks_by_project_id, key=lambda t: t.get_next_remind_date())
 
@@ -51,4 +57,8 @@ def update_nearest_task_for_project(project_id_value):
             return saved_proj
 
         else:
+            log.info(f'task list is empty')
             return project
+
+    else:
+        log.error(f'No projects found by project id {project_id_value} for user {user_id_value}')
