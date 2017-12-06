@@ -57,10 +57,9 @@ def all_tasks_state(bot, update, context):
 
     else:
         keyboard = []
-        id = 1
-        for task in tasks_to_show:
-            keyboard.append([InlineKeyboardButton(str(task), callback_data=str(id))])
-            id = id + 1
+
+        for task, id in zip(tasks_to_show,user_tasks):
+            keyboard.append([InlineKeyboardButton(str(task), callback_data=str(id.get_id()))])
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
 
