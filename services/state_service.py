@@ -6,6 +6,7 @@ from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
 from services import user_service, task_service
 from config.state_config import State, Language
 import datetime
+from config.state_config import State
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
@@ -73,8 +74,8 @@ def select_lang_state(bot, update, context):
     if user:
         reply_msg += ', ' + user.get_first_name()
     reply_msg += "\nSelect language:"
-    keyboard = [[InlineKeyboardButton("Русский", callback_data='rus'),
-                 InlineKeyboardButton("English", callback_data='eng')],
+    keyboard = [[InlineKeyboardButton("Русский", callback_data=Language.RUS),
+                 InlineKeyboardButton("English", callback_data=Language.ENG)],
                 ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(reply_msg, reply_markup=reply_markup)
@@ -94,11 +95,14 @@ def button(bot, update):
     chat = query.message.chat
     user = user_service.create_or_get_user(chat)
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
-    # context[CONTEXT_TASK] = task
-    task_descr = task.get_description()
-    bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
-                          chat_id=query.message.chat_id,
-                          message_id=query.message.message_id)
+    # TODO deal with context
+    #context[CONTEXT_TASK] = task
+
+    if task:
+        task_descr = task.get_description()
+        bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id)
 
 
 def new_task_state(bot, update, context):
@@ -150,11 +154,11 @@ def edit_date_state(bot, update, context):
         latest_task.set_next_remind_date(parsed_datetime)
         update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
 
+        # TODO add responseBuilder that can be used this way: rb.append(x), rb.appendNewLine(x)
         update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
         return
 
     else:
-
         err_cause = 'Task does not exist'
 
     if err_cause:
@@ -163,8 +167,12 @@ def edit_date_state(bot, update, context):
 
 
 def error_state(bot, update, context):
-    latest_task_id = context[CONTEXT_TASK].get_id()
-    command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
     lang = context[CONTEXT_LANG]
-    update.message.reply_text(message_source[lang]['error'].format(lastest_task_id, command_trace))
+    latest_task = context[CONTEXT_TASK]
 
+    if latest_task:
+        command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
+        update.message.reply_text(message_source[lang]['error'].format(latest_task.get_id(), command_trace))
+
+    else:
+        log.info("No task in context found")

@@ -5,8 +5,12 @@ task
 from sqlalchemy import BigInteger, Column, String, DateTime, SmallInteger, ForeignKey, Boolean
 from config.db_config import Base
 import datetime
+import logging
 
 from services import notification_service as ns
+
+
+log = logging.getLogger(__name__)
 
 
 class Task(Base):
@@ -88,7 +92,12 @@ class Task(Base):
         if next_remind_date < datetime.datetime.now():
             raise ValueError('Next remind date cannot be in past')
 
+        log.info(f'Creating notification for task {self.id}')
         notification = ns.create_notification(self.get_user_id(), self.description, next_remind_date)
+
+        if notification is None:
+            log.error(f'Notification is none for task id {self.id}')
+
         self.notification_job = notification
         self.next_remind_date = next_remind_date
 

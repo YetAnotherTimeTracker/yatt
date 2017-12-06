@@ -6,10 +6,9 @@ if you are not sure which service should implement function
 then implement it in it's return type service
 e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_id
 """
-from config.db_config import db_session
 from models.task import Task
 from services import project_service, user_service
-from utils.service_utils import save, find_all, find_one_by_id
+from utils.service_utils import flush, save, find_all, find_one_by_id
 
 
 def find_tasks_by_title(title):
@@ -23,6 +22,10 @@ def find_tasks_by_title(title):
 
 
 def find_task_by_id_and_user_id(task_id_value, user_id):
+    """
+    returns selected task only if it was made by user provided
+    otherwise throws permission exception
+    """
     task_id = int(task_id_value)
     task_by_id = find_one_by_id(task_id, Task)
 
@@ -30,7 +33,8 @@ def find_task_by_id_and_user_id(task_id_value, user_id):
         return task_by_id
 
     else:
-        return None
+        raise PermissionError(f'User with id {user_id} is not permitted '
+                              f'to access task with id {task_id}')
 
 
 def find_tasks_by_user_id(user_id_value):
@@ -62,11 +66,12 @@ def create_task(update):
 
     if project and user:
         new_task = Task(description=msg_text, user_id=user.get_id(), project_id=project.get_id())
-        saved_task = save(new_task)
+        flushed_task = flush(new_task)
+        saved_task = save(flushed_task)
 
-        project_service.update_nearest_task_for_project(project.get_id())
+        project_service.update_nearest_task_for_user_project(project.get_id(), user.get_id())
 
         return saved_task
 
     else:
-        raise ValueError('Project/User could not be created')
+        raise ValueError('Project or User could not be created')

@@ -9,7 +9,6 @@ from telegram.ext import Updater
 import logging
 from telegram.ext import CallbackQueryHandler
 from components.automata import Automata
-from config import bot_config
 import handlers.interaction_handler
 import services.state_service
 from config.db_config import init_db
@@ -21,7 +20,7 @@ log = logging.getLogger(__name__)
 
 def init_job_queue():
     log.info('> Starting job queue')
-    g.updater = Updater(token=bot_config.BOT_API_TOKEN)
+    g.updater = Updater(token=g.TOKEN)
     g.queue = g.updater.job_queue
     log.info('Job queue has started')
 
@@ -33,7 +32,7 @@ def init_automata():
 
 
 def init_bot():
-    log.info(f'> Starting {bot_config.BOT_NAME}')
+    log.info(f'> Starting bot')
 
     # registers handlers
     dispatcher = g.updater.dispatcher
