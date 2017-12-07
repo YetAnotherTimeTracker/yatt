@@ -5,10 +5,9 @@ project_service
 import logging
 
 from models.project import Project
-from models.task import Task
 from services import task_service, user_service
 from utils.message_parser import message_parser
-from utils.service_utils import save, flush, find_all, find_one_by_id
+from utils.db_utils import save, flush, find_all, find_one_by_id
 
 
 log = logging.getLogger(__name__)
@@ -34,6 +33,11 @@ def create_or_get_project(message, user_id):
     flushed_proj = flush(Project(title, user_id))
     saved_proj = save(flushed_proj)
     return saved_proj
+
+
+def update_project(project):
+    saved = save(project)
+    return saved
 
 
 def update_nearest_task_for_user_project(project_id_value, user_id_value):

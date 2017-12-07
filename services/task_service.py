@@ -8,7 +8,7 @@ e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_
 """
 from models.task import Task
 from services import project_service, user_service
-from utils.service_utils import flush, save, find_all, find_one_by_id
+from utils.db_utils import flush, save, find_all, find_one_by_id
 
 
 def find_tasks_by_title(title):
@@ -75,3 +75,8 @@ def create_task(update):
 
     else:
         raise ValueError('Project or User could not be created')
+
+
+def update_task(task):
+    saved_task = save(task)
+    return saved_task
