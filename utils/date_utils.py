@@ -73,3 +73,7 @@ def log_duration(func):
         return ret
 
     return inner_func
+
+
+def seconds_between_tasks(task1, task2):
+    return (task1.get_next_remind_date() - task2.get_next_remind_date()).total_seconds()
