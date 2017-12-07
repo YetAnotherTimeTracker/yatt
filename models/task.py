@@ -7,17 +7,19 @@ from config.db_config import Base
 import datetime
 import logging
 
+from models.abstract_entity import AbstractEntity
 from services import notification_service as ns
 
 
 log = logging.getLogger(__name__)
 
 
-class Task(Base):
+class Task(Base, AbstractEntity):
     __tablename__ = 'tasks'
     # task props
     id                  = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
     description         = Column(String, nullable=False)
+    is_completed        = Column(Boolean, default=False)
     priority            = Column(SmallInteger, default=1)
     create_date         = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     project_id          = Column(BigInteger, ForeignKey('projects.id'), nullable=False)
@@ -33,7 +35,7 @@ class Task(Base):
     is_active           = Column(Boolean, default=True)
 
     def __init__(self, description, user_id, project_id):
-        # TODO get data from message (remove date?)
+        super().__init__()
         self.set_description(description.capitalize())
         self.set_user_id(user_id)
         self.set_project_id(project_id)
@@ -42,6 +44,7 @@ class Task(Base):
         # original message
         self.set_message_text(description)
         self.notification_job = None
+        self.next_remind_date = None
 
     def get_id(self):
         return self.id
@@ -101,5 +104,11 @@ class Task(Base):
         self.notification_job = notification
         self.next_remind_date = next_remind_date
 
-    def set_is_periodic(self, periodic_flag):
+    def mark_as_periodic(self, periodic_flag):
         self.is_periodic = periodic_flag
+
+    def mark_as_completed(self):
+        self.is_completed = True
+
+    def is_task_completed(self):
+        return self.is_completed
