@@ -2,13 +2,15 @@
 Created by anthony on 12.11.17
 state_service
 """
-from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
-from services import user_service, task_service
+import datetime
+
+from services import user_service, task_service, notification_service
 from config.state_config import State, Language
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
-from utils import handler_utils
+from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
+from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
 
@@ -102,13 +104,23 @@ def button(bot, update):
 
 def new_task_state(bot, update, context):
     chat = update.message.chat
-    new_task = task_service.create_task(update)
     lang = context[CONTEXT_LANG]
+    new_task = task_service.create_task(update)
+
+    if g.test_mode:
+        log.debug(f'Automatically setting reminda time for task {new_task.get_id()}')
+        d1 = datetime.datetime.now()
+        d2 = datetime.datetime.now() + datetime.timedelta(days=1)
+        parsed_datetime = date_utils.random_date(d1, d2)
+
+        new_task.set_next_remind_date(parsed_datetime)
+        task_service.update_task(new_task)
+
     if new_task:
         context[CONTEXT_TASK] = new_task
         reply_on_success = message_source[lang]['task_created'].format(new_task.get_id())
 
-        user = user_service.create_or_get_user(chat)
+        user = user_service.find_one_by_user_id(chat.id)
         if user:
             reply_on_success = user.get_first_name() + ', ' + reply_on_success
 
@@ -134,21 +146,36 @@ def view_task_state(bot, update, context):
 
 
 def edit_date_state(bot, update, context):
+    user_id = update.message.chat.id
     args = update.message.text.split()
     datetime_args = args[1:]
     latest_task = context[CONTEXT_TASK]
+    lang = context[CONTEXT_LANG]
 
     err_cause = None
-    lang = context[CONTEXT_LANG]
     if latest_task:
-        user_id = update.message.chat.id
 
-        parsed_datetime = handler_utils.parse_date_msg(datetime_args)
+        d1 = datetime.datetime.now()
+        d2 = datetime.datetime.now() + datetime.timedelta(days=1)
+        parsed_datetime = date_utils.random_date(d1, d2)
+
         latest_task.set_next_remind_date(parsed_datetime)
+        task_service.update_task(latest_task)
         update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
 
         # TODO add responseBuilder that can be used this way: rb.append(x), rb.appendNewLine(x)
-        update.message.reply_text(f'[{latest_task.get_id()}]: {latest_task.get_description()}')
+        update.message.reply_text(view_utils.render_task_basic(latest_task))
+
+        # find if reminder intersects with another tasks
+        time_delta_threshold = datetime.timedelta(hours=24)
+        nearest_tasks = notification_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
+        if 0 != len(nearest_tasks):
+
+            tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]
+            update.message.reply_text('Don\' forget that You already have task assigned near that time:\n' +
+                                      '\n'.join(tasks_to_show) +
+                                      '\nIf you want to change reminder time, just write it :)')
+
         return
 
     else:
@@ -168,4 +195,4 @@ def error_state(bot, update, context):
         update.message.reply_text(message_source[lang]['error'].format(latest_task.get_id(), command_trace))
 
     else:
-        log.info("No task in context found")
+        log.warning("No task in context found")
