@@ -6,7 +6,7 @@ from collections import deque
 
 from config.state_config import TRANSITION_TABLE, State, Language
 from models.user import User
-from utils import service_utils
+from utils import db_utils
 
 CONTEXT_TASK = 'context_task'
 CONTEXT_COMMANDS = 'context_commands'
@@ -36,7 +36,7 @@ class Automata:
 
     @staticmethod
     def select_initial_state(chat_id):
-        user_by_id = service_utils.find_one_by_id(chat_id, User)
+        user_by_id = db_utils.find_one_by_id(chat_id, User)
         # if we already know this user then no need make him sign (/start) up again
         if user_by_id:
             return State.ALL_TASKS
