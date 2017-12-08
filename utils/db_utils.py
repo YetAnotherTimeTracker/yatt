@@ -57,9 +57,10 @@ def find_one_by_id(id_value, entity_class):
 def save(entity):
     """ insert entity into db """
     db_session = Session()
+    db_session.autocommit = False
     try:
         db_session.add(entity)
-        # db_session.commit()
+        db_session.commit()
         return entity
 
     except Exception as e:

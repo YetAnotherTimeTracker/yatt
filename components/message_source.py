@@ -6,11 +6,11 @@ message_source = {
     Language.ENG: {
         'write_me': 'Just write me something to create a new one :)',
         'no_tasks_yet': 'You don\'t have any tasks yet',
-        'selected_lang': 'Selected engish language',
-        'your_tasks':"{}, here are yout tasks",
+        'selected_lang': 'Selected English language',
+        'your_tasks': "{}, here are your tasks",
         'task_created': 'task with id {} has been created',
         'cant_find_task': 'Sorry, can`t find task with id {}',
-        'set_date':'Setting date to {} for task:',
+        'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
     },
 

@@ -42,7 +42,7 @@ def handle(bot, update):
 
         # find out state to be rendered
         state = g.automata.get_transition(curr_state, curr_command)
-        if g.dev_mode:
+        if g.dev_mode or g.test_mode:
             update.message.reply_text(f'state: {curr_state.name} ({curr_state.value})\n'
                                       f'cmd: {curr_command.name} ({curr_command.value})\n'
                                       f'new state: {state.name} ({state.value})')
@@ -59,7 +59,7 @@ def handle(bot, update):
         curr_context[CONTEXT_COMMANDS].append(curr_command)
 
 
-        if g.dev_mode:
+        if g.dev_mode or g.test_mode:
             print_dev_info(bot, update, curr_context)
 
     except Exception as e:

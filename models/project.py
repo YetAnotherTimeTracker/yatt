@@ -5,8 +5,10 @@ project
 from sqlalchemy import BigInteger, Column, String, ForeignKey, Boolean
 from config.db_config import Base
 
+from models.abstract_entity import AbstractEntity
 
-class Project(Base):
+
+class Project(Base, AbstractEntity):
     __tablename__ = 'projects'
     id                  = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
     # category e.g. personal / university / work
@@ -18,6 +20,7 @@ class Project(Base):
     is_active           = Column(Boolean, default=True)
 
     def __init__(self, title, user_id):
+        super().__init__()
         self.set_title(title)
         self.set_user_id(user_id)
 
