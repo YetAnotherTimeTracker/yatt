@@ -170,8 +170,9 @@ def edit_date_state(bot, update, context):
 
             tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]
             tasks_to_show = tasks_to_show[0:3]
-            update.message.reply_text('Don\' forget that You already have task assigned near that time:\n' +
-                                      '\n'.join(tasks_to_show) +
+            update.message.reply_text(f'Don\' forget that You already have ' +
+                                      'task' if 1 == len(nearest_tasks) else 'tasks' +
+                                      f'assigned near that time:\n' + '\n'.join(tasks_to_show) +
                                       '\nIf you want to change reminder time, just write it :)')
         return
 
