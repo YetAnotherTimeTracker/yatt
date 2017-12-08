@@ -155,10 +155,7 @@ def edit_date_state(bot, update, context):
     err_cause = None
     if latest_task:
 
-        d1 = datetime.datetime.now()
-        d2 = datetime.datetime.now() + datetime.timedelta(days=1)
-        parsed_datetime = date_utils.random_date(d1, d2)
-
+        parsed_datetime = date_utils.parse_date_msg(datetime_args)
         latest_task.set_next_remind_date(parsed_datetime)
         task_service.update_task(latest_task)
         update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
