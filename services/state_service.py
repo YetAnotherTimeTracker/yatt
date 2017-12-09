@@ -71,9 +71,10 @@ def select_lang_state(bot, update, context):
     if user:
         reply_msg += ', ' + user.get_first_name()
     reply_msg += "\nSelect language:"
-    keyboard = [[InlineKeyboardButton("Русский", callback_data=Language.RUS.value),
-                 InlineKeyboardButton("English", callback_data=Language.ENG.value)],
-                ]
+    keyboard = [
+        [InlineKeyboardButton("Русский", callback_data=Language.RUS.value),
+         InlineKeyboardButton("English", callback_data=Language.ENG.value)],
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(reply_msg, reply_markup=reply_markup)
 
@@ -155,7 +156,14 @@ def edit_date_state(bot, update, context):
     err_cause = None
     if latest_task:
 
-        parsed_datetime = date_utils.parse_date_msg(datetime_args)
+        parsed_datetime = None
+        if g.dev_mode or g.test_mode:
+            seconds = int(datetime_args[0]) or 10
+            parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+
+        else:
+            parsed_datetime = date_utils.parse_date_msg(datetime_args)
+
         latest_task.set_next_remind_date(parsed_datetime)
         task_service.update_task(latest_task)
         update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
@@ -165,7 +173,7 @@ def edit_date_state(bot, update, context):
 
         # find if reminder intersects with another tasks
         time_delta_threshold = datetime.timedelta(hours=8)
-        nearest_tasks = notification_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
+        nearest_tasks = task_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
         if 0 != len(nearest_tasks):
 
             tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]

@@ -12,6 +12,7 @@ message_source = {
         'cant_find_task': 'Sorry, can`t find task with id {}',
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
+        'btn_mark_as_done': 'Mark as Done'
     },
 
     Language.RUS: {
@@ -22,6 +23,7 @@ message_source = {
         'task_created': 'задача с id {} была создана',
         'cant_find_task': 'Извините, не могу найти задачу с id {}',
         'set_date': 'Поставлена дата {} для задачи:',
-        'error': 'Ошибка. id последней задачи: {}. Command trace: {}'
+        'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
+        'btn_mark_as_done': 'Выполнено!'
     }
 }
