@@ -49,3 +49,15 @@ CommandAliases = {
     # CommandType.ECHO: ['']
 }
 
+
+class Action(Enum):
+    # string here should be as short as possible
+    # since there is a length limit per callback data
+    TASK_MARK_AS_DONE = 'mark_done'
+    TASK_DELETE = 'del'
+    TASK_DISABLE = 'disable'
+
+
+class CallbackData(Enum):
+    DATA = 'callback_data'
+    ACTION = 'callback_action'

@@ -7,11 +7,9 @@ Should just assemble and run bot
 """
 from telegram.ext import Updater
 import logging
-from telegram.ext import CallbackQueryHandler
 
 from components.automata import Automata
-import handlers.interaction_handler
-import services.state_service
+from handlers import interaction_handler, callback_handler
 from config.db_config import init_db
 import g
 from services import notification_service
@@ -42,8 +40,8 @@ def init_bot():
     dispatcher = g.updater.dispatcher
 
     # handlers are invoked till the first match
-    dispatcher.add_handler(handlers.interaction_handler.command_handler())
-    dispatcher.add_handler(CallbackQueryHandler(services.state_service.button))
+    dispatcher.add_handler(interaction_handler.command_handler())
+    dispatcher.add_handler(callback_handler.button_handler())
     # runs
     g.updater.start_polling()
     log.info('Bot has started')

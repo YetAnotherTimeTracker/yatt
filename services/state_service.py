@@ -79,37 +79,13 @@ def select_lang_state(bot, update, context):
     update.message.reply_text(reply_msg, reply_markup=reply_markup)
 
 
-def button(bot, update):
-    query = update.callback_query
-    lang_values = [item.value for item in Language]
-    if query.data in lang_values:
-        lang = g.automata.get_context(query.message.chat_id)[CONTEXT_LANG] = Language(query.data)
-        bot.edit_message_text(text=message_source[lang]['selected_lang'],
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
-        return
-
-    task_id = query.data
-    chat = query.message.chat
-    user = user_service.create_or_get_user(chat)
-    task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
-    # TODO deal with context
-    #context[CONTEXT_TASK] = task
-
-    if task:
-        task_descr = task.get_description()
-        bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
-
-
 def new_task_state(bot, update, context):
     chat = update.message.chat
     lang = context[CONTEXT_LANG]
     new_task = task_service.create_task(update)
 
     if g.test_mode:
-        log.debug(f'Automatically setting reminda time for task {new_task.get_id()}')
+        log.debug(f'Automatically setting reminder time for task {new_task.get_id()}')
         d1 = datetime.datetime.now()
         d2 = datetime.datetime.now() + datetime.timedelta(days=1)
         parsed_datetime = date_utils.random_date(d1, d2)

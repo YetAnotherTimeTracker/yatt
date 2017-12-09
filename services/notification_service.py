@@ -8,8 +8,7 @@ import datetime
 
 import g
 from components.automata import CONTEXT_LANG
-from components.message_source import message_source
-from components.keyboard_builder import KeyboardBuilder as kb
+from components.keyboard_builder import KeyboardBuilder as Kb
 from services import task_service
 
 log = logging.getLogger(__name__)
@@ -48,28 +47,9 @@ def notification_callback(bot, job):
         message_wrapped = f'You have a reminder!\n{text}'
 
         # create custom keyboard for user to be able to mark task as completed
-        context = g.automata.get_context(chat_id)
-        lang = context[CONTEXT_LANG]
-        button_map = [
-            {
-                kb.LABEL: message_source[lang]['btn.mark_as_done'],
-                kb.DATA: str(task_id),
-                kb.ACTION: 'mark_as_done'
-            },
-            [
-                {
-                    kb.LABEL: message_source[lang]['btn.disable_notify'],
-                    kb.DATA: str(task_id),
-                    kb.ACTION: 'disable'
-                },
-                {
-                    kb.LABEL: message_source[lang]['btn.delete_task'],
-                    kb.DATA: str(task_id),
-                    kb.ACTION: 'delete'
-                }
-            ]
-        ]
-        markup = kb.inline_keyboard(button_map)
+        lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
+        button_grid = Kb.view_task_buttons(lang, task_id)
+        markup = Kb.inline_keyboard(button_grid)
 
         bot.send_message(chat_id=chat_id, text=message_wrapped, reply_markup=markup)
         # TODO deactivate job notification when notification is fired
