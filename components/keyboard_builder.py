@@ -40,14 +40,14 @@ class KeyboardBuilder:
 
                 button_row = []
                 for element in grid_element:
-                    new_button = KeyboardBuilder.__create_button(element)
+                    new_button = KeyboardBuilder.__create_inline_button(element)
                     button_row.append(new_button)
                 buttons.append(button_row)
 
             # or single button (dict or singleton list of single button)
             elif dict == type(grid_element) or KeyboardBuilder.__is_singleton_list(grid_element):
 
-                new_button = KeyboardBuilder.__create_button(grid_element)
+                new_button = KeyboardBuilder.__create_inline_button(grid_element)
                 buttons.append([new_button])
 
             else:
@@ -58,7 +58,7 @@ class KeyboardBuilder:
 
 
     @staticmethod
-    def __create_button(button_data_map):
+    def __create_inline_button(button_data_map):
         label, data, action = map(button_data_map.get, (KeyboardBuilder.LABEL,
                                                         KeyboardBuilder.DATA,
                                                         KeyboardBuilder.ACTION))
