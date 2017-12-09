@@ -95,14 +95,16 @@ class Task(Base, AbstractEntity):
         if next_remind_date < datetime.datetime.now():
             raise ValueError('Next remind date cannot be in past')
 
+        self.next_remind_date = next_remind_date
+
         log.info(f'Creating notification for task {self.id}')
-        notification = ns.create_notification(self.get_user_id(), self.description, next_remind_date)
+        notification = ns.create_notification(self.get_user_id(), self)
 
         if notification is None:
             log.error(f'Notification is none for task id {self.id}')
 
         self.notification_job = notification
-        self.next_remind_date = next_remind_date
+
 
     def mark_as_periodic(self, periodic_flag):
         self.is_periodic = periodic_flag
