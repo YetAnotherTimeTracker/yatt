@@ -9,12 +9,16 @@ e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_
 import logging
 
 from models.task import Task
-from services import project_service, user_service
+from services import project_service, user_service, notification_service
 from utils import date_utils
 from utils.db_utils import flush, save, find_all, find_one_by_id
 
 
 log = logging.getLogger(__name__)
+
+
+def find_all_tasks():
+    return find_all(Task)
 
 
 def find_tasks_by_description(title):
@@ -71,6 +75,7 @@ def create_task(update):
     project = project_service.create_or_get_project(msg_text, user.get_id())
 
     if project and user:
+        log.info(f'Creating task for user {user.get_id()}')
         new_task = Task(description=msg_text, user_id=user.get_id(), project_id=project.get_id())
         flushed_task = flush(new_task)
         saved_task = save(flushed_task)

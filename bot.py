@@ -8,11 +8,13 @@ Should just assemble and run bot
 from telegram.ext import Updater
 import logging
 from telegram.ext import CallbackQueryHandler
+
 from components.automata import Automata
 import handlers.interaction_handler
 import services.state_service
 from config.db_config import init_db
 import g
+from services import notification_service
 
 
 log = logging.getLogger(__name__)
@@ -22,6 +24,8 @@ def init_job_queue():
     log.info('> Starting job queue')
     g.updater = Updater(token=g.TOKEN)
     g.queue = g.updater.job_queue
+    log.info('Loading notification jobs')
+    notification_service.load_tasks_to_queue()
     log.info('Job queue has started')
 
 

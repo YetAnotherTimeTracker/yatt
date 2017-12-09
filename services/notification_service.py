@@ -4,11 +4,13 @@ notification_service
 """
 import logging
 
+import datetime
+
 import g
 from components.automata import CONTEXT_LANG
 from components.message_source import message_source
 from components.keyboard_builder import KeyboardBuilder as kb
-
+from services import task_service
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +39,12 @@ def notification_callback(bot, job):
     if payload:
         # chat id can be not int. e.g. '@username' is chat_id too
         chat_id, task_id, text = map(payload.get, (PAYLOAD_CHAT_ID, PAYLOAD_TASK_ID, PAYLOAD_TEXT))
+
+        task = task_service.find_task_by_id_and_user_id(task_id, chat_id)
+        if task.is_task_enabled() is False or task.is_task_completed():
+            log.info(f'Notification for task {task_id} is disabled. Skipping')
+            return
+
         message_wrapped = f'You have a reminder!\n{text}'
 
         # create custom keyboard for user to be able to mark task as completed
@@ -68,3 +76,21 @@ def notification_callback(bot, job):
 
     else:
         log.error('No payload found in notification callback')
+
+
+def load_tasks_to_queue():
+    """
+    Gets all tasks that will be fired in future and sets them to job queue
+    This method is originally made to not forget notifications in queue when bot is restarted
+    """
+    all_tasks = task_service.find_all_tasks()
+    now = datetime.datetime.now()
+    tasks_not_yet_fired = [t for t in all_tasks if t.get_next_remind_date() is not None
+                           and now < t.get_next_remind_date()]
+
+    log.info(f'Creating notifications for {len(tasks_not_yet_fired)} tasks')
+    for t in tasks_not_yet_fired:
+        create_notification(t.get_user_id(), t)
+
+
+    return tasks_not_yet_fired
