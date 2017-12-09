@@ -41,6 +41,7 @@ def update_project(project):
 
 
 def update_nearest_task_for_user_project(project_id_value, user_id_value):
+    log.info(f'Updating nearest task for project ({project_id_value}) and user {user_id_value}')
     # try cast to int to prevent getting project here. we need only it's id here
     user_id = int(user_id_value)
     project_id = int(project_id_value)
