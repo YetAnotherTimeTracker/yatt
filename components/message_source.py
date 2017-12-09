@@ -12,7 +12,8 @@ message_source = {
         'cant_find_task': 'Sorry, can`t find task with id {}',
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
-        'btn_mark_as_done': 'Mark as Done'
+        'btn.mark_as_done': 'Mark as Done!',
+        'btn.delete_task': 'Delete task'
     },
 
     Language.RUS: {
@@ -24,6 +25,7 @@ message_source = {
         'cant_find_task': 'Извините, не могу найти задачу с id {}',
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
-        'btn_mark_as_done': 'Выполнено!'
+        'btn.mark_as_done': 'Выполнено!',
+        'btn.delete_task': 'Удалить задачу'
     }
 }
