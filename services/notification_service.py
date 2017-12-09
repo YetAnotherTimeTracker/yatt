@@ -45,14 +45,23 @@ def notification_callback(bot, job):
         button_map = [
             {
                 kb.LABEL: message_source[lang]['btn.mark_as_done'],
-                kb.DATA: str(task_id)
+                kb.DATA: str(task_id),
+                kb.ACTION: 'mark_as_done'
             },
-            {
-                kb.LABEL: message_source[lang]['btn.delete_task'],
-                kb.DATA: str(task_id)
-            }
+            [
+                {
+                    kb.LABEL: message_source[lang]['btn.disable_notify'],
+                    kb.DATA: str(task_id),
+                    kb.ACTION: 'disable'
+                },
+                {
+                    kb.LABEL: message_source[lang]['btn.delete_task'],
+                    kb.DATA: str(task_id),
+                    kb.ACTION: 'delete'
+                }
+            ]
         ]
-        markup = kb.inline_horizontal(button_map)
+        markup = kb.inline_keyboard(button_map)
 
         bot.send_message(chat_id=chat_id, text=message_wrapped, reply_markup=markup)
         # TODO deactivate job notification when notification is fired

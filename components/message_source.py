@@ -13,7 +13,8 @@ message_source = {
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
         'btn.mark_as_done': 'Mark as Done!',
-        'btn.delete_task': 'Delete task'
+        'btn.delete_task': 'Delete task',
+        'btn.disable_notify': 'Disable notification'
     },
 
     Language.RUS: {
@@ -26,6 +27,7 @@ message_source = {
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
         'btn.mark_as_done': 'Выполнено!',
-        'btn.delete_task': 'Удалить задачу'
+        'btn.delete_task': 'Удалить задачу',
+        'btn.disable_notify': 'Отключить уведомление'
     }
 }
