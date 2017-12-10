@@ -30,6 +30,7 @@ class Task(Base, AbstractEntity):
     start_date          = Column(DateTime, default=datetime.datetime.utcnow)
     end_date            = Column(DateTime)
     next_remind_date    = Column(DateTime)
+    is_enabled          = Column(Boolean, default=True)
     is_periodic         = Column(Boolean, default=False)
     # safe delete flag
     is_active           = Column(Boolean, default=True)
@@ -72,8 +73,17 @@ class Task(Base, AbstractEntity):
     def set_project_id(self, proj_id):
         self.project_id = proj_id
 
+    def get_priority(self):
+        return self.priority
+
     def set_priority(self, prior):
         self.priority = prior
+
+    def increase_priority(self, value=1):
+        self.priority += value
+
+    def decrease_priority(self, value=1):
+        self.priority -= value
 
     def set_message_text(self, msg_text):
         if not msg_text:
@@ -95,20 +105,32 @@ class Task(Base, AbstractEntity):
         if next_remind_date < datetime.datetime.now():
             raise ValueError('Next remind date cannot be in past')
 
+        self.next_remind_date = next_remind_date
+
         log.info(f'Creating notification for task {self.id}')
-        notification = ns.create_notification(self.get_user_id(), self.description, next_remind_date)
+        notification = ns.create_notification(self.get_user_id(), self)
 
         if notification is None:
             log.error(f'Notification is none for task id {self.id}')
 
         self.notification_job = notification
-        self.next_remind_date = next_remind_date
+        self.mark_as_enabled()
 
-    def mark_as_periodic(self, periodic_flag):
-        self.is_periodic = periodic_flag
+
+    def mark_as_periodic(self):
+        self.is_periodic = True
 
     def mark_as_completed(self):
         self.is_completed = True
 
     def is_task_completed(self):
         return self.is_completed
+
+    def mark_as_disabled(self):
+        self.is_enabled = False
+
+    def mark_as_enabled(self):
+        self.is_enabled = True
+
+    def is_task_enabled(self):
+        return self.is_enabled

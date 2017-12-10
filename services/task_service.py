@@ -6,18 +6,24 @@ if you are not sure which service should implement function
 then implement it in it's return type service
 e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_id
 """
+import logging
+
 from models.task import Task
-from services import project_service, user_service
+from services import project_service, user_service, notification_service
+from utils import date_utils
 from utils.db_utils import flush, save, find_all, find_one_by_id
 
 
-def find_tasks_by_title(title):
-    all_tasks = find_all(Task)
-    res = []
-    for t in all_tasks:
-        if title in t.title:
-            res.append(t)
+log = logging.getLogger(__name__)
 
+
+def find_all_tasks():
+    return find_all(Task)
+
+
+def find_tasks_by_description(title):
+    all_tasks = find_all(Task)
+    res = [t for t in all_tasks if title in t.get_description()]
     return res
 
 
@@ -44,7 +50,24 @@ def find_tasks_by_user_id(user_id_value):
     return tasks_by_user
 
 
-def find_nearest_task(user_id, project_id):
+def find_upcoming_tasks_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    upcoming = [t for t in tasks if t.is_task_completed() is False]
+    return upcoming
+
+
+def find_completed_tasks_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    upcoming = [t for t in tasks if t.is_task_completed() is True]
+    return upcoming
+
+
+def find_nearest_task(user_id_value, project_id_value):
+    user_id = int(user_id_value)
+    project_id = int(project_id_value)
+
     all_tasks = find_all(Task)
     tasks_by_user_id = filter(
         lambda t: t.get_user_id() == user_id and t.get_project_id() == project_id, all_tasks)
@@ -65,6 +88,7 @@ def create_task(update):
     project = project_service.create_or_get_project(msg_text, user.get_id())
 
     if project and user:
+        log.info(f'Creating task for user {user.get_id()}')
         new_task = Task(description=msg_text, user_id=user.get_id(), project_id=project.get_id())
         flushed_task = flush(new_task)
         saved_task = save(flushed_task)
@@ -74,9 +98,30 @@ def create_task(update):
         return saved_task
 
     else:
-        raise ValueError('Project or User could not be created')
+        raise ValueError('Project or User could not be created. So does Task')
 
 
 def update_task(task):
     saved_task = save(task)
     return saved_task
+
+
+def find_tasks_within_timedelta(task_to_check, time_delta_threshold):
+    log.debug(f'checking if task is within threshold: {time_delta_threshold}')
+
+    user_id = task_to_check.get_user_id()
+    tasks = find_tasks_by_user_id(user_id)
+    tasks_with_reminder = [t for t in tasks if t.get_next_remind_date() is not None
+                           and t.is_task_completed() is False
+                           and t.get_id() != task_to_check.get_id()]
+
+    nearest_tasks = []
+    for task in tasks_with_reminder:
+        time_delta = task.get_next_remind_date() - task_to_check.get_next_remind_date()
+
+        if abs(time_delta.total_seconds()) < time_delta_threshold.total_seconds():
+            nearest_tasks.append(task)
+
+    nearest_tasks_sorted = sorted(nearest_tasks,
+                                  key=lambda t: abs(date_utils.seconds_between_tasks(t, task_to_check)))
+    return nearest_tasks_sorted

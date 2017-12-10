@@ -12,9 +12,13 @@ log = logging.getLogger(__name__)
 
 
 def find_all(entity_class):
+    """
+    Return all entries of class that are not deleted (flag is_active=True)
+    """
     db_session = Session()
     try:
-        all_entries = db_session.query(entity_class)
+        all_entries = db_session.query(entity_class) \
+            .filter_by(is_active=True)
         return all_entries
 
     except Exception as e:
@@ -27,7 +31,9 @@ def find_all(entity_class):
 
 
 def find_one_by_id(id_value, entity_class):
-    """ assuming id is unique, get entity of entity_class by it """
+    """
+    While assuming _id is unique pre class(table), get entity of class by _id
+    """
     id_int = None
     try:
         id_int = int(id_value)
@@ -55,7 +61,9 @@ def find_one_by_id(id_value, entity_class):
 
 
 def save(entity):
-    """ insert entity into db """
+    """
+    Insert entity into db
+    """
     db_session = Session()
     db_session.autocommit = False
     try:
@@ -73,7 +81,9 @@ def save(entity):
 
 
 def flush(entity):
-    """ prepare entity for insertion (fill id attribute but do _not_ insert) """
+    """
+    Prepare entity for insertion (fill _id attribute but do _not_ insert)
+    """
     db_session = Session()
     try:
         db_session.add(entity)

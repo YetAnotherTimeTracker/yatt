@@ -3,17 +3,18 @@ Created by anthony on 12.11.17
 state_service
 """
 import datetime
+from emoji import emojize
 
-from services import user_service, task_service, notification_service
-from config.state_config import State, Language
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from services import user_service, task_service
+from config.state_config import State, Language, CallbackData, Action
 import logging
 
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
+from components.keyboard_builder import KeyboardBuilder as Kb
 from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
-
+from utils.handler_utils import is_callback, deserialize_data
 
 log = logging.getLogger(__name__)
 
@@ -31,75 +32,126 @@ def states():
 
 
 def start_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
+    chat_id = chat.id
+
     user = user_service.create_or_get_user(chat)
 
-    reply_msg = 'Hello'
-    if user:
-        reply_msg += ', ' + user.get_first_name()
+    # TODO ive got a feeling this should not be here
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
 
-    update.message.reply_text(reply_msg)
+        if action is Action.SELECTED_LANG:
+            lang = deserialized[CallbackData.DATA]
+            context[CONTEXT_LANG] = Language(lang)
+
+    lang = context[CONTEXT_LANG]
+    text = message_source[lang]['state.start_state.welcome']
+    if user and 'none' != user.get_first_name().lower():
+        text = user.get_first_name() + ', ' + text
+
+    else:
+        text = text.capitalize()
+
+    buttons = Kb.start_state_buttons(lang)
+    bot.send_message(chat_id=chat_id,
+                     text=emojize(text, use_aliases=True),
+                     reply_markup=buttons)
 
 
 def all_tasks_state(bot, update, context):
-    chat = update.message.chat
-    user = user_service.create_or_get_user(chat)
-    user_tasks = task_service.find_tasks_by_user_id(user.get_id())
+    chat = update.effective_chat
+    chat_id = chat.id
     lang = context[CONTEXT_LANG]
-    tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
 
-    first_name = user.get_first_name()
-    if 0 == len(tasks_to_show):
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
 
-            update.message.reply_text(message_source[lang]['no_tasks_yet'])
-            update.message.reply_text(message_source[lang]['write_me'])
+    user = user_service.create_or_get_user(chat)
+    user_id = user.get_id()
+    tasks = []
+
+    if action is Action.LIST_ALL:
+        tasks = task_service.find_tasks_by_user_id(user_id)
+
+    elif action is Action.LIST_UPCOMING:
+        tasks = task_service.find_upcoming_tasks_by_user_id(user_id)
+
+    elif action is Action.LIST_COMPLETED:
+        tasks = task_service.find_completed_tasks_by_user_id(user_id)
 
     else:
-        keyboard = []
+        tasks = task_service.find_tasks_by_user_id(user.get_id())
 
-        for task_as_string, task_object  in zip(tasks_to_show,user_tasks):
-            keyboard.append([InlineKeyboardButton(str(task_as_string), callback_data=str(task_object.get_id()))])
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
+    if 0 == len(tasks):
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(message_source[lang]['state.all_tasks.no_tasks_yet'], use_aliases=True))
+
+    else:
+        text = message_source[lang]['state.all_tasks.your_tasks']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
+
+        else:
+            text = text.capitalize()
+
+        markup = Kb.all_tasks_buttons(tasks)
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(text, use_aliases=True),
+                         reply_markup=markup)
 
 
 def select_lang_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
+    chat_id = chat.id
+
     user = user_service.create_or_get_user(chat)
 
-    reply_msg = 'Hello'
-    if user:
-        reply_msg += ', ' + user.get_first_name()
-    reply_msg += "\nSelect language:"
-    keyboard = [[InlineKeyboardButton("Русский", callback_data=Language.RUS.value),
-                 InlineKeyboardButton("English", callback_data=Language.ENG.value)],
-                ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(reply_msg, reply_markup=reply_markup)
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
 
+    # find out what are we doing now? selecting lang or just showing available langs
+    text = None
+    if action is Action.SELECTED_LANG:
+        deserialized = deserialize_data(update.callback_query.data)
+        lang_string = deserialized[CallbackData.DATA]
+        lang = Language(lang_string)
+        context[CONTEXT_LANG] = lang
+        text = message_source[lang]['btn.select_lang.' + lang_string + '.result']
+        buttons = Kb.start_state_buttons(lang)
 
-def button(bot, update):
-    query = update.callback_query
-    lang_values = [item.value for item in Language]
-    if query.data in lang_values:
-        lang = g.automata.get_context(query.message.chat_id)[CONTEXT_LANG] = Language(query.data)
-        bot.edit_message_text(text=message_source[lang]['selected_lang'],
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
-        return
+    elif action is Action.VIEW_LANG:
+        # It's callback. nevertheless just show available langs
+        lang = context[CONTEXT_LANG]
+        text = message_source[lang]['state.select_lang']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
 
-    task_id = query.data
-    chat = query.message.chat
-    user = user_service.create_or_get_user(chat)
-    task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
-    # TODO deal with context
-    #context[CONTEXT_TASK] = task
+        else:
+            text = text.capitalize()
 
-    if task:
-        task_descr = task.get_description()
-        bot.edit_message_text(text=f'[{task_id}]: {task_descr}',
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
+        buttons = Kb.select_lang_buttons(lang)
+
+    else:
+        # It's not callback. just show available langs
+        lang = context[CONTEXT_LANG]
+        text = message_source[lang]['state.select_lang']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
+
+        else:
+            text = text.capitalize()
+
+        buttons = Kb.select_lang_buttons(lang)
+
+    bot.send_message(chat_id=chat_id,
+                     text=emojize(text, use_aliases=True),
+                     reply_markup=buttons)
 
 
 def new_task_state(bot, update, context):
@@ -108,7 +160,7 @@ def new_task_state(bot, update, context):
     new_task = task_service.create_task(update)
 
     if g.test_mode:
-        log.debug(f'Automatically setting reminda time for task {new_task.get_id()}')
+        log.debug(f'Automatically setting reminder time for task {new_task.get_id()}')
         d1 = datetime.datetime.now()
         d2 = datetime.datetime.now() + datetime.timedelta(days=1)
         parsed_datetime = date_utils.random_date(d1, d2)
@@ -128,21 +180,58 @@ def new_task_state(bot, update, context):
 
 
 def view_task_state(bot, update, context):
-    args = update.message.text.split()
-    task_id = args[1]
+    chat = update.effective_chat
+    chat_id = chat.id
     lang = context[CONTEXT_LANG]
-    chat = update.message.chat
-    user = user_service.create_or_get_user(chat)
 
-    task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
-    if task:
-        context[CONTEXT_TASK] = task
-
-        task_descr = task.get_description()
-        update.message.reply_text(f'[{task_id}]: {task_descr}')
+    task_id = None
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        task_id = deserialized[CallbackData.DATA]
+        action = deserialized[CallbackData.ACTION]
 
     else:
-        update.message.reply_text(message_source[lang]['cant_find_task'].format(task.get_id()))
+        args = update.message.text.split()
+        task_id = args[1]
+
+    user = user_service.create_or_get_user(chat)
+    task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
+
+    # TODO handle if task is completed/enabled notifications/deleted
+    if task:
+        reply_text = task.get_description()
+
+        if action is Action.TASK_MARK_AS_DONE:
+            task.mark_as_completed()
+            reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
+
+        elif action is Action.TASK_DISABLE:
+            task.mark_as_disabled()
+            reply_text = message_source[lang]['btn.view_task.disable_notify.result']
+
+        elif action is Action.TASK_DELETE:
+            task.mark_as_inactive()
+            reply_text = message_source[lang]['btn.view_task.delete_task.result']
+
+        elif action is Action.TASK_VIEW:
+            # It's not callback, then just render the state
+            reply_text = task.get_description()
+
+        # update task
+        task_service.update_task(task)
+
+        # set updated task to context
+        context[CONTEXT_TASK] = task
+
+        view_task_buttons = Kb.view_task_buttons(lang, task_id)
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(reply_text, use_aliases=True),
+                         reply_markup=view_task_buttons)
+
+    else:
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(message_source[lang]['state.view_task.not_found'], use_aliases=True))
 
 
 def edit_date_state(bot, update, context):
@@ -155,7 +244,14 @@ def edit_date_state(bot, update, context):
     err_cause = None
     if latest_task:
 
-        parsed_datetime = date_utils.parse_date_msg(datetime_args)
+        parsed_datetime = None
+        if g.dev_mode or g.test_mode:
+            seconds = int(datetime_args[0]) or 10
+            parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+
+        else:
+            parsed_datetime = date_utils.parse_date_msg(datetime_args)
+
         latest_task.set_next_remind_date(parsed_datetime)
         task_service.update_task(latest_task)
         update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
@@ -165,7 +261,7 @@ def edit_date_state(bot, update, context):
 
         # find if reminder intersects with another tasks
         time_delta_threshold = datetime.timedelta(hours=8)
-        nearest_tasks = notification_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
+        nearest_tasks = task_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
         if 0 != len(nearest_tasks):
 
             tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]
@@ -185,12 +281,17 @@ def edit_date_state(bot, update, context):
 
 
 def error_state(bot, update, context):
+    chat = update.effective_chat
+    chat_id = chat.id
+
     lang = context[CONTEXT_LANG]
     latest_task = context[CONTEXT_TASK]
 
     if latest_task:
         command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
-        update.message.reply_text(message_source[lang]['error'].format(latest_task.get_id(), command_trace))
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(message_source[lang]['error'].format(latest_task.get_id(), command_trace)),
+                         use_aliases=True)
 
     else:
         log.warning("No task in context found")
