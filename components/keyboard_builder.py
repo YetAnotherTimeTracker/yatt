@@ -49,14 +49,20 @@ class KeyboardBuilder:
             ],
             [
                 {
-                    BTN_LABEL: message_source[lang]['btn.view_task.not_completed.label'],
-                    BTN_DATA: 'not_completed',
-                    BTN_ACTION: Action.LIST_NOT_DONE.value,
+                    BTN_LABEL: message_source[lang]['btn.view_task.upcoming.label'],
+                    BTN_DATA: 'nodata1',   # not used
+                    BTN_ACTION: Action.LIST_UPCOMING.value,
                     BTN_COMMAND: CommandType.ALL.value
                 },
                 {
-                    BTN_LABEL: message_source[lang]['btn.view_task.all_tasks.label'],
-                    BTN_DATA: 'all_tasks',
+                    BTN_LABEL: message_source[lang]['btn.view_task.completed.label'],
+                    BTN_DATA: 'nodata2',  # not used
+                    BTN_ACTION: Action.LIST_COMPLETED.value,
+                    BTN_COMMAND: CommandType.ALL.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.all.label'],
+                    BTN_DATA: 'nodata3',    # not used
                     BTN_ACTION: Action.LIST_ALL.value,
                     BTN_COMMAND: CommandType.ALL.value
                 }
@@ -73,16 +79,40 @@ class KeyboardBuilder:
                     BTN_LABEL: message_source[lang]['btn.select_lang.eng.label'],
                     BTN_DATA: Language.ENG.value,
                     BTN_ACTION: Action.USER_LANG.value,
-                    BTN_COMMAND: CommandType.START.value
+                    BTN_COMMAND: CommandType.LANG.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.select_lang.rus.label'],
                     BTN_DATA: Language.RUS.value,
                     BTN_ACTION: Action.USER_LANG.value,
-                    BTN_COMMAND: CommandType.START.value
+                    BTN_COMMAND: CommandType.LANG.value
                 }
             ]
         ]
+        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
+        return markup
+
+
+    @staticmethod
+    def all_tasks_buttons(tasks):
+        button_grid = []
+        for task in tasks:
+
+            btn_label = task.get_description()
+            if task.is_task_completed():
+                btn_label = '[X] ' + btn_label
+
+            else:
+                btn_label = '[  ] '  + btn_label
+
+            task_as_button = [{
+                BTN_LABEL: btn_label,
+                BTN_DATA: task.get_id(),
+                BTN_ACTION: Action.TASK_VIEW.value,
+                BTN_COMMAND: CommandType.VIEW.value
+            }]
+            button_grid.append(task_as_button)
+
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup
 
@@ -121,6 +151,8 @@ class KeyboardBuilder:
 
             # or single button (dict or singleton list of single button)
             elif dict == type(grid_element) or KeyboardBuilder.__is_singleton_list(grid_element):
+                if list == type(grid_element):
+                    grid_element = grid_element[0]
 
                 new_button = KeyboardBuilder.__create_inline_button(grid_element)
                 buttons.append([new_button])

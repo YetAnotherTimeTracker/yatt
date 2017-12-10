@@ -6,14 +6,14 @@ from enum import Enum
 
 
 TRANSITION_TABLE = [
-    # start echo    task    date    all
-    [6,     0,      0,      0,      0],     # 0. start
-    [6,     2,      3,      5,      1],     # 1. all tasks
-    [1,     2,      3,      4,      1],     # 2. new task
-    [3,     2,      3,      4,      1],     # 3. view task
-    [4,     2,      3,      4,      1],     # 4. edit date
-    [6,     2,      3,      5,      1],     # 5. error
-    [6,     1,      5,      5,      1]      # 6. select language
+    # start echo    task    date    all     lang
+    [6,     0,      0,      0,      0,      1],     # 0. start
+    [1,     2,      3,      5,      1,      6],     # 1. all tasks
+    [1,     2,      3,      4,      1,      6],     # 2. new task
+    [5,     2,      3,      4,      1,      6],     # 3. view task
+    [5,     2,      3,      4,      1,      4],     # 4. edit date
+    [1,     2,      3,      5,      1,      6],     # 5. error
+    [1,     1,      5,      5,      1,      1]      # 6. select language
 ]
 
 
@@ -40,6 +40,7 @@ class CommandType(Enum):
     VIEW = 2
     DATE = 3
     ALL = 4
+    LANG = 5
 
 
 class Language(Enum):
@@ -63,10 +64,12 @@ class Action(Enum):
     As short as possible string that is passed with button callback
     since there is a length limit per callback date (only 64 bytes!)
     """
+    TASK_VIEW = 'view'
     TASK_MARK_AS_DONE = 'mark_done'
     TASK_DELETE = 'del'
     TASK_DISABLE = 'disable'
-    LIST_NOT_DONE = 'not_done'
+    LIST_UPCOMING = 'upcoming'
+    LIST_COMPLETED = 'done'
     LIST_ALL = 'all'
     USER_LANG = 'lang'
 

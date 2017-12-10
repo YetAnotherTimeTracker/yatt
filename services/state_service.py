@@ -45,27 +45,48 @@ def start_state(bot, update, context):
 def all_tasks_state(bot, update, context):
     chat = update.effective_chat
     chat_id = chat.id
-
-    user = user_service.create_or_get_user(chat)
-    user_tasks = task_service.find_tasks_by_user_id(user.get_id())
     lang = context[CONTEXT_LANG]
-    tasks_to_show = [f'[{t.get_id()}] {t.get_description()}' for t in user_tasks]
 
-    first_name = user.get_first_name()
-    if 0 == len(tasks_to_show):
-
-        bot.send_message(chat_id=chat_id,
-                         text=message_source[lang]['no_tasks_yet'])
-        update.message.reply_text(message_source[lang]['write_me'])
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
 
     else:
-        keyboard = []
+        pass
 
-        for task_as_string, task_object  in zip(tasks_to_show,user_tasks):
-            keyboard.append([InlineKeyboardButton(str(task_as_string), callback_data=str(task_object.get_id()))])
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    user = user_service.create_or_get_user(chat)
+    user_id = user.get_id()
+    tasks = []
+
+    if action is Action.LIST_ALL:
+        tasks = task_service.find_tasks_by_user_id(user_id)
+
+    elif action is Action.LIST_UPCOMING:
+        tasks = task_service.find_upcoming_tasks_by_user_id(user_id)
+
+    elif action is Action.LIST_COMPLETED:
+        tasks = task_service.find_completed_tasks_by_user_id(user_id)
+
+    else:
+        tasks = task_service.find_tasks_by_user_id(user.get_id())
+
+    if 0 == len(tasks):
         bot.send_message(chat_id=chat_id,
-                         text=message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
+                         text=message_source[lang]['state.all_tasks.no_tasks_yet'])
+
+    else:
+        text = message_source[lang]['state.all_tasks.your_tasks']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
+
+        else:
+            text = text.capitalize()
+
+        markup = Kb.all_tasks_buttons(tasks)
+        bot.send_message(chat_id=chat_id,
+                         text=text,
+                         reply_markup=markup)
 
 
 def select_lang_state(bot, update, context):
@@ -133,6 +154,8 @@ def view_task_state(bot, update, context):
 
     # TODO handle if task is completed/enabled notifications/deleted
     if task:
+        reply_text = task.get_description()
+
         if action is Action.TASK_MARK_AS_DONE:
             task.mark_as_completed()
             reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
@@ -145,7 +168,7 @@ def view_task_state(bot, update, context):
             task.mark_as_inactive()
             reply_text = message_source[lang]['btn.view_task.delete_task.result']
 
-        else:
+        elif action is Action.TASK_VIEW:
             # It's not callback, then just render the state
             reply_text = task.get_description()
 

@@ -45,10 +45,23 @@ def find_task_by_id_and_user_id(task_id_value, user_id):
 
 def find_tasks_by_user_id(user_id_value):
     user_id = int(user_id_value)
-
     all_tasks = find_all(Task)
     tasks_by_user = [t for t in all_tasks if user_id == t.get_user_id()]
     return tasks_by_user
+
+
+def find_upcoming_tasks_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    upcoming = [t for t in tasks if t.is_task_completed() is False]
+    return upcoming
+
+
+def find_completed_tasks_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    upcoming = [t for t in tasks if t.is_task_completed() is True]
+    return upcoming
 
 
 def find_nearest_task(user_id_value, project_id_value):
