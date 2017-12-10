@@ -50,19 +50,19 @@ class KeyboardBuilder:
             [
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.upcoming.label'],
-                    BTN_DATA: 'nodata1',   # not used
+                    BTN_DATA: 'x1',   # not used
                     BTN_ACTION: Action.LIST_UPCOMING.value,
                     BTN_COMMAND: CommandType.ALL.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.completed.label'],
-                    BTN_DATA: 'nodata2',  # not used
+                    BTN_DATA: 'x2',  # not used
                     BTN_ACTION: Action.LIST_COMPLETED.value,
                     BTN_COMMAND: CommandType.ALL.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.all.label'],
-                    BTN_DATA: 'nodata3',    # not used
+                    BTN_DATA: 'x3',    # not used
                     BTN_ACTION: Action.LIST_ALL.value,
                     BTN_COMMAND: CommandType.ALL.value
                 }
@@ -71,6 +71,7 @@ class KeyboardBuilder:
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup
 
+
     @staticmethod
     def select_lang_buttons(lang):
         button_grid = [
@@ -78,16 +79,42 @@ class KeyboardBuilder:
                 {
                     BTN_LABEL: message_source[lang]['btn.select_lang.eng.label'],
                     BTN_DATA: Language.ENG.value,
-                    BTN_ACTION: Action.USER_LANG.value,
+                    BTN_ACTION: Action.SELECTED_LANG.value,
                     BTN_COMMAND: CommandType.LANG.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.select_lang.rus.label'],
                     BTN_DATA: Language.RUS.value,
-                    BTN_ACTION: Action.USER_LANG.value,
+                    BTN_ACTION: Action.SELECTED_LANG.value,
                     BTN_COMMAND: CommandType.LANG.value
                 }
             ]
+        ]
+        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
+        return markup
+
+
+    @staticmethod
+    def start_state_buttons(lang):
+        button_grid = [
+            {
+                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.upcoming'],
+                BTN_DATA: 'x4',
+                BTN_ACTION: Action.LIST_ALL.value,
+                BTN_COMMAND: CommandType.ALL.value
+            },
+            {
+                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.all'],
+                BTN_DATA: 'x5',
+                BTN_ACTION: Action.LIST_UPCOMING.value,
+                BTN_COMMAND: CommandType.ALL.value
+            },
+            {
+                BTN_LABEL: message_source[lang]['btn.start_state.select_lang'],
+                BTN_DATA: 'x6',
+                BTN_ACTION: Action.VIEW_LANG.value,
+                BTN_COMMAND: CommandType.LANG.value
+            }
         ]
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup

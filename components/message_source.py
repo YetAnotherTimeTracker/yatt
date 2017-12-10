@@ -10,6 +10,8 @@ message_source = {
 
         'filter.unknown': 'Unknown command',
 
+        'state.start_state.welcome': 'welcome to task tracking service!',
+
         'state.all_tasks.your_tasks': 'here are Your tasks:',
         'state.all_tasks.no_tasks_yet': 'You don\'t have any tasks yet\n'
                                         'Just write me something to create a new one :)',
@@ -17,6 +19,10 @@ message_source = {
         'state.select_lang': 'please, select language',
 
         'state.view_task.not_found': 'Sorry, I could not find selected task',
+
+        'btn.start_state.to_tasks.upcoming': 'Proceed to upcoming tasks',
+        'btn.start_state.to_tasks.all': 'Proceed to all tasks',
+        'btn.start_state.select_lang': 'Select language',
 
         'btn.select_lang.eng.label': 'English',
         'btn.select_lang.eng.result': 'English language selected',
@@ -41,6 +47,8 @@ message_source = {
 
         'filter.unknown': 'Неизвестная команда',
 
+        'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга',
+
         'state.all_tasks.your_tasks': 'ваши задачи:',
         'state.all_tasks.no_tasks_yet': 'У Вас нет невыполненных задач\n'
                                         'Просто напишите мне что-нибудь, чтобы создать задачу',
@@ -48,6 +56,10 @@ message_source = {
         'state.select_lang': 'выберите, пожалуйста, язык',
 
         'state.view_task.not_found': 'Не удалось найти выбранную задачу :(',
+
+        'btn.start_state.to_tasks.upcoming': 'Перейти к предстоящим делам',
+        'btn.start_state.to_tasks.all': 'Перейти ко всему списку задач',
+        'btn.start_state.select_lang': 'Сменить язык',
 
         'btn.select_lang.eng.label': 'Английский',
         'btn.select_lang.eng.result': 'Выбран английский язык',

@@ -32,14 +32,32 @@ def states():
 
 
 def start_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
+    chat_id = chat.id
+
     user = user_service.create_or_get_user(chat)
 
-    reply_msg = 'Hello'
-    if user:
-        reply_msg += ', ' + user.get_first_name()
+    # TODO ive got a feeling this should not be here
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
 
-    update.message.reply_text(reply_msg)
+        if action is Action.SELECTED_LANG:
+            lang = deserialized[CallbackData.DATA]
+            context[CONTEXT_LANG] = Language(lang)
+
+    lang = context[CONTEXT_LANG]
+    text = message_source[lang]['state.start_state.welcome']
+    if user and 'none' != user.get_first_name().lower():
+        text = user.get_first_name() + ', ' + text
+
+    else:
+        text = text.capitalize()
+
+    buttons = Kb.start_state_buttons(lang)
+    bot.send_message(chat_id=chat_id,
+                     text=text,
+                     reply_markup=buttons)
 
 
 def all_tasks_state(bot, update, context):
@@ -51,9 +69,6 @@ def all_tasks_state(bot, update, context):
     if is_callback(update):
         deserialized = deserialize_data(update.callback_query.data)
         action = deserialized[CallbackData.ACTION]
-
-    else:
-        pass
 
     user = user_service.create_or_get_user(chat)
     user_id = user.get_id()
@@ -91,21 +106,52 @@ def all_tasks_state(bot, update, context):
 
 def select_lang_state(bot, update, context):
     chat = update.effective_chat
-    user = user_service.create_or_get_user(chat)
-    lang = context[CONTEXT_LANG]
+    chat_id = chat.id
 
-    text = message_source[lang]['state.select_lang']
-    if user and 'none' != user.get_first_name().lower():
-        text = user.get_first_name() + ', ' + text
+    user = user_service.create_or_get_user(chat)
+
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        action = deserialized[CallbackData.ACTION]
+
+    # find out what are we doing now? selecting lang or just showing available langs
+    text = None
+    if action is Action.SELECTED_LANG:
+        deserialized = deserialize_data(update.callback_query.data)
+        lang_string = deserialized[CallbackData.DATA]
+        lang = Language(lang_string)
+        context[CONTEXT_LANG] = lang
+        text = message_source[lang]['btn.select_lang.' + lang_string + '.result']
+        buttons = Kb.start_state_buttons(lang)
+
+    elif action is Action.VIEW_LANG:
+        # It's callback. nevertheless just show available langs
+        lang = context[CONTEXT_LANG]
+        text = message_source[lang]['state.select_lang']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
+
+        else:
+            text = text.capitalize()
+
+        buttons = Kb.select_lang_buttons(lang)
 
     else:
-        text = text.capitalize()
+        # It's not callback. just show available langs
+        lang = context[CONTEXT_LANG]
+        text = message_source[lang]['state.select_lang']
+        if user and 'none' != user.get_first_name().lower():
+            text = user.get_first_name() + ', ' + text
 
-    lang = context[CONTEXT_LANG]
-    markup = Kb.select_lang_buttons(lang)
-    bot.send_message(chat_id=chat.id,
+        else:
+            text = text.capitalize()
+
+        buttons = Kb.select_lang_buttons(lang)
+
+    bot.send_message(chat_id=chat_id,
                      text=text,
-                     reply_markup=markup)
+                     reply_markup=buttons)
 
 
 def new_task_state(bot, update, context):

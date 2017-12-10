@@ -7,13 +7,13 @@ from enum import Enum
 
 TRANSITION_TABLE = [
     # start echo    task    date    all     lang
-    [6,     0,      0,      0,      0,      1],     # 0. start
+    [0,     0,      3,      0,      1,      6],     # 0. start
     [1,     2,      3,      5,      1,      6],     # 1. all tasks
     [1,     2,      3,      4,      1,      6],     # 2. new task
     [5,     2,      3,      4,      1,      6],     # 3. view task
     [5,     2,      3,      4,      1,      4],     # 4. edit date
     [1,     2,      3,      5,      1,      6],     # 5. error
-    [1,     1,      5,      5,      1,      1]      # 6. select language
+    [1,     1,      5,      5,      1,      0]      # 6. select language
 ]
 
 
@@ -50,10 +50,11 @@ class Language(Enum):
 
 # Defines aliases for each command (signal (column in table))
 CommandAliases = {
-    CommandType.START: ['/start', '/hi'],
-    CommandType.ALL: ['/all'],
-    CommandType.VIEW: ['/id', '/task'],
+    CommandType.START: ['/start', '/hi', '/привет', '/дратути'],
+    CommandType.ALL: ['/all', '/все', '/задачи'],
+    CommandType.VIEW: ['/id', '/task', '/задача', '/таск'],
     CommandType.DATE: ['/date'],
+    CommandType.LANG: ['/lang', '/language', '/язык']
     # CommandType.ECHO: ['']
 }
 
@@ -71,7 +72,8 @@ class Action(Enum):
     LIST_UPCOMING = 'upcoming'
     LIST_COMPLETED = 'done'
     LIST_ALL = 'all'
-    USER_LANG = 'lang'
+    VIEW_LANG = 'all_langs'
+    SELECTED_LANG = 'sel_lang'
 
 
 # Actions are reduced by action_reducer. But to use them in regular way,

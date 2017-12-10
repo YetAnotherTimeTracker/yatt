@@ -90,7 +90,7 @@ def handle(bot, update):
 def reply_on_unknown(bot, chat_id):
     log.info('Replying on unknown command')
 
-    lang = g.automata[CONTEXT_LANG]
+    lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
     text = message_source[lang]['filter.unknown']
     bot.send_message(chat_id=chat_id, text=text)
 

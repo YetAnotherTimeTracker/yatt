@@ -39,7 +39,7 @@ class Automata:
         user_by_id = db_utils.find_one_by_id(chat_id, User)
         # if we already know this user then no need make him sign (/start) up again
         if user_by_id:
-            return State.ALL_TASKS
+            return State.START
 
         else:
             return State.START
