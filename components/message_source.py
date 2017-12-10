@@ -12,9 +12,15 @@ message_source = {
         'cant_find_task': 'Sorry, can`t find task with id {}',
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
-        'btn.mark_as_done': 'Mark as Done!',
-        'btn.delete_task': 'Delete task',
-        'btn.disable_notify': 'Disable notification'
+
+        'btn.view_task.delete_task.label': 'Remove task',
+        'btn.view_task.delete_task.result': 'Task removed',
+        'btn.view_task.disable_notify.label': 'Disable notification',
+        'btn.view_task.disable_notify.result': 'Notifications disabled',
+        'btn.view_task.mark_as_done.label': 'Mark as done',
+        'btn.view_task.mark_as_done.result': 'Task completed',
+        'btn.view_task.not_completed.label': 'View not completed',
+        'btn.view_task.all_tasks.label': 'View all'
     },
 
     Language.RUS: {
@@ -26,8 +32,14 @@ message_source = {
         'cant_find_task': 'Извините, не могу найти задачу с id {}',
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
-        'btn.mark_as_done': 'Выполнено!',
-        'btn.delete_task': 'Удалить задачу',
-        'btn.disable_notify': 'Отключить уведомление'
+
+        'btn.view_task.delete_task.label': 'Удалить задачу',
+        'btn.view_task.delete_task.result': 'Задача удалена',
+        'btn.view_task.disable_notify.label': 'Выключить уведомления',
+        'btn.view_task.disable_notify.result': 'Уведомления отключены',
+        'btn.view_task.mark_as_done.label': 'Выполнено',
+        'btn.view_task.mark_as_done.result': 'Задача выполнена',
+        'btn.view_task.not_completed.label': 'Предстоящие задачи',
+        'btn.view_task.all_tasks.label': 'Все задачи'
     }
 }

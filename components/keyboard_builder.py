@@ -22,8 +22,46 @@ DATA_LIMIT_IN_BYTES = 64
 
 
 class KeyboardBuilder:
+
     @staticmethod
-    def inline_keyboard(button_grid):
+    def view_task_buttons(lang, task_id):
+        button_grid = [
+            {
+                BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
+                BTN_DATA: str(task_id),
+                BTN_ACTION: Action.TASK_MARK_AS_DONE.value
+            },
+            [
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
+                    BTN_DATA: str(task_id),
+                    BTN_ACTION: Action.TASK_DISABLE.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.delete_task.label'],
+                    BTN_DATA: str(task_id),
+                    BTN_ACTION: Action.TASK_DELETE.value
+                }
+            ],
+            [
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.not_completed.label'],
+                    BTN_DATA: 'not_completed',
+                    BTN_ACTION: Action.LIST_NOT_DONE.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.all_tasks.label'],
+                    BTN_DATA: 'all_tasks',
+                    BTN_ACTION: Action.LIST_ALL.value
+                }
+            ]
+        ]
+        markup = KeyboardBuilder.__create_inline_keyboard(button_grid)
+        return markup
+
+
+    @staticmethod
+    def __create_inline_keyboard(button_grid):
         """
         Creates _inline_ keyboard and returns it's markup with grid of buttons like this:
         [
@@ -78,7 +116,8 @@ class KeyboardBuilder:
 
         encoded = serialized_data.encode('utf-8')
         if DATA_LIMIT_IN_BYTES < len(encoded):
-            raise ValueError('Too large data is going to be passed to to callback!')
+            raise ValueError(f'Too large data is going to be passed to to callback: '
+                             f'{len(encoded)} bytes vs {DATA_LIMIT_IN_BYTES} bytes')
 
         new_button = InlineKeyboardButton(button_data[BTN_LABEL], callback_data=serialized_data)
         return new_button
@@ -87,27 +126,3 @@ class KeyboardBuilder:
     @staticmethod
     def __is_singleton_list(obj):
         return list == type(obj) and 1 == len(obj)
-
-
-    @staticmethod
-    def view_task_buttons(lang, task_id):
-        button_map = [
-            {
-                BTN_LABEL: message_source[lang]['btn.mark_as_done'],
-                BTN_DATA: str(task_id),
-                BTN_ACTION: Action.TASK_MARK_AS_DONE.value
-            },
-            [
-                {
-                    BTN_LABEL: message_source[lang]['btn.disable_notify'],
-                    BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DISABLE.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.delete_task'],
-                    BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DELETE.value
-                }
-            ]
-        ]
-        return button_map

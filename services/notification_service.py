@@ -48,8 +48,7 @@ def notification_callback(bot, job):
 
         # create custom keyboard for user to be able to mark task as completed
         lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
-        button_grid = Kb.view_task_buttons(lang, task_id)
-        markup = Kb.inline_keyboard(button_grid)
+        markup = Kb.view_task_buttons(lang, task_id)
 
         bot.send_message(chat_id=chat_id, text=message_wrapped, reply_markup=markup)
         # TODO deactivate job notification when notification is fired

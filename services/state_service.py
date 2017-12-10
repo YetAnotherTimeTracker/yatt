@@ -42,7 +42,9 @@ def start_state(bot, update, context):
 
 
 def all_tasks_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
+    chat_id = chat.id
+
     user = user_service.create_or_get_user(chat)
     user_tasks = task_service.find_tasks_by_user_id(user.get_id())
     lang = context[CONTEXT_LANG]
@@ -51,8 +53,9 @@ def all_tasks_state(bot, update, context):
     first_name = user.get_first_name()
     if 0 == len(tasks_to_show):
 
-            update.message.reply_text(message_source[lang]['no_tasks_yet'])
-            update.message.reply_text(message_source[lang]['write_me'])
+        bot.send_message(chat_id=chat_id,
+                         text=message_source[lang]['no_tasks_yet'])
+        update.message.reply_text(message_source[lang]['write_me'])
 
     else:
         keyboard = []
@@ -60,7 +63,8 @@ def all_tasks_state(bot, update, context):
         for task_as_string, task_object  in zip(tasks_to_show,user_tasks):
             keyboard.append([InlineKeyboardButton(str(task_as_string), callback_data=str(task_object.get_id()))])
         reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text(message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
+        bot.send_message(chat_id=chat_id,
+                         text=message_source[lang]['your_tasks'].format(first_name),reply_markup=reply_markup)
 
 
 def select_lang_state(bot, update, context):
@@ -112,6 +116,8 @@ def view_task_state(bot, update, context):
     user = user_service.create_or_get_user(chat)
 
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
+
+    # TODO handle if task is completed/enabled notifications/deleted
     if task:
         context[CONTEXT_TASK] = task
 

@@ -9,8 +9,8 @@ class AbstractEntity:
         # safe delete flag
         self.is_active = True
 
-    def set_active(self):
+    def mark_as_active(self):
         self.is_active = True
 
-    def set_inactive(self):
+    def mark_as_inactive(self):
         self.is_active = False

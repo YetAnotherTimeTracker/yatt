@@ -51,13 +51,16 @@ CommandAliases = {
 
 
 class Action(Enum):
+    # Readme !!!
     # string here should be as short as possible
-    # since there is a length limit per callback data
+    # since there is a length limit per callback data (only 64 bytes)
     TASK_MARK_AS_DONE = 'mark_done'
     TASK_DELETE = 'del'
     TASK_DISABLE = 'disable'
+    LIST_NOT_DONE = 'not_done'
+    LIST_ALL = 'all'
 
 
 class CallbackData(Enum):
-    DATA = 'callback_data'
-    ACTION = 'callback_action'
+    DATA = 'c_d'
+    ACTION = 'c_a'

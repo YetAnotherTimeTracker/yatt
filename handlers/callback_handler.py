@@ -7,14 +7,13 @@ This is the job of reducers.
 (c) React Redux
 """
 import json
-
 from telegram.ext import CallbackQueryHandler
 
 import g
 from components.automata import CONTEXT_TASK, CONTEXT_LANG
+from components.message_source import message_source
 from config.state_config import Action, CallbackData
-from services import task_service
-from components.keyboard_builder import KeyboardBuilder as kb
+from services import task_service, state_service
 
 
 def button_handler():
@@ -25,7 +24,8 @@ def action_handlers():
     return {
         Action.TASK_MARK_AS_DONE: task_mark_as_done,
         Action.TASK_DELETE: task_delete,
-        Action.TASK_DISABLE: task_disable
+        Action.TASK_DISABLE: task_disable,
+        Action.LIST_ALL: state_service.all_tasks_state
     }
 
 
@@ -37,21 +37,35 @@ def task_mark_as_done(bot, update, context):
     task.mark_as_completed()
     task_service.update_task(task)
 
-    # lang = context[CONTEXT_LANG]
-    # button_grid = kb.view_task_buttons(lang, task.get_id())
-    # markup = kb.inline_keyboard(button_grid)
-
-    bot.send_message(chat_id=chat_id, text='Marked as Done')
+    lang = context[CONTEXT_LANG]
+    reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
+    bot.send_message(chat_id=chat_id, text=reply_text)
 
 
 def task_disable(bot, update, context):
-    print('duck')
-    return
+    query = update.callback_query
+    chat_id = query.message.chat_id
+
+    task = context[CONTEXT_TASK]
+    task.mark_as_disabled()
+    task_service.update_task(task)
+
+    lang = context[CONTEXT_LANG]
+    reply_text = message_source[lang]['btn.view_task.disable_notify.result']
+    bot.send_message(chat_id=chat_id, text=reply_text)
 
 
 def task_delete(bot, update, context):
-    print('dukc')
-    return
+    query = update.callback_query
+    chat_id = query.message.chat_id
+
+    task = context[CONTEXT_TASK]
+    task.mark_as_inactive()
+    task_service.update_task(task)
+
+    lang = context[CONTEXT_LANG]
+    reply_text = message_source[lang]['btn.view_task.delete_task.result']
+    bot.send_message(chat_id=chat_id, text=reply_text)
 
 
 # context and action
