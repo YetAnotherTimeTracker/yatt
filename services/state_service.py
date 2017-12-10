@@ -3,10 +3,10 @@ Created by anthony on 12.11.17
 state_service
 """
 import datetime
+from emoji import emojize
 
-from services import user_service, task_service, notification_service
+from services import user_service, task_service
 from config.state_config import State, Language, CallbackData, Action
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
@@ -56,7 +56,7 @@ def start_state(bot, update, context):
 
     buttons = Kb.start_state_buttons(lang)
     bot.send_message(chat_id=chat_id,
-                     text=text,
+                     text=emojize(text, use_aliases=True),
                      reply_markup=buttons)
 
 
@@ -88,7 +88,7 @@ def all_tasks_state(bot, update, context):
 
     if 0 == len(tasks):
         bot.send_message(chat_id=chat_id,
-                         text=message_source[lang]['state.all_tasks.no_tasks_yet'])
+                         text=emojize(message_source[lang]['state.all_tasks.no_tasks_yet'], use_aliases=True))
 
     else:
         text = message_source[lang]['state.all_tasks.your_tasks']
@@ -100,7 +100,7 @@ def all_tasks_state(bot, update, context):
 
         markup = Kb.all_tasks_buttons(tasks)
         bot.send_message(chat_id=chat_id,
-                         text=text,
+                         text=emojize(text, use_aliases=True),
                          reply_markup=markup)
 
 
@@ -150,7 +150,7 @@ def select_lang_state(bot, update, context):
         buttons = Kb.select_lang_buttons(lang)
 
     bot.send_message(chat_id=chat_id,
-                     text=text,
+                     text=emojize(text, use_aliases=True),
                      reply_markup=buttons)
 
 
@@ -226,12 +226,12 @@ def view_task_state(bot, update, context):
 
         view_task_buttons = Kb.view_task_buttons(lang, task_id)
         bot.send_message(chat_id=chat_id,
-                         text=reply_text,
+                         text=emojize(reply_text, use_aliases=True),
                          reply_markup=view_task_buttons)
 
     else:
         bot.send_message(chat_id=chat_id,
-                         text=message_source[lang]['state.view_task.not_found'])
+                         text=emojize(message_source[lang]['state.view_task.not_found'], use_aliases=True))
 
 
 def edit_date_state(bot, update, context):
@@ -281,12 +281,17 @@ def edit_date_state(bot, update, context):
 
 
 def error_state(bot, update, context):
+    chat = update.effective_chat
+    chat_id = chat.id
+
     lang = context[CONTEXT_LANG]
     latest_task = context[CONTEXT_TASK]
 
     if latest_task:
         command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
-        update.message.reply_text(message_source[lang]['error'].format(latest_task.get_id(), command_trace))
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(message_source[lang]['error'].format(latest_task.get_id(), command_trace)),
+                         use_aliases=True)
 
     else:
         log.warning("No task in context found")

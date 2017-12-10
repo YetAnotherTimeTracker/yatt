@@ -8,7 +8,7 @@ message_source = {
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
 
-        'filter.unknown': 'Unknown command',
+        'filter.unknown': ':interrobang: Unknown command',
 
         'state.start_state.welcome': 'welcome to task tracking service!',
 
@@ -18,26 +18,27 @@ message_source = {
 
         'state.select_lang': 'please, select language',
 
-        'state.view_task.not_found': 'Sorry, I could not find selected task',
+        'state.view_task.not_found': ':mag: Sorry, I could not find selected task',
 
-        'btn.start_state.to_tasks.upcoming': 'Proceed to upcoming tasks',
-        'btn.start_state.to_tasks.all': 'Proceed to all tasks',
-        'btn.start_state.select_lang': 'Select language',
+        'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Proceed to upcoming tasks',
+        'btn.start_state.to_tasks.completed.label': ':white_check_mark: View completed tasks',
+        'btn.start_state.to_tasks.all.label': ':clipboard: Proceed to all tasks',
+        'btn.start_state.select_lang.label': ':wrench: Select language',
 
         'btn.select_lang.eng.label': 'English',
         'btn.select_lang.eng.result': 'English language selected',
         'btn.select_lang.rus.label': 'Russian',
         'btn.select_lang.rus.result': 'Russian language selected',
 
-        'btn.view_task.delete_task.label': 'Remove',
+        'btn.view_task.delete_task.label': ':x: Remove',
         'btn.view_task.delete_task.result': 'Task removed',
-        'btn.view_task.disable_notify.label': 'Mute',
+        'btn.view_task.disable_notify.label': ':no_bell: Mute',
         'btn.view_task.disable_notify.result': 'Notifications muted',
-        'btn.view_task.mark_as_done.label': 'Done',
+        'btn.view_task.mark_as_done.label': ' :white_check_mark: Done',
         'btn.view_task.mark_as_done.result': 'Task completed',
-        'btn.view_task.upcoming.label': 'Upcoming',
-        'btn.view_task.completed.label': 'Completed',
-        'btn.view_task.all.label': 'All'
+        'btn.view_task.upcoming.label': ':black_square_button: Upcoming',
+        'btn.view_task.completed.label': ':white_check_mark: Completed',
+        'btn.view_task.all.label': ':clipboard: All'
     },
 
     Language.RUS: {
@@ -45,9 +46,9 @@ message_source = {
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
 
-        'filter.unknown': 'Неизвестная команда',
+        'filter.unknown': ':interrobang: Неизвестная команда',
 
-        'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга',
+        'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга!',
 
         'state.all_tasks.your_tasks': 'ваши задачи:',
         'state.all_tasks.no_tasks_yet': 'У Вас нет невыполненных задач\n'
@@ -55,25 +56,26 @@ message_source = {
 
         'state.select_lang': 'выберите, пожалуйста, язык',
 
-        'state.view_task.not_found': 'Не удалось найти выбранную задачу :(',
+        'state.view_task.not_found': ':mag: Не удалось найти выбранную задачу :(',
 
-        'btn.start_state.to_tasks.upcoming': 'Перейти к предстоящим делам',
-        'btn.start_state.to_tasks.all': 'Перейти ко всему списку задач',
-        'btn.start_state.select_lang': 'Сменить язык',
+        'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Перейти к предстоящим делам',
+        'btn.start_state.to_tasks.completed.label': ':white_check_mark: Посмотреть уже выполненные дела',
+        'btn.start_state.to_tasks.all.label': ':clipboard: Перейти ко всему списку задач',
+        'btn.start_state.select_lang.label': ':wrench: Сменить язык',
 
         'btn.select_lang.eng.label': 'Английский',
         'btn.select_lang.eng.result': 'Выбран английский язык',
         'btn.select_lang.rus.label': 'Русский',
         'btn.select_lang.rus.result': 'Выбран русский язык',
 
-        'btn.view_task.delete_task.label': 'Удалить',
+        'btn.view_task.delete_task.label': ':x: Удалить',
         'btn.view_task.delete_task.result': 'Задача удалена',
-        'btn.view_task.disable_notify.label': 'Выкл. уведомления',
+        'btn.view_task.disable_notify.label': ':no_bell: Выкл. уведомл.',
         'btn.view_task.disable_notify.result': 'Уведомления отключены',
-        'btn.view_task.mark_as_done.label': 'Выполнено',
+        'btn.view_task.mark_as_done.label': ':white_check_mark: Выполнено',
         'btn.view_task.mark_as_done.result': 'Задача выполнена',
-        'btn.view_task.upcoming.label': 'Предстоящие',
-        'btn.view_task.completed.label': 'Выполненные',
-        'btn.view_task.all.label': 'Все'
+        'btn.view_task.upcoming.label': ':black_square_button: Предстоящ.',
+        'btn.view_task.completed.label': ':white_check_mark: Выполн.',
+        'btn.view_task.all.label': ':clipboard: Все'
     }
 }

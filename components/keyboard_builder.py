@@ -5,6 +5,7 @@ keyboard_builder
 import json
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from emoji import emojize
 
 from components.message_source import message_source
 from config.state_config import Action, CallbackData, Language, CommandType
@@ -98,20 +99,26 @@ class KeyboardBuilder:
     def start_state_buttons(lang):
         button_grid = [
             {
-                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.upcoming'],
+                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.upcoming.label'],
                 BTN_DATA: 'x4',
-                BTN_ACTION: Action.LIST_ALL.value,
-                BTN_COMMAND: CommandType.ALL.value
-            },
-            {
-                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.all'],
-                BTN_DATA: 'x5',
                 BTN_ACTION: Action.LIST_UPCOMING.value,
                 BTN_COMMAND: CommandType.ALL.value
             },
             {
-                BTN_LABEL: message_source[lang]['btn.start_state.select_lang'],
+                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.completed.label'],
                 BTN_DATA: 'x6',
+                BTN_ACTION: Action.LIST_COMPLETED.value,
+                BTN_COMMAND: CommandType.ALL.value
+            },
+            {
+                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.all.label'],
+                BTN_DATA: 'x5',
+                BTN_ACTION: Action.LIST_ALL.value,
+                BTN_COMMAND: CommandType.ALL.value
+            },
+            {
+                BTN_LABEL: message_source[lang]['btn.start_state.select_lang.label'],
+                BTN_DATA: 'x7',
                 BTN_ACTION: Action.VIEW_LANG.value,
                 BTN_COMMAND: CommandType.LANG.value
             }
@@ -127,10 +134,10 @@ class KeyboardBuilder:
 
             btn_label = task.get_description()
             if task.is_task_completed():
-                btn_label = '[X] ' + btn_label
+                btn_label = ':white_check_mark: ' + btn_label
 
             else:
-                btn_label = '[  ] '  + btn_label
+                btn_label = ':black_square_button: '  + btn_label
 
             task_as_button = [{
                 BTN_LABEL: btn_label,
@@ -206,7 +213,8 @@ class KeyboardBuilder:
             raise ValueError(f'Too large data is going to be passed to to callback: '
                              f'{len(encoded)} bytes. Limit: {DATA_LIMIT_IN_BYTES} bytes')
 
-        new_button = InlineKeyboardButton(button_data[BTN_LABEL], callback_data=serialized_data)
+        new_button = InlineKeyboardButton(emojize(button_data[BTN_LABEL], use_aliases=True),
+                                          callback_data=serialized_data)
         return new_button
 
 
