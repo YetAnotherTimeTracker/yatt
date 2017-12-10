@@ -7,13 +7,14 @@ import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from components.message_source import message_source
-from config.state_config import Action, CallbackData, Language
+from config.state_config import Action, CallbackData, Language, CommandType
 
 log = logging.getLogger(__name__)
 
 
 BTN_LABEL = 'button_label'
 BTN_DATA = 'button_data'
+BTN_COMMAND = 'button_command_analogue'
 # Actions describe the fact that something happened, but don't specify how the app's state changes in response.
 # This is the job of reducers. (c) React Redux
 BTN_ACTION = 'button_action'
@@ -29,30 +30,35 @@ class KeyboardBuilder:
             {
                 BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
                 BTN_DATA: str(task_id),
-                BTN_ACTION: Action.TASK_MARK_AS_DONE.value
+                BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
+                BTN_COMMAND: CommandType.VIEW.value
             },
             [
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
                     BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DISABLE.value
+                    BTN_ACTION: Action.TASK_DISABLE.value,
+                    BTN_COMMAND: CommandType.VIEW.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.delete_task.label'],
                     BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DELETE.value
+                    BTN_ACTION: Action.TASK_DELETE.value,
+                    BTN_COMMAND: CommandType.VIEW.value
                 }
             ],
             [
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.not_completed.label'],
                     BTN_DATA: 'not_completed',
-                    BTN_ACTION: Action.LIST_NOT_DONE.value
+                    BTN_ACTION: Action.LIST_NOT_DONE.value,
+                    BTN_COMMAND: CommandType.ALL.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.all_tasks.label'],
                     BTN_DATA: 'all_tasks',
-                    BTN_ACTION: Action.LIST_ALL.value
+                    BTN_ACTION: Action.LIST_ALL.value,
+                    BTN_COMMAND: CommandType.ALL.value
                 }
             ]
         ]
@@ -66,12 +72,14 @@ class KeyboardBuilder:
                 {
                     BTN_LABEL: message_source[lang]['btn.select_lang.eng.label'],
                     BTN_DATA: Language.ENG.value,
-                    BTN_ACTION: Action.USER_LANG.value
+                    BTN_ACTION: Action.USER_LANG.value,
+                    BTN_COMMAND: CommandType.START.value
                 },
                 {
                     BTN_LABEL: message_source[lang]['btn.select_lang.rus.label'],
                     BTN_DATA: Language.RUS.value,
-                    BTN_ACTION: Action.USER_LANG.value
+                    BTN_ACTION: Action.USER_LANG.value,
+                    BTN_COMMAND: CommandType.START.value
                 }
             ]
         ]
@@ -129,14 +137,15 @@ class KeyboardBuilder:
         # this data is passed to callback and is accepted by action reducer
         data = {
             CallbackData.ACTION.value: button_data[BTN_ACTION],
-            CallbackData.DATA.value: button_data[BTN_DATA]
+            CallbackData.DATA.value: button_data[BTN_DATA],
+            CallbackData.COMMAND.value: button_data[BTN_COMMAND]
         }
         serialized_data = json.dumps(data)
 
         encoded = serialized_data.encode('utf-8')
-        if DATA_LIMIT_IN_BYTES < len(encoded):
+        if len(encoded) > DATA_LIMIT_IN_BYTES:
             raise ValueError(f'Too large data is going to be passed to to callback: '
-                             f'{len(encoded)} bytes vs {DATA_LIMIT_IN_BYTES} bytes')
+                             f'{len(encoded)} bytes. Limit: {DATA_LIMIT_IN_BYTES} bytes')
 
         new_button = InlineKeyboardButton(button_data[BTN_LABEL], callback_data=serialized_data)
         return new_button

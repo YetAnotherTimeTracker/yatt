@@ -9,11 +9,14 @@ message_source = {
         'selected_lang': 'Selected English language',
         'your_tasks': "{}, here are your tasks",
         'task_created': 'task with id {} has been created',
-        'cant_find_task': 'Sorry, can`t find task with id {}',
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
 
+        'filter.unknown': 'Unknown command',
+
         'state.select_lang': 'please, select language',
+
+        'state.view_task.not_found': 'Sorry, I could not find selected task',
 
         'btn.select_lang.eng.label': 'English',
         'btn.select_lang.eng.result': 'English language selected',
@@ -36,11 +39,14 @@ message_source = {
         'selected_lang': 'Выбран русский язык',
         'your_tasks': "{}, Ваши задачи:\n",
         'task_created': 'задача с id {} была создана',
-        'cant_find_task': 'Извините, не могу найти задачу с id {}',
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
 
+        'filter.unknown': 'Неизвестная команда',
+
         'state.select_lang': 'выберите, пожалуйста, язык',
+
+        'state.view_task.not_found': 'Не удалось найти выбранную задачу :(',
 
         'btn.select_lang.eng.label': 'Английский',
         'btn.select_lang.eng.result': 'Выбран английский язык',

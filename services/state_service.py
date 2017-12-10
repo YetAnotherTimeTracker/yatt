@@ -5,7 +5,7 @@ state_service
 import datetime
 
 from services import user_service, task_service, notification_service
-from config.state_config import State, Language
+from config.state_config import State, Language, CallbackData, Action
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
@@ -14,7 +14,7 @@ from components.keyboard_builder import KeyboardBuilder as Kb
 from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
-
+from utils.handler_utils import is_callback, deserialize_data
 
 log = logging.getLogger(__name__)
 
@@ -113,23 +113,56 @@ def new_task_state(bot, update, context):
 
 
 def view_task_state(bot, update, context):
-    args = update.message.text.split()
-    task_id = args[1]
+    chat = update.effective_chat
+    chat_id = chat.id
     lang = context[CONTEXT_LANG]
-    chat = update.message.chat
-    user = user_service.create_or_get_user(chat)
 
+    task_id = None
+    action = None
+    if is_callback(update):
+        deserialized = deserialize_data(update.callback_query.data)
+        task_id = deserialized[CallbackData.DATA]
+        action = deserialized[CallbackData.ACTION]
+
+    else:
+        args = update.message.text.split()
+        task_id = args[1]
+
+    user = user_service.create_or_get_user(chat)
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
 
     # TODO handle if task is completed/enabled notifications/deleted
     if task:
+        if action is Action.TASK_MARK_AS_DONE:
+            task.mark_as_completed()
+            reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
+
+        elif action is Action.TASK_DISABLE:
+            task.mark_as_disabled()
+            reply_text = message_source[lang]['btn.view_task.disable_notify.result']
+
+        elif action is Action.TASK_DELETE:
+            task.mark_as_inactive()
+            reply_text = message_source[lang]['btn.view_task.delete_task.result']
+
+        else:
+            # It's not callback, then just render the state
+            reply_text = task.get_description()
+
+        # update task
+        task_service.update_task(task)
+
+        # set updated task to context
         context[CONTEXT_TASK] = task
 
-        task_descr = task.get_description()
-        update.message.reply_text(f'[{task_id}]: {task_descr}')
+        view_task_buttons = Kb.view_task_buttons(lang, task_id)
+        bot.send_message(chat_id=chat_id,
+                         text=reply_text,
+                         reply_markup=view_task_buttons)
 
     else:
-        update.message.reply_text(message_source[lang]['cant_find_task'].format(task.get_id()))
+        bot.send_message(chat_id=chat_id,
+                         text=message_source[lang]['state.view_task.not_found'])
 
 
 def edit_date_state(bot, update, context):
