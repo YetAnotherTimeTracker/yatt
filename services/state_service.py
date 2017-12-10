@@ -10,6 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
+from components.keyboard_builder import KeyboardBuilder as Kb
 from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
@@ -68,19 +69,22 @@ def all_tasks_state(bot, update, context):
 
 
 def select_lang_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
     user = user_service.create_or_get_user(chat)
+    lang = context[CONTEXT_LANG]
 
-    reply_msg = 'Hello'
-    if user:
-        reply_msg += ', ' + user.get_first_name()
-    reply_msg += "\nSelect language:"
-    keyboard = [
-        [InlineKeyboardButton("Русский", callback_data=Language.RUS.value),
-         InlineKeyboardButton("English", callback_data=Language.ENG.value)],
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(reply_msg, reply_markup=reply_markup)
+    text = message_source[lang]['state.select_lang']
+    if user and 'none' != user.get_first_name().lower():
+        text = user.get_first_name() + ', ' + text
+
+    else:
+        text = text.capitalize()
+
+    lang = context[CONTEXT_LANG]
+    markup = Kb.select_lang_buttons(lang)
+    bot.send_message(chat_id=chat.id,
+                     text=text,
+                     reply_markup=markup)
 
 
 def new_task_state(bot, update, context):

@@ -59,8 +59,9 @@ class Action(Enum):
     TASK_DISABLE = 'disable'
     LIST_NOT_DONE = 'not_done'
     LIST_ALL = 'all'
+    USER_LANG = 'lang'
 
 
 class CallbackData(Enum):
-    DATA = 'c_d'
-    ACTION = 'c_a'
+    DATA = 'data'
+    ACTION = 'act'

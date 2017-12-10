@@ -12,7 +12,7 @@ from telegram.ext import CallbackQueryHandler
 import g
 from components.automata import CONTEXT_TASK, CONTEXT_LANG
 from components.message_source import message_source
-from config.state_config import Action, CallbackData
+from config.state_config import Action, CallbackData, Language
 from services import task_service, state_service
 
 
@@ -25,7 +25,8 @@ def action_handlers():
         Action.TASK_MARK_AS_DONE: task_mark_as_done,
         Action.TASK_DELETE: task_delete,
         Action.TASK_DISABLE: task_disable,
-        Action.LIST_ALL: state_service.all_tasks_state
+        Action.LIST_ALL: state_service.all_tasks_state,
+        Action.USER_LANG: select_lang
     }
 
 
@@ -65,6 +66,20 @@ def task_delete(bot, update, context):
 
     lang = context[CONTEXT_LANG]
     reply_text = message_source[lang]['btn.view_task.delete_task.result']
+    bot.send_message(chat_id=chat_id, text=reply_text)
+
+
+def select_lang(bot, update, context):
+    query = update.callback_query
+    chat_id = query.message.chat_id
+
+    deserialized = json.loads(query.data)
+    # in 'data' field of callback there is 'rus' or 'eng' value
+    lang_string = deserialized[CallbackData.DATA.value]
+
+    g.automata.get_context(chat_id)[CONTEXT_LANG] = Language(lang_string)
+    lang = context[CONTEXT_LANG]
+    reply_text = message_source[lang]['btn.select_lang.' + lang_string + '.result']
     bot.send_message(chat_id=chat_id, text=reply_text)
 
 

@@ -7,7 +7,7 @@ import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from components.message_source import message_source
-from config.state_config import Action, CallbackData
+from config.state_config import Action, CallbackData, Language
 
 log = logging.getLogger(__name__)
 
@@ -56,12 +56,31 @@ class KeyboardBuilder:
                 }
             ]
         ]
-        markup = KeyboardBuilder.__create_inline_keyboard(button_grid)
+        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
+        return markup
+
+    @staticmethod
+    def select_lang_buttons(lang):
+        button_grid = [
+            [
+                {
+                    BTN_LABEL: message_source[lang]['btn.select_lang.eng.label'],
+                    BTN_DATA: Language.ENG.value,
+                    BTN_ACTION: Action.USER_LANG.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.select_lang.rus.label'],
+                    BTN_DATA: Language.RUS.value,
+                    BTN_ACTION: Action.USER_LANG.value
+                }
+            ]
+        ]
+        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup
 
 
     @staticmethod
-    def __create_inline_keyboard(button_grid):
+    def create_inline_keyboard(button_grid):
         """
         Creates _inline_ keyboard and returns it's markup with grid of buttons like this:
         [
