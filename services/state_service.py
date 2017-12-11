@@ -27,7 +27,8 @@ def states():
         State.NEW_TASK: new_task_state,
         State.VIEW_TASK: view_task_state,
         State.EDIT_DATE: edit_date_state,
-        State.ERROR: error_state
+        State.EMPTY: empty_state,
+        State.ERROR: error_state,
     }
 
 
@@ -155,8 +156,10 @@ def select_lang_state(bot, update, context):
 
 
 def new_task_state(bot, update, context):
-    chat = update.message.chat
+    chat = update.effective_chat
+    chat_id = chat.id
     lang = context[CONTEXT_LANG]
+
     new_task = task_service.create_task(update)
 
     if g.test_mode:
@@ -176,7 +179,11 @@ def new_task_state(bot, update, context):
         if user:
             reply_on_success = user.get_first_name() + ', ' + reply_on_success
 
-        update.message.reply_text(reply_on_success.capitalize())
+        project_buttons = Kb.select_project_buttons(lang)
+
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(reply_on_success, use_aliases=True),
+                         reply_markup=project_buttons)
 
 
 def view_task_state(bot, update, context):
@@ -278,6 +285,10 @@ def edit_date_state(bot, update, context):
     if err_cause:
         log.error(err_cause)
         update.message.reply_text(f'Sorry, I could not find that task')
+
+
+def empty_state(bot, update, context):
+    pass
 
 
 def error_state(bot, update, context):

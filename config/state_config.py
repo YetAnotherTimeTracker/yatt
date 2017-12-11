@@ -13,7 +13,8 @@ TRANSITION_TABLE = [
     [5,     2,      3,      4,      1,      6],     # 3. view task
     [5,     2,      3,      4,      1,      4],     # 4. edit date
     [1,     2,      3,      5,      1,      6],     # 5. error
-    [1,     1,      5,      5,      1,      0]      # 6. select language
+    [1,     1,      5,      5,      1,      0],     # 6. select language
+    [1,     2,      3,      5,      1,      6]      # 7. empty state
 ]
 
 
@@ -28,6 +29,9 @@ class State(Enum):
     EDIT_DATE = 4
     ERROR = 5
     SELECT_LANG = 6
+    # TODO i really think i dnot need it!!!
+    EMPTY = 7   # should be used when no state change is needed. just updating current
+
 
 
 class CommandType(Enum):
@@ -54,7 +58,7 @@ CommandAliases = {
     CommandType.ALL: ['/all', '/все', '/задачи'],
     CommandType.VIEW: ['/id', '/task', '/задача', '/таск'],
     CommandType.DATE: ['/date'],
-    CommandType.LANG: ['/lang', '/language', '/язык']
+    CommandType.LANG: ['/lang', '/language', '/язык'],
     # CommandType.ECHO: ['']
 }
 
@@ -69,23 +73,12 @@ class Action(Enum):
     TASK_MARK_AS_DONE = 'mark_done'
     TASK_DELETE = 'del'
     TASK_DISABLE = 'disable'
+    TASK_PROJECT_SELECTED = 'task_proj'
     LIST_UPCOMING = 'upcoming'
     LIST_COMPLETED = 'done'
     LIST_ALL = 'all'
     VIEW_LANG = 'all_langs'
     SELECTED_LANG = 'sel_lang'
-
-
-# Actions are reduced by action_reducer. But to use them in regular way,
-# like we use commands, we need to match each action to appropriate command
-# ACTION_TO_COMMAND = {
-#     Action.TASK_MARK_AS_DONE: CommandType.VIEW,
-#     Action.TASK_DELETE: CommandType.VIEW,
-#     Action.TASK_DISABLE: CommandType.VIEW,
-#     Action.LIST_NOT_DONE: CommandType.ALL,
-#     Action.LIST_ALL: CommandType.ALL,
-#     Action.USER_LANG: CommandType.START
-# }
 
 
 # These are keys for fields in callback data passed on button callback
@@ -95,7 +88,6 @@ class CallbackData(Enum):
     """
     ACTION: Actions describe the fact that something happened,
         but don't specify how the application's state changes in response.
-        This is the job of reducers.
         (c) React Redux
     DATA: Payload that is used for rendering state
         e.g.: task_id, or flag that should define what to render - all_tasks
