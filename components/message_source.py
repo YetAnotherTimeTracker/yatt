@@ -38,7 +38,12 @@ message_source = {
         'btn.view_task.mark_as_done.result': 'Task completed',
         'btn.view_task.upcoming.label': ':black_square_button: Upcoming',
         'btn.view_task.completed.label': ':white_check_mark: Completed',
-        'btn.view_task.all.label': ':clipboard: All'
+        'btn.view_task.all.label': ':clipboard: All',
+
+        'btn.new_task.project.personal.label': ':video_game: Personal',
+        'btn.new_task.project.study.label': ':books: Study',
+        'btn.new_task.project.work.label': ':briefcase: Work',
+        'btn.new_task.project.other.label': ':open_file_folder: Other'
     },
 
     Language.RUS: {
@@ -76,6 +81,11 @@ message_source = {
         'btn.view_task.mark_as_done.result': 'Задача выполнена',
         'btn.view_task.upcoming.label': ':black_square_button: Предстоящ.',
         'btn.view_task.completed.label': ':white_check_mark: Выполн.',
-        'btn.view_task.all.label': ':clipboard: Все'
+        'btn.view_task.all.label': ':clipboard: Все',
+
+        'btn.new_task.project.personal.label': ':video_game: Личное',
+        'btn.new_task.project.university.label': ':books: Учеба',
+        'btn.new_task.project.work.label': ':briefcase: Работа',
+        'btn.new_task.project.other.label': ':open_file_folder: Другое'
     }
 }

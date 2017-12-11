@@ -9,6 +9,7 @@ from emoji import emojize
 
 from components.message_source import message_source
 from config.state_config import Action, CallbackData, Language, CommandType
+from models.project import ProjectType
 
 log = logging.getLogger(__name__)
 
@@ -28,13 +29,13 @@ class KeyboardBuilder:
     @staticmethod
     def view_task_buttons(lang, task_id):
         button_grid = [
-            {
-                BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
-                BTN_DATA: str(task_id),
-                BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
-                BTN_COMMAND: CommandType.VIEW.value
-            },
             [
+                {
+                    BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
+                    BTN_DATA: str(task_id),
+                    BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
+                    BTN_COMMAND: CommandType.VIEW.value
+                },
                 {
                     BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
                     BTN_DATA: str(task_id),
@@ -53,12 +54,6 @@ class KeyboardBuilder:
                     BTN_LABEL: message_source[lang]['btn.view_task.upcoming.label'],
                     BTN_DATA: 'x1',   # not used
                     BTN_ACTION: Action.LIST_UPCOMING.value,
-                    BTN_COMMAND: CommandType.ALL.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.completed.label'],
-                    BTN_DATA: 'x2',  # not used
-                    BTN_ACTION: Action.LIST_COMPLETED.value,
                     BTN_COMMAND: CommandType.ALL.value
                 },
                 {
@@ -122,6 +117,39 @@ class KeyboardBuilder:
                 BTN_ACTION: Action.VIEW_LANG.value,
                 BTN_COMMAND: CommandType.LANG.value
             }
+        ]
+        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
+        return markup
+
+    @staticmethod
+    def select_project_buttons(lang):
+        button_grid = [
+            [
+                {
+                    BTN_LABEL: message_source[lang]['btn.new_task.project.personal.label'],
+                    BTN_DATA: ProjectType.PERSONAL.value,
+                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
+                    BTN_COMMAND: CommandType.VIEW.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.new_task.project.study.label'],
+                    BTN_DATA: ProjectType.STUDY.value,
+                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
+                    BTN_COMMAND: CommandType.VIEW.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.new_task.project.work.label'],
+                    BTN_DATA: ProjectType.WORK.value,
+                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
+                    BTN_COMMAND: CommandType.VIEW.value
+                },
+                {
+                    BTN_LABEL: message_source[lang]['btn.new_task.project.other.label'],
+                    BTN_DATA: ProjectType.OTHER.value,
+                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
+                    BTN_COMMAND: CommandType.VIEW.value
+                }
+            ]
         ]
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup

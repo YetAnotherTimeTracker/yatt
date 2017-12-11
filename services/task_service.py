@@ -93,7 +93,8 @@ def create_task(update):
         flushed_task = flush(new_task)
         saved_task = save(flushed_task)
 
-        project_service.update_nearest_task_for_user_project(project.get_id(), user.get_id())
+        # this somehow causes db errors and rolling backs. temporary disabled
+        # project_service.update_nearest_task_for_user_project(project.get_id(), user.get_id())
 
         return saved_task
 

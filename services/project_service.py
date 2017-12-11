@@ -30,7 +30,7 @@ def create_or_get_project(message, user_id):
             return p
 
     # there is no project withb this title -> create new
-    flushed_proj = flush(Project(title, user_id))
+    flushed_proj = flush(Project(user_id, title))
     saved_proj = save(flushed_proj)
     return saved_proj
 
