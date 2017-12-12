@@ -27,41 +27,74 @@ DATA_LIMIT_IN_BYTES = 64
 class KeyboardBuilder:
 
     @staticmethod
+    def btn_task_mark_as_done(lang, task_id):
+        return {
+            BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
+            BTN_DATA: str(task_id),
+            BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
+            BTN_COMMAND: CommandType.VIEW.value
+        }
+
+
+    @staticmethod
+    def btn_task_delete(lang, task_id):
+        return {
+            BTN_LABEL: message_source[lang]['btn.view_task.delete_task.label'],
+            BTN_DATA: str(task_id),
+            BTN_ACTION: Action.TASK_DELETE.value,
+            BTN_COMMAND: CommandType.VIEW.value
+        }
+
+    @staticmethod
+    def btn_task_disable_notify(lang, task_id):
+        return {
+            BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
+            BTN_DATA: str(task_id),
+            BTN_ACTION: Action.TASK_DISABLE.value,
+            BTN_COMMAND: CommandType.VIEW.value
+        }
+
+    @staticmethod
+    def btn_home(label):
+        return {
+            BTN_LABEL: label,
+            BTN_DATA: 'fuck',  # not used
+            BTN_ACTION: Action.START.value,
+            BTN_COMMAND: CommandType.START.value
+        }
+
+    @staticmethod
+    def btn_list_all(label):
+        return {
+            BTN_LABEL: label,
+            BTN_DATA: 'fuck',  # not used
+            BTN_ACTION: Action.LIST_ALL.value,
+            BTN_COMMAND: CommandType.ALL.value
+        }
+
+    @staticmethod
+    def btn_list_upcoming(label):
+        btn = KeyboardBuilder.btn_list_all(label)
+        btn[BTN_ACTION] = Action.LIST_UPCOMING.value
+        return btn
+
+    @staticmethod
+    def btn_list_completed(label):
+        btn = KeyboardBuilder.btn_list_all(label)
+        btn[BTN_ACTION] = Action.LIST_COMPLETED.value
+        return btn
+
+    @staticmethod
     def view_task_buttons(lang, task_id):
         button_grid = [
             [
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
-                    BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
-                    BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DISABLE.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.delete_task.label'],
-                    BTN_DATA: str(task_id),
-                    BTN_ACTION: Action.TASK_DELETE.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                }
+                KeyboardBuilder.btn_task_mark_as_done(lang, task_id),
+                KeyboardBuilder.btn_task_disable_notify(lang, task_id),
+                KeyboardBuilder.btn_task_delete(lang, task_id)
             ],
             [
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.upcoming.label'],
-                    BTN_DATA: 'x1',   # not used
-                    BTN_ACTION: Action.LIST_UPCOMING.value,
-                    BTN_COMMAND: CommandType.ALL.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.view_task.all.label'],
-                    BTN_DATA: 'x3',    # not used
-                    BTN_ACTION: Action.LIST_ALL.value,
-                    BTN_COMMAND: CommandType.ALL.value
-                }
+                KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.view_task.upcoming.label']),
+                KeyboardBuilder.btn_list_all(message_source[lang]['btn.view_task.all.label'])
             ]
         ]
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
@@ -93,24 +126,9 @@ class KeyboardBuilder:
     @staticmethod
     def start_state_buttons(lang):
         button_grid = [
-            {
-                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.upcoming.label'],
-                BTN_DATA: 'x4',
-                BTN_ACTION: Action.LIST_UPCOMING.value,
-                BTN_COMMAND: CommandType.ALL.value
-            },
-            {
-                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.completed.label'],
-                BTN_DATA: 'x6',
-                BTN_ACTION: Action.LIST_COMPLETED.value,
-                BTN_COMMAND: CommandType.ALL.value
-            },
-            {
-                BTN_LABEL: message_source[lang]['btn.start_state.to_tasks.all.label'],
-                BTN_DATA: 'x5',
-                BTN_ACTION: Action.LIST_ALL.value,
-                BTN_COMMAND: CommandType.ALL.value
-            },
+            KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.start_state.to_tasks.upcoming.label']),
+            KeyboardBuilder.btn_list_completed(message_source[lang]['btn.start_state.to_tasks.completed.label']),
+            KeyboardBuilder.btn_list_all(message_source[lang]['btn.start_state.to_tasks.all.label']),
             {
                 BTN_LABEL: message_source[lang]['btn.start_state.select_lang.label'],
                 BTN_DATA: 'x7',
@@ -156,7 +174,7 @@ class KeyboardBuilder:
 
 
     @staticmethod
-    def all_tasks_buttons(tasks):
+    def tasks_as_buttons(tasks):
         button_grid = []
         for task in tasks:
 
@@ -165,7 +183,7 @@ class KeyboardBuilder:
                 btn_label = ':white_check_mark: ' + btn_label
 
             else:
-                btn_label = ':black_square_button: '  + btn_label
+                btn_label = ':black_square_button: ' + btn_label
 
             task_as_button = [{
                 BTN_LABEL: btn_label,
@@ -174,7 +192,16 @@ class KeyboardBuilder:
                 BTN_COMMAND: CommandType.VIEW.value
             }]
             button_grid.append(task_as_button)
+        return button_grid
 
+    @staticmethod
+    def all_tasks_buttons(tasks):
+        button_grid = KeyboardBuilder.tasks_as_buttons(tasks)
+        button_grid.append([
+            KeyboardBuilder.btn_list_upcoming('upcoming'),
+            KeyboardBuilder.btn_list_completed('completed'),
+            KeyboardBuilder.btn_home('home')
+        ])
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup
 

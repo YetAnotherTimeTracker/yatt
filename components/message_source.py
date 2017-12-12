@@ -13,18 +13,19 @@ message_source = {
         'state.start_state.welcome': 'welcome to task tracking service!*\n'
                                      '\n'
                                      ':black_square_button: Number of *upcoming* tasks: {}\n'
-                                     ':white_check_mark: Number of tasks You\'ve already *completed*: {}\n'
-                                     ':scroll: Overall number of tasks *created*: {}\n'
-                                     '\n\n'
+                                     ':white_check_mark: Number of *completed* tasks: {}\n'
+                                     ':scroll: *Created* tasks in total: {}\n'
+                                     '\n'
                                      ':bulb: You can *proceed to tasks* with buttons below\n'
                                      ':bulb: Or write me anything You want to track and I will *create a new task* for You :)\n'
                                      '\n'
-                                     'Bot version: 0.{} Alpha\n',
+                                     'Version: 0.{} Alpha\n',
 
         'state.all_tasks.tasks.upcoming': 'here are your upcoming tasks:*\n\n',
         'state.all_tasks.tasks.completed': 'congratulations on completing these tasks:*\n\n',
         'state.all_tasks.tasks.all': 'here are all the tasks you have now:*\n\n',
         'state.all_tasks.no_tasks_yet': 'I could not find any tasks of provided category*\n\n',
+        'state.all_tasks.notes.no_tasks_yet': ':bulb: To *create a new task*, just write me something :)\n',
         'state.all_tasks.notes': ':bulb: To *create a new task*, just write me something :)\n'
                                  ':bulb: Controls are on the bottom of the list\n',
 
@@ -70,18 +71,19 @@ message_source = {
         'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга!*\n'
                                      '\n'
                                      ':black_square_button: *Предстоящих* задач: {}\n'
-                                     ':white_check_mark: *Выполнено* задач за все время: {}\n'
+                                     ':white_check_mark: *Выполнено* задач: {}\n'
                                      ':scroll: *Всего* задач создано за все время: {}\n'
-                                     '\n\n'
-                                     ':bulb: *Перейдите к задачам* с помощью кнопок ниже\n'
-                                     ':bulb: Чтобы *создать задачу*, просто напишите мне сообщение!\n'
                                      '\n'
-                                     'Версия бота: 0.{} Alpha\n',
+                                     ':bulb: *Перейдите к задачам* с помощью кнопок ниже\n'
+                                     ':bulb: Чтобы *создать задачу*, просто напишите мне сообщение :)\n'
+                                     '\n'
+                                     'Версия: 0.{} Alpha\n',
 
         'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
         'state.all_tasks.tasks.completed': 'поздравляю с завршением этих задач:*\n',
         'state.all_tasks.tasks.all': 'список всех имеющихся у Вас задач на данный момент:*\n',
         'state.all_tasks.no_tasks_yet': 'задач выбранной категории не найдено*\n',
+        'state.all_tasks.notes.no_tasks_yet': ':bulb: Чтобы *создать задачу*, просто напишите мне что-нибудь :)\n',
         'state.all_tasks.notes': '\n:bulb: Чтобы *создать задачу*, просто напишите мне что-нибудь :)\n'
                                  ':bulb: Кнопки управления расположены внизу списка\n',
 

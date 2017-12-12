@@ -100,19 +100,22 @@ def all_tasks_state(bot, update, context):
         text = message_source[lang]['state.all_tasks.tasks.completed']
         text = concat_username(emoji_completed + '*', user, ', ' + text)
 
+    markup = Kb.all_tasks_buttons(tasks)
     if 0 == len(tasks):
         # TODO add kbd with [home][all tasks] buttons
-        reply_no_tasks = message_source[lang]['state.all_tasks.no_tasks_yet']
-        reply_no_tasks = concat_username(emoji_search + '*', user, ', ' + reply_no_tasks)
+        text_no_tasks = message_source[lang]['state.all_tasks.no_tasks_yet']
+        notes = message_source[lang]['state.all_tasks.notes.no_tasks_yet']
+        text_no_tasks = concat_username(emoji_search + '*', user, ', ' + text_no_tasks + notes)
+
         bot.send_message(chat_id=chat_id,
-                         text=emojize(reply_no_tasks, use_aliases=True),
-                         parse_mode=ParseMode.MARKDOWN)
+                         text=emojize(text_no_tasks, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN,
+                         reply_markup=markup)
 
     else:
         notes_text = message_source[lang]['state.all_tasks.notes']
         text += notes_text
 
-        markup = Kb.all_tasks_buttons(tasks)
         bot.send_message(chat_id=chat_id,
                          text=emojize(text, use_aliases=True),
                          parse_mode=ParseMode.MARKDOWN,

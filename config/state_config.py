@@ -79,6 +79,7 @@ class Action(Enum):
     LIST_ALL = 'all'
     VIEW_LANG = 'all_langs'
     SELECTED_LANG = 'sel_lang'
+    START = 'home'
 
 
 # These are keys for fields in callback data passed on button callback
