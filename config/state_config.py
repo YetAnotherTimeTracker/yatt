@@ -7,13 +7,13 @@ from enum import Enum
 
 TRANSITION_TABLE = [
     # start echo    task    date    all     lang
-    [0,     0,      3,      0,      1,      6],     # 0. start
-    [1,     2,      3,      5,      1,      6],     # 1. all tasks
-    [1,     2,      3,      4,      1,      6],     # 2. new task
-    [5,     2,      3,      4,      1,      6],     # 3. view task
+    [0,     2,      3,      0,      1,      6],     # 0. start
+    [0,     2,      3,      5,      1,      6],     # 1. all tasks
+    [0,     2,      3,      4,      1,      6],     # 2. new task
+    [0,     2,      3,      4,      1,      6],     # 3. view task
     [5,     2,      3,      4,      1,      4],     # 4. edit date
-    [1,     2,      3,      5,      1,      6],     # 5. error
-    [1,     1,      5,      5,      1,      0],     # 6. select language
+    [0,     2,      3,      5,      1,      6],     # 5. error
+    [0,     1,      5,      5,      1,      0],     # 6. select language
     [1,     2,      3,      5,      1,      6]      # 7. empty state
 ]
 

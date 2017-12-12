@@ -4,6 +4,7 @@ state_service
 """
 import datetime
 from emoji import emojize
+from telegram import ParseMode
 
 from services import user_service, task_service
 from config.state_config import State, Language, CallbackData, Action
@@ -15,6 +16,7 @@ from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
 from utils.handler_utils import is_callback, deserialize_data
+from utils.view_utils import concat_username
 
 log = logging.getLogger(__name__)
 
@@ -35,10 +37,8 @@ def states():
 def start_state(bot, update, context):
     chat = update.effective_chat
     chat_id = chat.id
-
     user = user_service.create_or_get_user(chat)
 
-    # TODO ive got a feeling this should not be here
     if is_callback(update):
         deserialized = deserialize_data(update.callback_query.data)
         action = deserialized[CallbackData.ACTION]
@@ -48,16 +48,18 @@ def start_state(bot, update, context):
             context[CONTEXT_LANG] = Language(lang)
 
     lang = context[CONTEXT_LANG]
-    text = message_source[lang]['state.start_state.welcome']
-    if user and 'none' != user.get_first_name().lower():
-        text = user.get_first_name() + ', ' + text
+    welcome_text = message_source[lang]['state.start_state.welcome']
+    rocket_emoji = ':rocket: *'
+    welcome_text = concat_username(rocket_emoji, user, ', ' + welcome_text)
 
-    else:
-        text = text.capitalize()
+    num_all, num_upcoming, num_completed = task_service.find_stats_for_user(chat_id)
+    bot_ver = 13    # because why not? :)
+    welcome_text = welcome_text.format(num_upcoming, num_completed, num_all, bot_ver)
 
     buttons = Kb.start_state_buttons(lang)
     bot.send_message(chat_id=chat_id,
-                     text=emojize(text, use_aliases=True),
+                     text=emojize(welcome_text, use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN,
                      reply_markup=buttons)
 
 
@@ -93,11 +95,7 @@ def all_tasks_state(bot, update, context):
 
     else:
         text = message_source[lang]['state.all_tasks.your_tasks']
-        if user and 'none' != user.get_first_name().lower():
-            text = user.get_first_name() + ', ' + text
-
-        else:
-            text = text.capitalize()
+        text = concat_username('', user, ', ' + text)
 
         markup = Kb.all_tasks_buttons(tasks)
         bot.send_message(chat_id=chat_id,
@@ -116,6 +114,7 @@ def select_lang_state(bot, update, context):
         deserialized = deserialize_data(update.callback_query.data)
         action = deserialized[CallbackData.ACTION]
 
+    globe_emoji = ':earth_africa: '
     # find out what are we doing now? selecting lang or just showing available langs
     text = None
     if action is Action.SELECTED_LANG:
@@ -130,11 +129,7 @@ def select_lang_state(bot, update, context):
         # It's callback. nevertheless just show available langs
         lang = context[CONTEXT_LANG]
         text = message_source[lang]['state.select_lang']
-        if user and 'none' != user.get_first_name().lower():
-            text = user.get_first_name() + ', ' + text
-
-        else:
-            text = text.capitalize()
+        text = concat_username(globe_emoji + ' *', user, ', ' + text)
 
         buttons = Kb.select_lang_buttons(lang)
 
@@ -142,16 +137,13 @@ def select_lang_state(bot, update, context):
         # It's not callback. just show available langs
         lang = context[CONTEXT_LANG]
         text = message_source[lang]['state.select_lang']
-        if user and 'none' != user.get_first_name().lower():
-            text = user.get_first_name() + ', ' + text
-
-        else:
-            text = text.capitalize()
+        text = concat_username(globe_emoji + ' *', user, ', ' + text)
 
         buttons = Kb.select_lang_buttons(lang)
 
     bot.send_message(chat_id=chat_id,
                      text=emojize(text, use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN,
                      reply_markup=buttons)
 
 

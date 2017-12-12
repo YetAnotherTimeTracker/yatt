@@ -11,7 +11,7 @@ import logging
 from models.task import Task
 from services import project_service, user_service, notification_service
 from utils import date_utils
-from utils.db_utils import flush, save, find_all, find_one_by_id
+from utils.db_utils import flush, save, find_all, find_one_by_id, find_active_and_inactive
 
 
 log = logging.getLogger(__name__)
@@ -126,3 +126,12 @@ def find_tasks_within_timedelta(task_to_check, time_delta_threshold):
     nearest_tasks_sorted = sorted(nearest_tasks,
                                   key=lambda t: abs(date_utils.seconds_between_tasks(t, task_to_check)))
     return nearest_tasks_sorted
+
+
+def find_stats_for_user(user_id_val):
+    user_id = int(user_id_val)
+    all = find_active_and_inactive(Task)
+    all_by_user = len([t for t in all if t.get_user_id() == user_id])
+    upcoming = len(find_upcoming_tasks_by_user_id(user_id))
+    completed = len(find_completed_tasks_by_user_id(user_id))
+    return all_by_user, upcoming, completed

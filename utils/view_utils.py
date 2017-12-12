@@ -3,6 +3,7 @@ Created by anthony on 07.12.2017
 view_utils
 """
 import datetime
+import os
 
 
 def render_task_basic(task):
@@ -40,3 +41,14 @@ def render_task_with_timedelta(task, another_task):
                 pretty_print += f' at the same time'
 
     return pretty_print
+
+
+def concat_username(prefix, user, postfix):
+    res = ''
+    if user and 'none' != user.get_first_name().lower():
+        res = prefix + user.get_first_name() + postfix
+
+    else:
+        res = prefix + postfix.capitalize()
+
+    return res

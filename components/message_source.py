@@ -10,20 +10,31 @@ message_source = {
 
         'filter.unknown': ':interrobang: Unknown command',
 
-        'state.start_state.welcome': 'welcome to task tracking service!',
+        'state.start_state.welcome': 'welcome to task tracking service!*\n'
+                                     '\n'
+                                     ':black_square_button: Number of *upcoming* tasks: {}\n'
+                                     ':white_check_mark: Number of tasks You\'ve already *completed*: {}\n'
+                                     ':scroll: Overall number of tasks *created*: {}\n'
+                                     '\n\n'
+                                     ':bulb: You can *proceed to tasks* with buttons below\n'
+                                     ':bulb: Or write me anything You want to track and I will *create a new task* for You :)\n'
+                                     '\n'
+                                     'Bot version: 0.{} Alpha\n',
 
         'state.all_tasks.your_tasks': 'here are Your tasks:',
         'state.all_tasks.no_tasks_yet': 'You don\'t have any tasks yet\n'
                                         'Just write me something to create a new one :)',
 
-        'state.select_lang': 'please, select language',
+        'state.select_lang': 'please, select language from the variants below*\n'
+                             '\n'
+                             ':bulb: Current language is English',
 
         'state.view_task.not_found': ':mag: Sorry, I could not find selected task',
 
         'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Proceed to upcoming tasks',
         'btn.start_state.to_tasks.completed.label': ':white_check_mark: View completed tasks',
-        'btn.start_state.to_tasks.all.label': ':clipboard: Proceed to all tasks',
-        'btn.start_state.select_lang.label': ':wrench: Select language',
+        'btn.start_state.to_tasks.all.label': ':scroll: View all tasks',
+        'btn.start_state.select_lang.label': ':earth_africa: Select language',
 
         'btn.select_lang.eng.label': 'English',
         'btn.select_lang.eng.result': 'English language selected',
@@ -53,20 +64,31 @@ message_source = {
 
         'filter.unknown': ':interrobang: Неизвестная команда',
 
-        'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга!',
+        'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга!*\n'
+                                     '\n'
+                                     ':black_square_button: *Предстоящих* задач: {}\n'
+                                     ':white_check_mark: *Выполнено* задач за все время: {}\n'
+                                     ':scroll: *Всего* задач создано за все время: {}\n'
+                                     '\n\n'
+                                     ':bulb: *Перейдите к задачам* с помощью кнопок ниже\n'
+                                     ':bulb: Чтобы *создать задачу*, просто напишите мне сообщение!\n'
+                                     '\n'
+                                     'Версия бота: 0.{} Alpha\n',
 
         'state.all_tasks.your_tasks': 'ваши задачи:',
         'state.all_tasks.no_tasks_yet': 'У Вас нет невыполненных задач\n'
                                         'Просто напишите мне что-нибудь, чтобы создать задачу',
 
-        'state.select_lang': 'выберите, пожалуйста, язык',
+        'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
+                             '\n'
+                             ':bulb: Текущий язык: Русский',
 
         'state.view_task.not_found': ':mag: Не удалось найти выбранную задачу :(',
 
-        'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Перейти к предстоящим делам',
-        'btn.start_state.to_tasks.completed.label': ':white_check_mark: Посмотреть уже выполненные дела',
-        'btn.start_state.to_tasks.all.label': ':clipboard: Перейти ко всему списку задач',
-        'btn.start_state.select_lang.label': ':wrench: Сменить язык',
+        'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Открыть предстоящие задачи',
+        'btn.start_state.to_tasks.completed.label': ':white_check_mark: Посмотреть выполненные задачи',
+        'btn.start_state.to_tasks.all.label': ':scroll: Посмотреть весь список задач',
+        'btn.start_state.select_lang.label': ':earth_africa: Сменить язык',
 
         'btn.select_lang.eng.label': 'Английский',
         'btn.select_lang.eng.result': 'Выбран английский язык',
