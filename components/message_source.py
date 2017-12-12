@@ -21,9 +21,12 @@ message_source = {
                                      '\n'
                                      'Bot version: 0.{} Alpha\n',
 
-        'state.all_tasks.your_tasks': 'here are Your tasks:',
-        'state.all_tasks.no_tasks_yet': 'You don\'t have any tasks yet\n'
-                                        'Just write me something to create a new one :)',
+        'state.all_tasks.tasks.upcoming': 'here are your upcoming tasks:*\n\n',
+        'state.all_tasks.tasks.completed': 'congratulations on completing these tasks:*\n\n',
+        'state.all_tasks.tasks.all': 'here are all the tasks you have now:*\n\n',
+        'state.all_tasks.no_tasks_yet': 'I could not find any tasks of provided category*\n\n',
+        'state.all_tasks.notes': ':bulb: To *create a new task*, just write me something :)\n'
+                                 ':bulb: Controls are on the bottom of the list\n',
 
         'state.select_lang': 'please, select language from the variants below*\n'
                              '\n'
@@ -75,9 +78,12 @@ message_source = {
                                      '\n'
                                      'Версия бота: 0.{} Alpha\n',
 
-        'state.all_tasks.your_tasks': 'ваши задачи:',
-        'state.all_tasks.no_tasks_yet': 'У Вас нет невыполненных задач\n'
-                                        'Просто напишите мне что-нибудь, чтобы создать задачу',
+        'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
+        'state.all_tasks.tasks.completed': 'поздравляю с завршением этих задач:*\n',
+        'state.all_tasks.tasks.all': 'список всех имеющихся у Вас задач на данный момент:*\n',
+        'state.all_tasks.no_tasks_yet': 'задач выбранной категории не найдено*\n',
+        'state.all_tasks.notes': '\n:bulb: Чтобы *создать задачу*, просто напишите мне что-нибудь :)\n'
+                                 ':bulb: Кнопки управления расположены внизу списка\n',
 
         'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
                              '\n'

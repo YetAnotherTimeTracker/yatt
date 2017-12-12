@@ -21,6 +21,14 @@ from utils.view_utils import concat_username
 log = logging.getLogger(__name__)
 
 
+emoji_rocket = ':rocket: '
+emoji_globe = ':earth_africa: '
+emoji_upcoming = ':black_square_button: '
+emoji_completed = ':white_check_mark: '
+emoji_all = ':scroll: '
+emoji_search = ':mag: '
+
+
 def states():
     return {
         State.START: start_state,
@@ -49,8 +57,7 @@ def start_state(bot, update, context):
 
     lang = context[CONTEXT_LANG]
     welcome_text = message_source[lang]['state.start_state.welcome']
-    rocket_emoji = ':rocket: *'
-    welcome_text = concat_username(rocket_emoji, user, ', ' + welcome_text)
+    welcome_text = concat_username(emoji_rocket + '*', user, ', ' + welcome_text)
 
     num_all, num_upcoming, num_completed = task_service.find_stats_for_user(chat_id)
     bot_ver = 13    # because why not? :)
@@ -76,30 +83,39 @@ def all_tasks_state(bot, update, context):
     user = user_service.create_or_get_user(chat)
     user_id = user.get_id()
     tasks = []
+    text = None
 
-    if action is Action.LIST_ALL:
+    if not is_callback(update) or action is Action.LIST_ALL:
         tasks = task_service.find_tasks_by_user_id(user_id)
+        text = message_source[lang]['state.all_tasks.tasks.all']
+        text = concat_username(emoji_all + '*', user, ', ' + text)
 
     elif action is Action.LIST_UPCOMING:
         tasks = task_service.find_upcoming_tasks_by_user_id(user_id)
+        text = message_source[lang]['state.all_tasks.tasks.upcoming']
+        text = concat_username(emoji_upcoming + '*', user, ', ' + text)
 
     elif action is Action.LIST_COMPLETED:
         tasks = task_service.find_completed_tasks_by_user_id(user_id)
-
-    else:
-        tasks = task_service.find_tasks_by_user_id(user.get_id())
+        text = message_source[lang]['state.all_tasks.tasks.completed']
+        text = concat_username(emoji_completed + '*', user, ', ' + text)
 
     if 0 == len(tasks):
+        # TODO add kbd with [home][all tasks] buttons
+        reply_no_tasks = message_source[lang]['state.all_tasks.no_tasks_yet']
+        reply_no_tasks = concat_username(emoji_search + '*', user, ', ' + reply_no_tasks)
         bot.send_message(chat_id=chat_id,
-                         text=emojize(message_source[lang]['state.all_tasks.no_tasks_yet'], use_aliases=True))
+                         text=emojize(reply_no_tasks, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
     else:
-        text = message_source[lang]['state.all_tasks.your_tasks']
-        text = concat_username('', user, ', ' + text)
+        notes_text = message_source[lang]['state.all_tasks.notes']
+        text += notes_text
 
         markup = Kb.all_tasks_buttons(tasks)
         bot.send_message(chat_id=chat_id,
                          text=emojize(text, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN,
                          reply_markup=markup)
 
 
@@ -114,7 +130,6 @@ def select_lang_state(bot, update, context):
         deserialized = deserialize_data(update.callback_query.data)
         action = deserialized[CallbackData.ACTION]
 
-    globe_emoji = ':earth_africa: '
     # find out what are we doing now? selecting lang or just showing available langs
     text = None
     if action is Action.SELECTED_LANG:
@@ -122,6 +137,7 @@ def select_lang_state(bot, update, context):
         lang_string = deserialized[CallbackData.DATA]
         lang = Language(lang_string)
         context[CONTEXT_LANG] = lang
+
         text = message_source[lang]['btn.select_lang.' + lang_string + '.result']
         buttons = Kb.start_state_buttons(lang)
 
@@ -129,7 +145,7 @@ def select_lang_state(bot, update, context):
         # It's callback. nevertheless just show available langs
         lang = context[CONTEXT_LANG]
         text = message_source[lang]['state.select_lang']
-        text = concat_username(globe_emoji + ' *', user, ', ' + text)
+        text = concat_username(emoji_globe + '*', user, ', ' + text)
 
         buttons = Kb.select_lang_buttons(lang)
 
@@ -137,7 +153,7 @@ def select_lang_state(bot, update, context):
         # It's not callback. just show available langs
         lang = context[CONTEXT_LANG]
         text = message_source[lang]['state.select_lang']
-        text = concat_username(globe_emoji + ' *', user, ', ' + text)
+        text = concat_username(emoji_globe + '*', user, ', ' + text)
 
         buttons = Kb.select_lang_buttons(lang)
 
