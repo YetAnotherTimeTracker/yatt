@@ -14,7 +14,6 @@ TRANSITION_TABLE = [
     [5,     2,      3,      4,      1,      4],     # 4. edit date
     [0,     2,      3,      5,      1,      6],     # 5. error
     [0,     1,      5,      5,      1,      0],     # 6. select language
-    [1,     2,      3,      5,      1,      6]      # 7. empty state
 ]
 
 
@@ -29,9 +28,6 @@ class State(Enum):
     EDIT_DATE = 4
     ERROR = 5
     SELECT_LANG = 6
-    # TODO i really think i dnot need it!!!
-    EMPTY = 7   # should be used when no state change is needed. just updating current
-
 
 
 class CommandType(Enum):

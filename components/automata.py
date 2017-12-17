@@ -8,9 +8,12 @@ from config.state_config import TRANSITION_TABLE, State, Language
 from models.user import User
 from utils import db_utils
 
+
 CONTEXT_TASK = 'context_task'
 CONTEXT_COMMANDS = 'context_commands'
 CONTEXT_LANG = 'context_lang'
+CONTEXT_ACTION = 'context_action'
+
 
 class Automata:
     def __init__(self):
@@ -55,7 +58,8 @@ class Automata:
                 # TODO keep whole view history (linked hash set deque-like)
                 CONTEXT_TASK: None,
                 CONTEXT_COMMANDS: deque(maxlen=10),
-                CONTEXT_LANG: Language.ENG
+                CONTEXT_LANG: Language.ENG,
+                CONTEXT_ACTION: deque(maxlen=10)
             }
             return self.user_to_context[chat_id]
 

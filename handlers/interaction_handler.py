@@ -6,12 +6,13 @@ import logging
 from telegram.ext import MessageHandler, Filters, CallbackQueryHandler
 
 import g
-from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK, CONTEXT_LANG
+from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK, CONTEXT_LANG, CONTEXT_ACTION
 from components.filter import command_filter
 from components.message_source import message_source
 from config.state_config import CallbackData
 from services import state_service
 from utils.handler_utils import get_command_type, is_callback, deserialize_data
+
 
 log = logging.getLogger(__name__)
 
@@ -29,12 +30,16 @@ def handle(bot, update):
     chat_id = chat.id
     try:
         curr_command = None
+        curr_action = None
         if is_callback(update):
             # Callback handling
             log.info(f'--> Callback from {chat.username} ({chat.id})')
 
             data = update.callback_query.data
-            curr_command = deserialize_data(data)[CallbackData.COMMAND]
+            deserialized = deserialize_data(update.callback_query.data)
+
+            curr_command = deserialized[CallbackData.COMMAND]
+            curr_action = deserialized[CallbackData.ACTION]
 
         else:
             # Regular message/command handling
@@ -55,7 +60,7 @@ def handle(bot, update):
 
         # find out state to be rendered
         next_state = g.automata.get_transition(curr_state, curr_command)
-        if g.dev_mode or g.test_mode:
+        if g.dev_mode:
             bot.send_message(chat_id=chat_id,
                              text=f'prev state: {curr_state.name} ({curr_state.value})\n'
                                   f'cmd: {curr_command.name} ({curr_command.value})\n'
@@ -69,19 +74,16 @@ def handle(bot, update):
         # update params
         log.info(f'Updating state to: {next_state.name}')
         g.automata.set_state(chat.id, next_state)
-
-        log.info(f'Updating context with command: {curr_command}')
         curr_context[CONTEXT_COMMANDS].append(curr_command)
+        curr_context[CONTEXT_ACTION].append(curr_action)
 
-
-        if g.dev_mode or g.test_mode:
+        if g.dev_mode:
             print_dev_info(bot, chat_id, curr_context)
 
     except Exception as e:
         log.error('Error has been caught in handler: ', e)
         bot.send_message(chat_id=chat_id,
                          text=f'Sorry, there were an error: {e}')
-        return
 
     else:
         log.info('<-- Successfully handled')
