@@ -4,9 +4,14 @@ from config.state_config import Language
 
 message_source = {
     Language.ENG: {
-        'task_created': 'task with id {} has been created',
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
+
+        'task.upcoming': 'Active',
+        'task.completed': 'Completed',
+        'task.muted': '(:no_bell: Muted)',
+
+        'project.not_selected': ':question: Not selected',
 
         'filter.unknown': ':interrobang: Unknown command',
 
@@ -16,22 +21,39 @@ message_source = {
                                      ':white_check_mark: Number of *completed* tasks: {}\n'
                                      ':scroll: *Created* tasks in total: {}\n'
                                      '\n'
-                                     ':bulb: You can *proceed to tasks* with buttons below\n'
-                                     ':bulb: Or write me anything You want to track and I will *create a new task* for You :)\n'
+                                     ':bulb: _You can proceed to tasks with buttons below_\n'
+                                     ':bulb: _Or write me anything You want to track and I will create a new task for You_ :)\n'
                                      '\n'
                                      'Version: 0.{} Alpha\n',
 
-        'state.all_tasks.tasks.upcoming': 'here are your upcoming tasks:*\n\n',
-        'state.all_tasks.tasks.completed': 'congratulations on completing these tasks:*\n\n',
-        'state.all_tasks.tasks.all': 'here are all the tasks you have now:*\n\n',
-        'state.all_tasks.no_tasks_yet': 'I could not find any tasks of provided category*\n\n',
-        'state.all_tasks.notes.no_tasks_yet': ':bulb: To *create a new task*, just write me something :)\n',
-        'state.all_tasks.notes': ':bulb: To *create a new task*, just write me something :)\n'
-                                 ':bulb: Controls are on the bottom of the list\n',
+        'state.view_task.review': 'Task review',
+        'state.view_task': ':pencil: *{}*\n'
+                           '\n'
+                           '      `{}`\n'  # task description
+                           '\n'
+                           'Remind date: *{}*\n'
+                           'Create date: *{}*\n'
+                           'Category: *{}*\n'
+                           'Task status: *{}*\n'
+                           'Task ID: {}\n'
+                           '\n'
+                           ':bulb: _Type /date and write datetime to set reminder (e.g. /date 21 dec 13-37)_',
+
+        'state.new_task.created': 'New task has been created. Please, select category from the variants below',
+        'state.new_task.not_created': ':pensive: Sorry, I could not create a task for some reason\n'
+                                      'Can you try again, please?',
+
+        'state.all_tasks.tasks.upcoming': 'here are your upcoming tasks:*\n',
+        'state.all_tasks.tasks.completed': 'congratulations on completing these tasks:*\n',
+        'state.all_tasks.tasks.all': 'here are all the tasks you have now:*\n',
+        'state.all_tasks.no_tasks_yet': 'I could not find any tasks of provided category*\n',
+        'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _To create a new task, just write me something_ :)\n',
+        'state.all_tasks.notes': '\n:bulb: _To create a new task, just write me something_ :)\n'
+                                 ':bulb: _Controls are on the bottom of the list_\n',
 
         'state.select_lang': 'please, select language from the variants below*\n'
                              '\n'
-                             ':bulb: Current language is English',
+                             ':bulb: _Current language is English_',
 
         'state.view_task.not_found': ':mag: Sorry, I could not find selected task',
 
@@ -45,26 +67,35 @@ message_source = {
         'btn.select_lang.rus.label': 'Russian',
         'btn.select_lang.rus.result': 'Russian language selected',
 
+        'btn.all_tasks.upcoming': ':black_square_button: Upcoming',
+        'btn.all_tasks.completed': ':white_check_mark: Completed',
+        'btn.all_tasks.home': ':house: Home',
+
         'btn.view_task.delete_task.label': ':x: Remove',
-        'btn.view_task.delete_task.result': 'Task removed',
+        'btn.view_task.delete_task.result': ':x: Task with ID "{}" has been removed',
         'btn.view_task.disable_notify.label': ':no_bell: Mute',
-        'btn.view_task.disable_notify.result': 'Notifications muted',
-        'btn.view_task.mark_as_done.label': ' :white_check_mark: Done',
-        'btn.view_task.mark_as_done.result': 'Task completed',
+        'btn.view_task.disable_notify.result': ':no_bell: Notifications have been muted for task "*{}*"',
+        'btn.view_task.mark_as_done.label': ':white_check_mark: Done',
+        'btn.view_task.mark_as_done.result': ':white_check_mark: Congratulations on completing the task! :clap:',
         'btn.view_task.upcoming.label': ':black_square_button: Upcoming',
         'btn.view_task.completed.label': ':white_check_mark: Completed',
         'btn.view_task.all.label': ':clipboard: All',
 
-        'btn.new_task.project.personal.label': ':video_game: Personal',
-        'btn.new_task.project.study.label': ':books: Study',
-        'btn.new_task.project.work.label': ':briefcase: Work',
-        'btn.new_task.project.other.label': ':open_file_folder: Other'
+        'btn.new_task.project.prs.label': ':video_game: Personal',
+        'btn.new_task.project.std.label': ':books: Study',
+        'btn.new_task.project.wrk.label': ':briefcase: Work',
+        'btn.new_task.project.oth.label': ':open_file_folder: Other'
     },
 
     Language.RUS: {
-        'task_created': 'задача с id {} была создана',
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
+
+        'task.upcoming': 'Активная',
+        'task.completed': 'Выполнено',
+        'task.muted': '(:no_bell: Уведомления выключены)',
+
+        'project.not_selected': ':question: Не распределено',
 
         'filter.unknown': ':interrobang: Неизвестная команда',
 
@@ -74,18 +105,35 @@ message_source = {
                                      ':white_check_mark: *Выполнено* задач: {}\n'
                                      ':scroll: *Всего* задач создано за все время: {}\n'
                                      '\n'
-                                     ':bulb: *Перейдите к задачам* с помощью кнопок ниже\n'
-                                     ':bulb: Чтобы *создать задачу*, просто напишите мне сообщение :)\n'
+                                     ':bulb: _*Перейдите к задачам* с помощью кнопок ниже_\n'
+                                     ':bulb: _Чтобы *создать задачу*, просто напишите мне сообщение_ :)\n'
                                      '\n'
                                      'Версия: 0.{} Alpha\n',
+
+        'state.view_task.review': 'Просмотр задачи',
+        'state.view_task':  ':pencil: *{}*\n'   # New task has been created / Task review
+                            '\n'
+                            '      *{}*\n'  # task description
+                            '\n'
+                            'Время уведомления: *{}*\n'
+                            'Задача создана: *{}*\n'
+                            'Категория: *{}*\n'
+                            'Статус задачи: *{}*\n'
+                            'ID задачи: {}\n'
+                            '\n'
+                            ':bulb: _Введите /date и дату, чтобы включить уведомление (например, /date 21 дек 13-37)_',
+
+        'state.new_task.created': 'Создана новая задача. Пожалуйста, выберите категорию из вариантов ниже',
+        'state.new_task.not_created': ':pensive: Простите, не удалость создать задачу\n'
+                                      'Попробуйте еще раз, пожайлуйста',
 
         'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
         'state.all_tasks.tasks.completed': 'поздравляю с завршением этих задач:*\n',
         'state.all_tasks.tasks.all': 'список всех имеющихся у Вас задач на данный момент:*\n',
-        'state.all_tasks.no_tasks_yet': 'задач выбранной категории не найдено*\n',
-        'state.all_tasks.notes.no_tasks_yet': ':bulb: Чтобы *создать задачу*, просто напишите мне что-нибудь :)\n',
-        'state.all_tasks.notes': '\n:bulb: Чтобы *создать задачу*, просто напишите мне что-нибудь :)\n'
-                                 ':bulb: Кнопки управления расположены внизу списка\n',
+        'state.all_tasks.no_tasks_yet': 'Не найдено задач выбранного типа*\n',
+        'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _Чтобы *создать задачу*, просто напишите мне что-нибудь_ :)\n',
+        'state.all_tasks.notes': '\n:bulb: _Чтобы *создать задачу*, просто напишите мне что-нибудь_ :)\n'
+                                 ':bulb: _Кнопки управления расположены внизу списка_\n',
 
         'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
                              '\n'
@@ -103,19 +151,23 @@ message_source = {
         'btn.select_lang.rus.label': 'Русский',
         'btn.select_lang.rus.result': 'Выбран русский язык',
 
+        'btn.all_tasks.upcoming': ':black_square_button: Предстоящие',
+        'btn.all_tasks.completed': ':white_check_mark: Выполненные',
+        'btn.all_tasks.home': ':house: Домой',
+
         'btn.view_task.delete_task.label': ':x: Удалить',
-        'btn.view_task.delete_task.result': 'Задача удалена',
+        'btn.view_task.delete_task.result': ':x: Задача с ID "{}" удалена',
         'btn.view_task.disable_notify.label': ':no_bell: Выкл. уведомл.',
-        'btn.view_task.disable_notify.result': 'Уведомления отключены',
+        'btn.view_task.disable_notify.result': ':no_bell: Уведомления отключены для задачи "*{}*"',
         'btn.view_task.mark_as_done.label': ':white_check_mark: Выполнено',
-        'btn.view_task.mark_as_done.result': 'Задача выполнена',
+        'btn.view_task.mark_as_done.result': ':white_check_mark: Поздравляю с выполнением задачи! :clap:',
         'btn.view_task.upcoming.label': ':black_square_button: Предстоящ.',
         'btn.view_task.completed.label': ':white_check_mark: Выполн.',
         'btn.view_task.all.label': ':clipboard: Все',
 
-        'btn.new_task.project.personal.label': ':video_game: Личное',
-        'btn.new_task.project.university.label': ':books: Учеба',
-        'btn.new_task.project.work.label': ':briefcase: Работа',
-        'btn.new_task.project.other.label': ':open_file_folder: Другое'
+        'btn.new_task.project.prs.label': ':video_game: Личное',
+        'btn.new_task.project.std.label': ':books: Учеба',
+        'btn.new_task.project.wrk.label': ':briefcase: Работа',
+        'btn.new_task.project.oth.label': ':open_file_folder: Другое'
     }
 }

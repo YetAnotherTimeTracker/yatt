@@ -141,28 +141,31 @@ class KeyboardBuilder:
 
     @staticmethod
     def select_project_buttons(lang):
+        def set_title(str):
+            return f'btn.new_task.project.{str}.label'
+
         button_grid = [
             [
                 {
-                    BTN_LABEL: message_source[lang]['btn.new_task.project.personal.label'],
+                    BTN_LABEL: message_source[lang][set_title(ProjectType.PERSONAL.value)],
                     BTN_DATA: ProjectType.PERSONAL.value,
                     BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
                     BTN_COMMAND: CommandType.VIEW.value
                 },
                 {
-                    BTN_LABEL: message_source[lang]['btn.new_task.project.study.label'],
+                    BTN_LABEL: message_source[lang][set_title(ProjectType.STUDY.value)],
                     BTN_DATA: ProjectType.STUDY.value,
                     BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
                     BTN_COMMAND: CommandType.VIEW.value
                 },
                 {
-                    BTN_LABEL: message_source[lang]['btn.new_task.project.work.label'],
+                    BTN_LABEL: message_source[lang][set_title(ProjectType.WORK.value)],
                     BTN_DATA: ProjectType.WORK.value,
                     BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
                     BTN_COMMAND: CommandType.VIEW.value
                 },
                 {
-                    BTN_LABEL: message_source[lang]['btn.new_task.project.other.label'],
+                    BTN_LABEL: message_source[lang][set_title(ProjectType.OTHER.value)],
                     BTN_DATA: ProjectType.OTHER.value,
                     BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
                     BTN_COMMAND: CommandType.VIEW.value
@@ -195,12 +198,12 @@ class KeyboardBuilder:
         return button_grid
 
     @staticmethod
-    def all_tasks_buttons(tasks):
+    def all_tasks_buttons(lang, tasks):
         button_grid = KeyboardBuilder.tasks_as_buttons(tasks)
         button_grid.append([
-            KeyboardBuilder.btn_list_upcoming('upcoming'),
-            KeyboardBuilder.btn_list_completed('completed'),
-            KeyboardBuilder.btn_home('home')
+            KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.all_tasks.upcoming']),
+            KeyboardBuilder.btn_list_completed(message_source[lang]['btn.all_tasks.completed']),
+            KeyboardBuilder.btn_home(message_source[lang]['btn.all_tasks.home'])
         ])
         markup = KeyboardBuilder.create_inline_keyboard(button_grid)
         return markup

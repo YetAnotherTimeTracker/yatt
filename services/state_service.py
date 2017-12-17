@@ -6,7 +6,7 @@ import datetime
 from emoji import emojize
 from telegram import ParseMode
 
-from services import user_service, task_service
+from services import user_service, task_service, project_service
 from config.state_config import State, Language, CallbackData, Action
 import logging
 
@@ -17,9 +17,9 @@ from components.message_source import message_source
 import g
 from utils.handler_utils import is_callback, deserialize_data
 from utils.view_utils import concat_username
+from utils.date_utils import readable_datetime
 
 log = logging.getLogger(__name__)
-
 
 emoji_rocket = ':rocket: '
 emoji_globe = ':earth_africa: '
@@ -37,7 +37,6 @@ def states():
         State.NEW_TASK: new_task_state,
         State.VIEW_TASK: view_task_state,
         State.EDIT_DATE: edit_date_state,
-        State.EMPTY: empty_state,
         State.ERROR: error_state,
     }
 
@@ -56,70 +55,58 @@ def start_state(bot, update, context):
             context[CONTEXT_LANG] = Language(lang)
 
     lang = context[CONTEXT_LANG]
-    welcome_text = message_source[lang]['state.start_state.welcome']
-    welcome_text = concat_username(emoji_rocket + '*', user, ', ' + welcome_text)
+    welcome_text = concat_username(emoji_rocket + '*', user, ', ' + message_source[lang]['state.start_state.welcome'])
 
+    # TODO count in percent
     num_all, num_upcoming, num_completed = task_service.find_stats_for_user(chat_id)
-    bot_ver = 13    # because why not? :)
+    bot_ver = 17  # because why not? :)
     welcome_text = welcome_text.format(num_upcoming, num_completed, num_all, bot_ver)
 
-    buttons = Kb.start_state_buttons(lang)
     bot.send_message(chat_id=chat_id,
                      text=emojize(welcome_text, use_aliases=True),
                      parse_mode=ParseMode.MARKDOWN,
-                     reply_markup=buttons)
+                     reply_markup=Kb.start_state_buttons(lang))
 
 
+# TODO add refresh list button. if task was deleted it still remains in a list. add re-render list button
 def all_tasks_state(bot, update, context):
     chat = update.effective_chat
     chat_id = chat.id
     lang = context[CONTEXT_LANG]
+    user = user_service.create_or_get_user(chat)
+    user_id = chat_id
 
     action = None
     if is_callback(update):
         deserialized = deserialize_data(update.callback_query.data)
         action = deserialized[CallbackData.ACTION]
 
-    user = user_service.create_or_get_user(chat)
-    user_id = user.get_id()
     tasks = []
     text = None
-
     if not is_callback(update) or action is Action.LIST_ALL:
         tasks = task_service.find_tasks_by_user_id(user_id)
-        text = message_source[lang]['state.all_tasks.tasks.all']
-        text = concat_username(emoji_all + '*', user, ', ' + text)
+        text = concat_username(emoji_all + '*', user, ', ' + message_source[lang]['state.all_tasks.tasks.all'])
 
     elif action is Action.LIST_UPCOMING:
         tasks = task_service.find_upcoming_tasks_by_user_id(user_id)
-        text = message_source[lang]['state.all_tasks.tasks.upcoming']
-        text = concat_username(emoji_upcoming + '*', user, ', ' + text)
+        text = concat_username(emoji_upcoming + '*', user, ', ' + message_source[lang]['state.all_tasks.tasks.upcoming'])
 
     elif action is Action.LIST_COMPLETED:
         tasks = task_service.find_completed_tasks_by_user_id(user_id)
-        text = message_source[lang]['state.all_tasks.tasks.completed']
-        text = concat_username(emoji_completed + '*', user, ', ' + text)
+        text = concat_username(emoji_completed + '*', user, ', ' + message_source[lang]['state.all_tasks.tasks.completed'])
 
-    markup = Kb.all_tasks_buttons(tasks)
     if 0 == len(tasks):
-        # TODO add kbd with [home][all tasks] buttons
         text_no_tasks = message_source[lang]['state.all_tasks.no_tasks_yet']
         notes = message_source[lang]['state.all_tasks.notes.no_tasks_yet']
-        text_no_tasks = concat_username(emoji_search + '*', user, ', ' + text_no_tasks + notes)
-
-        bot.send_message(chat_id=chat_id,
-                         text=emojize(text_no_tasks, use_aliases=True),
-                         parse_mode=ParseMode.MARKDOWN,
-                         reply_markup=markup)
+        text = concat_username(emoji_search + '*', user, ', ' + text_no_tasks + notes)
 
     else:
-        notes_text = message_source[lang]['state.all_tasks.notes']
-        text += notes_text
+        text += message_source[lang]['state.all_tasks.notes']
 
-        bot.send_message(chat_id=chat_id,
-                         text=emojize(text, use_aliases=True),
-                         parse_mode=ParseMode.MARKDOWN,
-                         reply_markup=markup)
+    bot.send_message(chat_id=chat_id,
+                     text=emojize(text, use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN,
+                     reply_markup=Kb.all_tasks_buttons(lang, tasks))
 
 
 def select_lang_state(bot, update, context):
@@ -182,19 +169,21 @@ def new_task_state(bot, update, context):
         new_task.set_next_remind_date(parsed_datetime)
         task_service.update_task(new_task)
 
+    text = None
+    markup = None
     if new_task:
         context[CONTEXT_TASK] = new_task
-        reply_on_success = message_source[lang]['task_created'].format(new_task.get_id())
 
-        user = user_service.find_one_by_user_id(chat.id)
-        if user:
-            reply_on_success = user.get_first_name() + ', ' + reply_on_success
+        text = fill_task_template(lang, new_task, State.NEW_TASK)
+        markup = Kb.select_project_buttons(lang)
 
-        project_buttons = Kb.select_project_buttons(lang)
+    else:
+        text = message_source[lang]['state.new_task.not_created']
 
-        bot.send_message(chat_id=chat_id,
-                         text=emojize(reply_on_success, use_aliases=True),
-                         reply_markup=project_buttons)
+    bot.send_message(chat_id=chat_id,
+                     text=emojize(text, use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN,
+                     reply_markup=markup)
 
 
 def view_task_state(bot, update, context):
@@ -209,6 +198,9 @@ def view_task_state(bot, update, context):
         task_id = deserialized[CallbackData.DATA]
         action = deserialized[CallbackData.ACTION]
 
+        if action is Action.TASK_PROJECT_SELECTED:
+            task_id = context[CONTEXT_TASK].get_id()
+
     else:
         args = update.message.text.split()
         task_id = args[1]
@@ -216,25 +208,64 @@ def view_task_state(bot, update, context):
     user = user_service.create_or_get_user(chat)
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
 
-    # TODO handle if task is completed/enabled notifications/deleted
     if task:
-        reply_text = task.get_description()
+        reply_text = None
+        reply_markup = Kb.view_task_buttons(lang, task_id)
 
         if action is Action.TASK_MARK_AS_DONE:
             task.mark_as_completed()
             reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
+            reply_markup = None
+
+            # TODO switch Done to notDone button
+            bot.edit_message_text(chat_id=chat_id,
+                                  message_id=update.effective_message.message_id,
+                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  reply_markup=Kb.view_task_buttons(lang, task_id))
 
         elif action is Action.TASK_DISABLE:
             task.mark_as_disabled()
-            reply_text = message_source[lang]['btn.view_task.disable_notify.result']
+            reply_text = message_source[lang]['btn.view_task.disable_notify.result'].format(task.get_description())
+            reply_markup = None
+
+            # TODO switch MUte to unMute button
+            bot.edit_message_text(chat_id=chat_id,
+                                  message_id=update.effective_message.message_id,
+                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  reply_markup=Kb.view_task_buttons(lang, task_id))
+
 
         elif action is Action.TASK_DELETE:
             task.mark_as_inactive()
-            reply_text = message_source[lang]['btn.view_task.delete_task.result']
+            reply_text = message_source[lang]['btn.view_task.delete_task.result'].format(task.get_id())
+            reply_markup = None
+
+            bot.delete_message(chat_id=chat_id,
+                               message_id=update.callback_query.message.message_id)
 
         elif action is Action.TASK_VIEW:
             # It's not callback, then just render the state
-            reply_text = task.get_description()
+            reply_text = fill_task_template(lang, task, State.VIEW_TASK)
+
+        # set project id by editing current TASK_VIEW
+        elif action is Action.TASK_PROJECT_SELECTED:
+            deserialized = deserialize_data(update.callback_query.data)
+            project_value = deserialized[CallbackData.DATA]
+
+            project_selected = project_service.create_or_get_project(user.get_id(), project_value)
+            task.set_project_id(project_selected.get_id())
+            task_service.update_task(task)
+
+            context[CONTEXT_TASK] = task
+
+            bot.edit_message_text(chat_id=chat_id,
+                                  message_id=update.callback_query.message.message_id,
+                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  reply_markup=Kb.view_task_buttons(lang, task_id))
+            return
 
         # update task
         task_service.update_task(task)
@@ -242,14 +273,15 @@ def view_task_state(bot, update, context):
         # set updated task to context
         context[CONTEXT_TASK] = task
 
-        view_task_buttons = Kb.view_task_buttons(lang, task_id)
         bot.send_message(chat_id=chat_id,
                          text=emojize(reply_text, use_aliases=True),
-                         reply_markup=view_task_buttons)
+                         parse_mode=ParseMode.MARKDOWN,
+                         reply_markup=reply_markup)
 
     else:
+        reply_on_error = message_source[lang]['state.view_task.not_found']
         bot.send_message(chat_id=chat_id,
-                         text=emojize(message_source[lang]['state.view_task.not_found'], use_aliases=True))
+                         text=emojize(reply_on_error, use_aliases=True))
 
 
 def edit_date_state(bot, update, context):
@@ -281,13 +313,13 @@ def edit_date_state(bot, update, context):
         time_delta_threshold = datetime.timedelta(hours=8)
         nearest_tasks = task_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
         if 0 != len(nearest_tasks):
-
             tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]
             tasks_to_show = tasks_to_show[0:3]
             update.message.reply_text(f'Don\' forget that You already have ' +
                                       'task' if 1 == len(nearest_tasks) else 'tasks' +
-                                      f'assigned near that time:\n' + '\n'.join(tasks_to_show) +
-                                      '\nIf you want to change reminder time, just write it :)')
+                                                                             f'assigned near that time:\n' + '\n'.join(
+                tasks_to_show) +
+                                                                             '\nIf you want to change reminder time, just write it :)')
         return
 
     else:
@@ -296,10 +328,6 @@ def edit_date_state(bot, update, context):
     if err_cause:
         log.error(err_cause)
         update.message.reply_text(f'Sorry, I could not find that task')
-
-
-def empty_state(bot, update, context):
-    pass
 
 
 def error_state(bot, update, context):
@@ -317,3 +345,33 @@ def error_state(bot, update, context):
 
     else:
         log.warning("No task in context found")
+
+
+def fill_task_template(lang, task, state):
+    if not (state is State.NEW_TASK or state is State.VIEW_TASK):
+        raise ValueError('Task template cannot be filled for state: ' + state._name_)
+
+    new_or_review_title = message_source[lang][
+        'state.new_task.created' if state is State.NEW_TASK else 'state.view_task.review'
+    ]
+
+    project = project_service.find_project_by_id(task.get_project_id())
+    project_to_show = message_source[lang]['btn.new_task.project.' + project.get_title() + '.label']
+    if state is State.NEW_TASK:
+        project_to_show = message_source[lang]['project.not_selected']
+
+    status_to_show = message_source[lang]['task.completed' if task.is_task_completed() else 'task.upcoming']
+
+    # show remind date like this: '21 dec 13:37' or like this if muted: '21 dec 13:37 (Muted)'
+    reminder_to_show = readable_datetime(task.get_next_remind_date()) + ' ' + \
+                       (message_source[lang]['task.muted'] if not task.is_task_enabled() else '')
+
+    template = message_source[lang]['state.view_task']
+    filled = template.format(new_or_review_title,
+                             task.get_description(),
+                             reminder_to_show,
+                             readable_datetime(task.get_create_date()),
+                             project_to_show,
+                             status_to_show,
+                             task.get_id())
+    return filled
