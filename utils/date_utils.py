@@ -2,7 +2,7 @@
 Created by anthony on 07.12.2017
 date_utils
 """
-import datetime
+from datetime import datetime, timedelta
 from random import randrange
 from time import strftime, gmtime, time
 
@@ -15,7 +15,7 @@ def random_date(start, end):
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
-    return start + datetime.timedelta(seconds=random_second)
+    return start + timedelta(seconds=random_second)
 
 
 # TODO fix to support 3 inputs: date-month-time, date-time, time
@@ -47,7 +47,7 @@ def parse_date_msg(basedate):
 
     date_line = str(day) + ' ' + str(num) + ' ' + str(datetime.date.today().year) + ' ' + time
 
-    parse_date = datetime.datetime.strptime(date_line, "%d %m %Y %H.%M")
+    parse_date = datetime.strptime(date_line, "%d %m %Y %H.%M")
     return parse_date
 
 
@@ -77,3 +77,11 @@ def log_duration(func):
 
 def seconds_between_tasks(task1, task2):
     return (task1.get_next_remind_date() - task2.get_next_remind_date()).total_seconds()
+
+
+def readable_datetime(datetime_to_parse):
+    if datetime_to_parse is None:
+        return '-'
+
+    else:
+        return datetime.strftime(datetime_to_parse, "%d %b %H:%M")

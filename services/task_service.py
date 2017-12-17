@@ -8,8 +8,9 @@ e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_
 """
 import logging
 
+from models.project import ProjectType
 from models.task import Task
-from services import project_service, user_service, notification_service
+from services import project_service, user_service
 from utils import date_utils
 from utils.db_utils import flush, save, find_all, find_one_by_id, find_active_and_inactive
 
@@ -84,18 +85,16 @@ def create_task(update):
     user = user_service.create_or_get_user(chat)
 
     # create or get project
-    msg_text = update.message.text
-    project = project_service.create_or_get_project(msg_text, user.get_id())
+    basic_type = ProjectType.OTHER.value
+    project = project_service.create_or_get_project(user.get_id(), basic_type)
 
     if project and user:
         log.info(f'Creating task for user {user.get_id()}')
+
+        msg_text = update.message.text
         new_task = Task(description=msg_text, user_id=user.get_id(), project_id=project.get_id())
         flushed_task = flush(new_task)
         saved_task = save(flushed_task)
-
-        # this somehow causes db errors and rolling backs. temporary disabled
-        # project_service.update_nearest_task_for_user_project(project.get_id(), user.get_id())
-
         return saved_task
 
     else:
