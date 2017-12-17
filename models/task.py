@@ -21,13 +21,13 @@ class Task(Base, AbstractEntity):
     description         = Column(String, nullable=False)
     is_completed        = Column(Boolean, default=False)
     priority            = Column(SmallInteger, default=1)
-    create_date         = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    create_date         = Column(DateTime, nullable=False)
     project_id          = Column(BigInteger, ForeignKey('projects.id'), nullable=False)
     # message props
     message_text        = Column(String)
     user_id             = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     # reminder props
-    start_date          = Column(DateTime, default=datetime.datetime.utcnow)
+    start_date          = Column(DateTime)
     end_date            = Column(DateTime)
     next_remind_date    = Column(DateTime)
     is_enabled          = Column(Boolean, default=True)
@@ -46,6 +46,9 @@ class Task(Base, AbstractEntity):
         self.set_message_text(description)
         self.notification_job = None
         self.next_remind_date = None
+        # explicitly setting current datetime from python since postgres writes in UTC by default
+        self.create_date = datetime.datetime.now()
+        self.start_date = datetime.datetime.now()
 
     def get_id(self):
         return self.id

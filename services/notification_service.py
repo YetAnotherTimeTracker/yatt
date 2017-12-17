@@ -50,11 +50,11 @@ def notification_callback(bot, job):
 
         lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
 
-        user = user_service.create_or_get_user(chat_id)
+        user = user_service.find_user_by_id(chat_id)
 
         reminder = message_source[lang]['state.edit_date.reminder'].format(
             task.get_description(), readable_datetime(task.get_create_date()))
-        reply_text = concat_username(emoji_mortal_reminder + '*', user, reminder)
+        reply_text = concat_username(emoji_mortal_reminder + '*', user, ', ' + reminder)
 
         markup = kb.ViewTaskKb(task_id, lang).build()
 

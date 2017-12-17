@@ -86,8 +86,9 @@ def readable_datetime(datetime_to_parse):
         return '-'
 
     else:
-        from_zone = tz.tzutc()
-        utc = datetime_to_parse.replace(tzinfo=from_zone)
-        to_zone = tz.tzlocal()
-        local = utc.astimezone(to_zone)
-        return datetime.strftime(local, "%d %b %H:%M")
+        # from_zone = tz.tzutc()
+        # utc = datetime_to_parse.replace(tzinfo=from_zone)
+        # to_zone = tz.tzlocal()
+        # local = utc.astimezone(to_zone)
+        formatted = datetime.strftime(datetime_to_parse, "%d %b %H:%M")
+        return formatted

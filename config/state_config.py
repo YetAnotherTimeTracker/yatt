@@ -11,7 +11,7 @@ TRANSITION_TABLE = [
     [0,     2,      3,      5,      1,      6],     # 1. all tasks
     [0,     2,      3,      4,      1,      6],     # 2. new task
     [0,     2,      3,      4,      1,      6],     # 3. view task
-    [5,     2,      3,      4,      1,      4],     # 4. edit date
+    [0,     2,      3,      4,      1,      4],     # 4. edit date
     [0,     2,      3,      5,      1,      6],     # 5. error
     [0,     1,      5,      5,      1,      0],     # 6. select language
 ]
@@ -53,7 +53,7 @@ CommandAliases = {
     CommandType.START: ['/start', '/hi', '/привет', '/дратути'],
     CommandType.ALL: ['/all', '/все', '/задачи'],
     CommandType.VIEW: ['/id', '/task', '/задача', '/таск'],
-    CommandType.DATE: ['/date'],
+    CommandType.DATE: ['/date', '/дата'],
     CommandType.LANG: ['/lang', '/language', '/язык'],
     # CommandType.ECHO: ['']
 }

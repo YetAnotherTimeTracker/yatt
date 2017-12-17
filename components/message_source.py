@@ -4,7 +4,7 @@ from config.state_config import Language
 
 message_source = {
     Language.ENG: {
-        'error': 'Error. Latest task id: {}. Command trace: {}',
+        'error': ':pensive: I\'m really sorry, but there were an error :(',
 
         'date.hr': ' in *{} hr.*',
         'date.hrs': ' in *{} hrs.*',
@@ -17,7 +17,7 @@ message_source = {
 
         'project.not_selected': ':question: Not selected',
 
-        'filter.unknown': ':interrobang: Unknown command',
+        'filter.unknown': ':confused: Sorry, I could not get your command :(',
 
         'state.start_state.welcome': 'welcome to task tracking service!*\n'
                                      '\n'
@@ -72,8 +72,8 @@ message_source = {
         'state.edit_date.reminder': 'you have a reminder!*\n'
                                     '\n'
                                     '      `{}`\n'   # task description
-                                    '\n',
-                                    'This task was created on *{}*'
+                                    '\n'
+                                    'This task was created on {}',
 
         'state.select_lang': 'please, select language from the variants below*\n'
                              '\n'
@@ -115,7 +115,7 @@ message_source = {
     },
 
     Language.RUS: {
-        'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
+        'error': ':pensive: Мне очень жаль, но произошла непредвиденная ошибка :(',
 
         'date.hr': ' в *{} ч.*',
         'date.hrs': ' в *{} ч.*',
@@ -128,7 +128,7 @@ message_source = {
 
         'project.not_selected': ':question: Не распределено',
 
-        'filter.unknown': ':interrobang: Неизвестная команда',
+        'filter.unknown': ':confused: Не удалось распознать Вашу команду :(',
 
         'state.start_state.welcome': 'добро пожаловать в сервис таск-трекинга!*\n'
                                      '\n'
@@ -180,11 +180,11 @@ message_source = {
                                        '\n'
                                        ':bulb: _Для установки уведомления, используйте один из этих паттернов_:\n'
                                        '"/date 13-37", "/date 21 13-37" _or_ "/date 21 дек 13-37"',
-        'state.edit_date.reminder': 'У вас 1 уведомление!*\n'
+        'state.edit_date.reminder': 'у меня для Вас уведомление!*\n'
                                     '\n'
                                     '      `{}`\n'   # task description
-                                    '\n',
-                                    'Эта задача была добавлена *{}*'
+                                    '\n'
+                                    'Эта задача была добавлена {}',
 
         'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
                              '\n'

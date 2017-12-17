@@ -3,13 +3,16 @@ Created by anthony on 15.10.17
 start_handler
 """
 import logging
+
+from emoji import emojize
+from telegram import ParseMode
 from telegram.ext import MessageHandler, Filters, CallbackQueryHandler
 
 import g
 from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK, CONTEXT_LANG, CONTEXT_ACTION
 from components.filter import command_filter
 from components.message_source import message_source
-from config.state_config import CallbackData
+from config.state_config import CallbackData, Language
 from services import state_service
 from utils.handler_utils import get_command_type, is_callback, deserialize_data
 
@@ -28,6 +31,7 @@ def callback_handler():
 def handle(bot, update):
     chat = update.effective_chat
     chat_id = chat.id
+    curr_context = None
     try:
         curr_command = None
         curr_action = None
@@ -82,8 +86,11 @@ def handle(bot, update):
 
     except Exception as e:
         log.error('Error has been caught in handler: ', e)
+        lang = curr_context[CONTEXT_LANG] if curr_context is not None else Language.ENG.value
+        text = message_source[lang]['error']
         bot.send_message(chat_id=chat_id,
-                         text=f'Sorry, there were an error: {e}')
+                         text=emojize(text, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
     else:
         log.info('<-- Successfully handled')
@@ -94,7 +101,9 @@ def reply_on_unknown(bot, chat_id):
 
     lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
     text = message_source[lang]['filter.unknown']
-    bot.send_message(chat_id=chat_id, text=text)
+    bot.send_message(chat_id=chat_id,
+                     text=emojize(text, use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN)
 
 
 def print_dev_info(bot, chat_id, curr_context):
