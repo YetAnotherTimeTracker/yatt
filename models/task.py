@@ -123,6 +123,9 @@ class Task(Base, AbstractEntity):
     def mark_as_completed(self):
         self.is_completed = True
 
+    def mark_as_not_completed(self):
+        self.is_completed = False
+
     def is_task_completed(self):
         return self.is_completed
 

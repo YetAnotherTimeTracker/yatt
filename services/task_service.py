@@ -134,3 +134,10 @@ def find_stats_for_user(user_id_val):
     upcoming = len(find_upcoming_tasks_by_user_id(user_id))
     completed = len(find_completed_tasks_by_user_id(user_id))
     return all_by_user, upcoming, completed
+
+
+def find_latest_task_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    tasks = sorted(tasks, key=lambda t: t.get_create_date(), reverse=True)
+    return tasks[0]

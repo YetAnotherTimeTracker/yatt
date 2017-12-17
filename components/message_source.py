@@ -7,7 +7,7 @@ message_source = {
         'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
 
-        'task.upcoming': 'Active',
+        'task.upcoming': 'Upcoming',
         'task.completed': 'Completed',
         'task.muted': '(:no_bell: Muted)',
 
@@ -46,10 +46,11 @@ message_source = {
         'state.all_tasks.tasks.upcoming': 'here are your upcoming tasks:*\n',
         'state.all_tasks.tasks.completed': 'congratulations on completing these tasks:*\n',
         'state.all_tasks.tasks.all': 'here are all the tasks you have now:*\n',
-        'state.all_tasks.no_tasks_yet': 'I could not find any tasks of provided category*\n',
+        'state.all_tasks.no_tasks_yet': 'I could not find any tasks of that status*\n',
         'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _To create a new task, just write me something_ :)\n',
         'state.all_tasks.notes': '\n:bulb: _To create a new task, just write me something_ :)\n'
-                                 ':bulb: _Controls are on the bottom of the list_\n',
+                                 ':bulb: _Controls are on the bottom of the list_\n'
+                                 ':bulb: _To refresh the list, click on one of the buttons below_',
 
         'state.select_lang': 'please, select language from the variants below*\n'
                              '\n'
@@ -69,14 +70,19 @@ message_source = {
 
         'btn.all_tasks.upcoming': ':black_square_button: Upcoming',
         'btn.all_tasks.completed': ':white_check_mark: Completed',
+        'btn.all_tasks.refresh': ':arrows_counterclockwise: Refresh',
         'btn.all_tasks.home': ':house: Home',
 
         'btn.view_task.delete_task.label': ':x: Remove',
         'btn.view_task.delete_task.result': ':x: Task with ID "{}" has been removed',
         'btn.view_task.disable_notify.label': ':no_bell: Mute',
         'btn.view_task.disable_notify.result': ':no_bell: Notifications have been muted for task "*{}*"',
+        'btn.view_task.enable_notify.label': ':bell: Unmute',
+        'btn.view_task.enable_notify.result': ':bell: Notifications have been enabled for task "*{}*"',
         'btn.view_task.mark_as_done.label': ':white_check_mark: Done',
         'btn.view_task.mark_as_done.result': ':white_check_mark: Congratulations on completing the task! :clap:',
+        'btn.view_task.mark_undone.label': ':black_square_button: Not done',
+        'btn.view_task.mark_undone.result': ':black_square_button: Task has been marked as upcoming',
         'btn.view_task.upcoming.label': ':black_square_button: Upcoming',
         'btn.view_task.completed.label': ':white_check_mark: Completed',
         'btn.view_task.all.label': ':clipboard: All',
@@ -91,8 +97,8 @@ message_source = {
         'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
 
-        'task.upcoming': 'Активная',
-        'task.completed': 'Выполнено',
+        'task.upcoming': 'Предстоящая',
+        'task.completed': 'Выполненная',
         'task.muted': '(:no_bell: Уведомления выключены)',
 
         'project.not_selected': ':question: Не распределено',
@@ -105,15 +111,15 @@ message_source = {
                                      ':white_check_mark: *Выполнено* задач: {}\n'
                                      ':scroll: *Всего* задач создано за все время: {}\n'
                                      '\n'
-                                     ':bulb: _*Перейдите к задачам* с помощью кнопок ниже_\n'
-                                     ':bulb: _Чтобы *создать задачу*, просто напишите мне сообщение_ :)\n'
+                                     ':bulb: _Перейдите к задачам с помощью кнопок ниже_\n'
+                                     ':bulb: _Чтобы создать задачу, просто напишите мне сообщение_ :)\n'
                                      '\n'
                                      'Версия: 0.{} Alpha\n',
 
         'state.view_task.review': 'Просмотр задачи',
         'state.view_task':  ':pencil: *{}*\n'   # New task has been created / Task review
                             '\n'
-                            '      *{}*\n'  # task description
+                            '      `{}`\n'  # task description
                             '\n'
                             'Время уведомления: *{}*\n'
                             'Задача создана: *{}*\n'
@@ -130,10 +136,11 @@ message_source = {
         'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
         'state.all_tasks.tasks.completed': 'поздравляю с завршением этих задач:*\n',
         'state.all_tasks.tasks.all': 'список всех имеющихся у Вас задач на данный момент:*\n',
-        'state.all_tasks.no_tasks_yet': 'Не найдено задач выбранного типа*\n',
-        'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _Чтобы *создать задачу*, просто напишите мне что-нибудь_ :)\n',
-        'state.all_tasks.notes': '\n:bulb: _Чтобы *создать задачу*, просто напишите мне что-нибудь_ :)\n'
-                                 ':bulb: _Кнопки управления расположены внизу списка_\n',
+        'state.all_tasks.no_tasks_yet': 'Не найдено задач с выбранным статусом*\n',
+        'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _Чтобы создать задачу, просто напишите мне что-нибудь_ :)\n',
+        'state.all_tasks.notes': '\n:bulb: _Чтобы создать задачу, просто напишите мне что-нибудь_ :)\n'
+                                 ':bulb: _Кнопки управления расположены внизу списка_\n'
+                                 ':bulb: _Чтобы обновить список, используйте кнопки ниже_',
 
         'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
                              '\n'
@@ -153,14 +160,19 @@ message_source = {
 
         'btn.all_tasks.upcoming': ':black_square_button: Предстоящие',
         'btn.all_tasks.completed': ':white_check_mark: Выполненные',
+        'btn.all_tasks.refresh': ':arrows_counterclockwise: Обновить',
         'btn.all_tasks.home': ':house: Домой',
 
         'btn.view_task.delete_task.label': ':x: Удалить',
         'btn.view_task.delete_task.result': ':x: Задача с ID "{}" удалена',
         'btn.view_task.disable_notify.label': ':no_bell: Выкл. уведомл.',
         'btn.view_task.disable_notify.result': ':no_bell: Уведомления отключены для задачи "*{}*"',
+        'btn.view_task.enable_notify.label': ':bell: Включить',
+        'btn.view_task.enable_notify.result': ':bell: Уведомления для задачи "*{}*" включены',
         'btn.view_task.mark_as_done.label': ':white_check_mark: Выполнено',
         'btn.view_task.mark_as_done.result': ':white_check_mark: Поздравляю с выполнением задачи! :clap:',
+        'btn.view_task.mark_undone.label': ':black_square_button: Отменить',
+        'btn.view_task.mark_undone.result': ':black_square_button: Задача отмечена, как предстоящая',
         'btn.view_task.upcoming.label': ':black_square_button: Предстоящ.',
         'btn.view_task.completed.label': ':white_check_mark: Выполн.',
         'btn.view_task.all.label': ':clipboard: Все',

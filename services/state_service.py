@@ -171,7 +171,7 @@ def new_task_state(bot, update, context):
         context[CONTEXT_TASK] = new_task
 
         text, markup = view_task_template_and_markup(lang, new_task, State.NEW_TASK)
-
+        markup = kb.SelectProjectKb(lang).build()
     else:
         text = message_source[lang]['state.new_task.not_created']
 
@@ -194,7 +194,12 @@ def view_task_state(bot, update, context):
         action = deserialized[CallbackData.ACTION]
 
         if action is Action.TASK_PROJECT_SELECTED:
-            task_id = context[CONTEXT_TASK].get_id()
+            task = context[CONTEXT_TASK]
+            # if bot was restarted then it has not tasks in context. then get latest task
+            if task is None:
+                task = task_service.find_latest_task_by_user_id(chat_id)
+
+            task_id = task.get_id()
 
     else:
         args = update.message.text.split()
@@ -208,9 +213,14 @@ def view_task_state(bot, update, context):
         reply_markup = kb.ViewTaskKb(task_id, lang).build()
 
         if action is Action.TASK_MARK_AS_DONE:
-            task.mark_as_completed()
-            reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
             reply_markup = None
+            if task.is_task_completed():
+                task.mark_as_not_completed()
+                reply_text = message_source[lang]['btn.view_task.mark_undone.result']
+
+            else:
+                task.mark_as_completed()
+                reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
 
             text_on_edit, markup_on_edit = view_task_template_and_markup(lang, task, State.VIEW_TASK)
             bot.edit_message_text(chat_id=chat_id,
@@ -220,9 +230,14 @@ def view_task_state(bot, update, context):
                                   reply_markup=markup_on_edit)
 
         elif action is Action.TASK_DISABLE:
-            task.mark_as_disabled()
-            reply_text = message_source[lang]['btn.view_task.disable_notify.result'].format(task.get_description())
             reply_markup = None
+            if task.is_task_enabled():
+                task.mark_as_disabled()
+                reply_text = message_source[lang]['btn.view_task.disable_notify.result'].format(task.get_description())
+
+            else:
+                task.mark_as_enabled()
+                reply_text = message_source[lang]['btn.view_task.enable_notify.result'].format(task.get_description())
 
             text_on_edit, markup_on_edit = view_task_template_and_markup(lang, task, State.VIEW_TASK)
             bot.edit_message_text(chat_id=chat_id,
@@ -373,11 +388,13 @@ def view_task_template_and_markup(lang, task, state):
 
     markup = kb.ViewTaskKb(task.get_id(), lang)
 
-    if task.is_task_enabled():
-        pass
+    if not task.is_task_enabled():
+        unmute_button = kb.ViewTaskCommandButton('btn.view_task.enable_notify.label', lang, Action.TASK_DISABLE, data=task.get_id())
+        markup.set_button_at_position(unmute_button, 0, 1)
 
     if task.is_task_completed():
-        pass
+        undone_button = kb.ViewTaskCommandButton('btn.view_task.mark_undone.label', lang, Action.TASK_MARK_AS_DONE, data=task.get_id())
+        markup.set_button_at_position(undone_button, 0, 0)
 
     built_markup = markup.build()
     return filled_template, built_markup

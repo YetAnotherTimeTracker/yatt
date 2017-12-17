@@ -186,7 +186,8 @@ class ViewTaskKb(Keyboard):
             ],
             [
                 AllTasksCommandButton('btn.view_task.upcoming.label', lang, Action.LIST_UPCOMING),
-                AllTasksCommandButton('btn.view_task.all.label', lang, Action.LIST_ALL)
+                AllTasksCommandButton('btn.all_tasks.completed', lang, Action.LIST_COMPLETED),
+                StartCommandButton('btn.all_tasks.home', lang)
             ]
         ])
 
