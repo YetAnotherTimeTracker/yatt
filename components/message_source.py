@@ -19,7 +19,7 @@ message_source = {
                                      '\n'
                                      ':black_square_button: Number of *upcoming* tasks: {}\n'
                                      ':white_check_mark: Number of *completed* tasks: {}\n'
-                                     ':scroll: *Created* tasks in total: {}\n'
+                                     ':scroll: *Total* number of tasks: {}\n'
                                      '\n'
                                      ':bulb: _You can proceed to tasks with buttons below_\n'
                                      ':bulb: _Or write me anything You want to track and I will create a new task for You_ :)\n'
@@ -101,7 +101,7 @@ message_source = {
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
 
         'task.upcoming': 'Предстоящая',
-        'task.completed': 'Выполненная',
+        'task.completed': 'Выполнено',
         'task.muted': '(:no_bell: Уведомления выключены)',
 
         'project.not_selected': ':question: Не распределено',
@@ -112,7 +112,7 @@ message_source = {
                                      '\n'
                                      ':black_square_button: *Предстоящих* задач: {}\n'
                                      ':white_check_mark: *Выполнено* задач: {}\n'
-                                     ':scroll: *Всего* задач создано за все время: {}\n'
+                                     ':scroll: *Всего* задач: {}\n'
                                      '\n'
                                      ':bulb: _Перейдите к задачам с помощью кнопок ниже_\n'
                                      ':bulb: _Чтобы создать задачу, просто напишите мне сообщение_ :)\n'

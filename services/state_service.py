@@ -57,9 +57,11 @@ def start_state(bot, update, context):
     lang = context[CONTEXT_LANG]
     welcome_text = concat_username(emoji_rocket + '*', user, ', ' + message_source[lang]['state.start_state.welcome'])
 
-    # TODO count in percent
     num_all, num_upcoming, num_completed = task_service.find_stats_for_user(chat_id)
     bot_ver = 17  # because why not? :)
+    completed_percent = 0 if 0 == num_all else int(num_completed / num_all * 100)
+    num_completed = f'{num_completed} ({completed_percent} %)'
+    num_upcoming = f'{num_upcoming} ({0 if 0 == num_all else (100 - completed_percent)} %)'
     welcome_text = welcome_text.format(num_upcoming, num_completed, num_all, bot_ver)
 
     bot.send_message(chat_id=chat_id,

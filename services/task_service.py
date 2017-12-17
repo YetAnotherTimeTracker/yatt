@@ -129,8 +129,7 @@ def find_tasks_within_timedelta(task_to_check, time_delta_threshold):
 
 def find_stats_for_user(user_id_val):
     user_id = int(user_id_val)
-    all = find_active_and_inactive(Task)
-    all_by_user = len([t for t in all if t.get_user_id() == user_id])
+    all_by_user = len(find_tasks_by_user_id(user_id))
     upcoming = len(find_upcoming_tasks_by_user_id(user_id))
     completed = len(find_completed_tasks_by_user_id(user_id))
     return all_by_user, upcoming, completed
