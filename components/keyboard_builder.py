@@ -6,10 +6,12 @@ import json
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from emoji import emojize
+from abc import ABC, abstractmethod
 
 from components.message_source import message_source
 from config.state_config import Action, CallbackData, Language, CommandType
 from models.project import ProjectType
+
 
 log = logging.getLogger(__name__)
 
@@ -24,229 +26,147 @@ BTN_ACTION = 'button_action'
 DATA_LIMIT_IN_BYTES = 64
 
 
-class KeyboardBuilder:
+class Button:
+    def __init__(self, label, lang, action, command, data=None):
+        if type(action) is not Action:
+            raise ValueError('Action provided to button is not of Action type: ' + action)
 
-    @staticmethod
-    def btn_task_mark_as_done(lang, task_id):
-        return {
-            BTN_LABEL: message_source[lang]['btn.view_task.mark_as_done.label'],
-            BTN_DATA: str(task_id),
-            BTN_ACTION: Action.TASK_MARK_AS_DONE.value,
-            BTN_COMMAND: CommandType.VIEW.value
+        if type(command) is not CommandType:
+            raise ValueError('Command provided to button is not of Command type: ' + command)
+
+        self.label = str(label) if lang is None else message_source[lang][label]  # in case of task as button
+        self.data = str(data) if data is not None else 'sao'
+        self.action = action.value
+        self.command = command.value
+
+    def set_label(self, new_label):
+        self.label = new_label
+
+    def set_data(self, new_data):
+        if new_data is None or '' == new_data:
+            raise ValueError('Explicitly defined data cannot be empty or null')
+
+        self.data = new_data
+
+    def build(self):
+        # this data is passed to callback and is accepted by action reducer
+        data = {
+            CallbackData.ACTION.value: self.action,
+            CallbackData.DATA.value: self.data,
+            CallbackData.COMMAND.value: self.command
         }
+        serialized_data = json.dumps(data)
+
+        encoded = serialized_data.encode('utf-8')
+        if len(encoded) > DATA_LIMIT_IN_BYTES:
+            raise ValueError(f'Too large data is going to be passed to to callback: '
+                             f'{len(encoded)} bytes. Limit: {DATA_LIMIT_IN_BYTES} bytes')
+
+        new_button = InlineKeyboardButton(emojize(self.label, use_aliases=True), callback_data=serialized_data)
+        return new_button
 
 
-    @staticmethod
-    def btn_task_delete(lang, task_id):
-        return {
-            BTN_LABEL: message_source[lang]['btn.view_task.delete_task.label'],
-            BTN_DATA: str(task_id),
-            BTN_ACTION: Action.TASK_DELETE.value,
-            BTN_COMMAND: CommandType.VIEW.value
-        }
-
-    @staticmethod
-    def btn_task_disable_notify(lang, task_id):
-        return {
-            BTN_LABEL: message_source[lang]['btn.view_task.disable_notify.label'],
-            BTN_DATA: str(task_id),
-            BTN_ACTION: Action.TASK_DISABLE.value,
-            BTN_COMMAND: CommandType.VIEW.value
-        }
-
-    @staticmethod
-    def btn_home(label):
-        return {
-            BTN_LABEL: label,
-            BTN_DATA: 'fuck',  # not used
-            BTN_ACTION: Action.START.value,
-            BTN_COMMAND: CommandType.START.value
-        }
-
-    @staticmethod
-    def btn_list_all(label):
-        return {
-            BTN_LABEL: label,
-            BTN_DATA: 'fuck',  # not used
-            BTN_ACTION: Action.LIST_ALL.value,
-            BTN_COMMAND: CommandType.ALL.value
-        }
-
-    @staticmethod
-    def btn_list_upcoming(label):
-        btn = KeyboardBuilder.btn_list_all(label)
-        btn[BTN_ACTION] = Action.LIST_UPCOMING.value
-        return btn
-
-    @staticmethod
-    def btn_list_completed(label):
-        btn = KeyboardBuilder.btn_list_all(label)
-        btn[BTN_ACTION] = Action.LIST_COMPLETED.value
-        return btn
-
-    @staticmethod
-    def view_task_buttons(lang, task_id):
-        button_grid = [
-            [
-                KeyboardBuilder.btn_task_mark_as_done(lang, task_id),
-                KeyboardBuilder.btn_task_disable_notify(lang, task_id),
-                KeyboardBuilder.btn_task_delete(lang, task_id)
-            ],
-            [
-                KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.view_task.upcoming.label']),
-                KeyboardBuilder.btn_list_all(message_source[lang]['btn.view_task.all.label'])
-            ]
-        ]
-        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
-        return markup
+class ViewTaskCommandButton(Button):
+    def __init__(self, label, lang, action, data):
+        super().__init__(label, lang, action, CommandType.VIEW, data)
 
 
-    @staticmethod
-    def select_lang_buttons(lang):
-        button_grid = [
-            [
-                {
-                    BTN_LABEL: message_source[lang]['btn.select_lang.eng.label'],
-                    BTN_DATA: Language.ENG.value,
-                    BTN_ACTION: Action.SELECTED_LANG.value,
-                    BTN_COMMAND: CommandType.LANG.value
-                },
-                {
-                    BTN_LABEL: message_source[lang]['btn.select_lang.rus.label'],
-                    BTN_DATA: Language.RUS.value,
-                    BTN_ACTION: Action.SELECTED_LANG.value,
-                    BTN_COMMAND: CommandType.LANG.value
-                }
-            ]
-        ]
-        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
-        return markup
+class StartCommandButton(Button):
+    def __init__(self, label, lang):
+        super().__init__(label, lang, Action.START, CommandType.START)
 
 
-    @staticmethod
-    def start_state_buttons(lang):
-        button_grid = [
-            KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.start_state.to_tasks.upcoming.label']),
-            KeyboardBuilder.btn_list_completed(message_source[lang]['btn.start_state.to_tasks.completed.label']),
-            KeyboardBuilder.btn_list_all(message_source[lang]['btn.start_state.to_tasks.all.label']),
-            {
-                BTN_LABEL: message_source[lang]['btn.start_state.select_lang.label'],
-                BTN_DATA: 'x7',
-                BTN_ACTION: Action.VIEW_LANG.value,
-                BTN_COMMAND: CommandType.LANG.value
-            }
-        ]
-        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
-        return markup
+class AllTasksCommandButton(Button):
+    def __init__(self, label, lang, action):
+        super().__init__(label, lang, action, CommandType.ALL)
 
-    @staticmethod
-    def select_project_buttons(lang):
-        def set_title(str):
+
+class ViewLangCommandButton(Button):
+    def __init__(self, label, lang, action):
+        super().__init__(label, lang, action, CommandType.LANG)
+
+
+class SelectLangButton(ViewLangCommandButton):
+    """
+    Command type and action are already set up
+    """
+    def __init__(self, label, lang, lang_data):
+        super().__init__(label, lang, Action.SELECTED_LANG)
+        self.set_data(lang_data.value)
+
+
+class SelectProjectButton(ViewTaskCommandButton):
+    """
+    Command type, data and action are already set up
+    """
+    def __init__(self, lang, project):
+        def build_title(str):
             return f'btn.new_task.project.{str}.label'
 
-        button_grid = [
-            [
-                {
-                    BTN_LABEL: message_source[lang][set_title(ProjectType.PERSONAL.value)],
-                    BTN_DATA: ProjectType.PERSONAL.value,
-                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                },
-                {
-                    BTN_LABEL: message_source[lang][set_title(ProjectType.STUDY.value)],
-                    BTN_DATA: ProjectType.STUDY.value,
-                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                },
-                {
-                    BTN_LABEL: message_source[lang][set_title(ProjectType.WORK.value)],
-                    BTN_DATA: ProjectType.WORK.value,
-                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                },
-                {
-                    BTN_LABEL: message_source[lang][set_title(ProjectType.OTHER.value)],
-                    BTN_DATA: ProjectType.OTHER.value,
-                    BTN_ACTION: Action.TASK_PROJECT_SELECTED.value,
-                    BTN_COMMAND: CommandType.VIEW.value
-                }
-            ]
-        ]
-        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
-        return markup
+        super().__init__(build_title(project.value), lang, Action.TASK_PROJECT_SELECTED, data=project.value)
 
 
-    @staticmethod
-    def tasks_as_buttons(tasks):
-        button_grid = []
-        for task in tasks:
 
-            btn_label = task.get_description()
-            if task.is_task_completed():
-                btn_label = ':white_check_mark: ' + btn_label
+class Keyboard(ABC):
+    def __init__(self, button_grid):
+        self.button_grid = button_grid
 
-            else:
-                btn_label = ':black_square_button: ' + btn_label
+    def set_button_grid(self, new_button_grid):
+        self.button_grid = new_button_grid
 
-            task_as_button = [{
-                BTN_LABEL: btn_label,
-                BTN_DATA: task.get_id(),
-                BTN_ACTION: Action.TASK_VIEW.value,
-                BTN_COMMAND: CommandType.VIEW.value
-            }]
-            button_grid.append(task_as_button)
-        return button_grid
+    def set_button_at_position(self, new_button, row, col=None):
+        if list == type(self.button_grid[row]):
+            if col is None or col >= len(self.button_grid[row]):
+                raise ValueError('Column is null or out of range')
 
-    @staticmethod
-    def all_tasks_buttons(lang, tasks):
-        button_grid = KeyboardBuilder.tasks_as_buttons(tasks)
-        button_grid.append([
-            KeyboardBuilder.btn_list_upcoming(message_source[lang]['btn.all_tasks.upcoming']),
-            KeyboardBuilder.btn_list_completed(message_source[lang]['btn.all_tasks.completed']),
-            KeyboardBuilder.btn_home(message_source[lang]['btn.all_tasks.home'])
-        ])
-        markup = KeyboardBuilder.create_inline_keyboard(button_grid)
-        return markup
+            self.button_grid[row][col] = new_button
 
+        else:
+            self.button_grid[row] = new_button
 
-    @staticmethod
-    def create_inline_keyboard(button_grid):
+    def build(self):
         """
-        Creates _inline_ keyboard and returns it's markup with grid of buttons like this:
-        [
-            { English },
-            { Русский }
-        ],
-        { Exit },
-        [
-            { X },
-            { AB },
-            { Y }
-        ]
+                Creates _inline_ keyboard and returns it's markup with grid of buttons like this:
+                [
+                    { English },
+                    { Русский }
+                ],
+                { Exit },
+                [
+                    { X },
+                    { AB },
+                    { Y }
+                ]
 
-        -->
+                -->
 
-        [ English ][ Русский ]
-        [        Exit        ]
-        [  X  ][  AB  ][  Y  ]
-        """
+                [ English ][ Русский ]
+                [        Exit        ]
+                [  X  ][  AB  ][  Y  ]
+                """
+        def is_singleton_list(obj):
+            return list == type(obj) and 1 == len(obj)
+
+        if self.button_grid is None:
+            raise ValueError('Button grid is empty. Cannot build keyboard')
+
         buttons = []
-        for grid_element in button_grid:
+        for grid_element in self.button_grid:
             # nested element can be a sub-grid (list with buttons)
             if list == type(grid_element) and 1 < len(grid_element):
 
                 button_row = []
                 for element in grid_element:
-                    new_button = KeyboardBuilder.__create_inline_button(element)
+                    new_button = element.build()
                     button_row.append(new_button)
                 buttons.append(button_row)
 
             # or single button (dict or singleton list of single button)
-            elif dict == type(grid_element) or KeyboardBuilder.__is_singleton_list(grid_element):
+            elif issubclass(grid_element.__class__, Button) or is_singleton_list(grid_element):
                 if list == type(grid_element):
                     grid_element = grid_element[0]
 
-                new_button = KeyboardBuilder.__create_inline_button(grid_element)
+                new_button = grid_element.build()
                 buttons.append([new_button])
 
             else:
@@ -256,26 +176,68 @@ class KeyboardBuilder:
         return kb
 
 
-    @staticmethod
-    def __create_inline_button(button_data):
-        # this data is passed to callback and is accepted by action reducer
-        data = {
-            CallbackData.ACTION.value: button_data[BTN_ACTION],
-            CallbackData.DATA.value: button_data[BTN_DATA],
-            CallbackData.COMMAND.value: button_data[BTN_COMMAND]
-        }
-        serialized_data = json.dumps(data)
-
-        encoded = serialized_data.encode('utf-8')
-        if len(encoded) > DATA_LIMIT_IN_BYTES:
-            raise ValueError(f'Too large data is going to be passed to to callback: '
-                             f'{len(encoded)} bytes. Limit: {DATA_LIMIT_IN_BYTES} bytes')
-
-        new_button = InlineKeyboardButton(emojize(button_data[BTN_LABEL], use_aliases=True),
-                                          callback_data=serialized_data)
-        return new_button
+class ViewTaskKb(Keyboard):
+    def __init__(self, task_id, lang):
+        super().__init__([
+            [
+                ViewTaskCommandButton('btn.view_task.mark_as_done.label', lang, Action.TASK_MARK_AS_DONE, data=task_id),
+                ViewTaskCommandButton('btn.view_task.disable_notify.label', lang, Action.TASK_DISABLE, data=task_id),
+                ViewTaskCommandButton('btn.view_task.delete_task.label', lang, Action.TASK_DELETE, data=task_id)
+            ],
+            [
+                AllTasksCommandButton('btn.view_task.upcoming.label', lang, Action.LIST_UPCOMING),
+                AllTasksCommandButton('btn.view_task.all.label', lang, Action.LIST_ALL)
+            ]
+        ])
 
 
-    @staticmethod
-    def __is_singleton_list(obj):
-        return list == type(obj) and 1 == len(obj)
+class SelectLangKb(Keyboard):
+    def __init__(self, lang):
+        super().__init__([
+            [
+                SelectLangButton('btn.select_lang.eng.label', lang, lang_data=Language.ENG),
+                SelectLangButton('btn.select_lang.rus.label', lang, lang_data=Language.RUS)
+            ]
+        ])
+
+
+class StartStateKb(Keyboard):
+    def __init__(self, lang):
+        super().__init__([
+            AllTasksCommandButton('btn.start_state.to_tasks.upcoming.label', lang, Action.LIST_UPCOMING),
+            AllTasksCommandButton('btn.start_state.to_tasks.completed.label', lang, Action.LIST_COMPLETED),
+            AllTasksCommandButton('btn.start_state.to_tasks.all.label', lang, Action.LIST_ALL),
+            ViewLangCommandButton('btn.start_state.select_lang.label', lang, Action.VIEW_LANG)
+        ])
+
+
+class SelectProjectKb(Keyboard):
+    def __init__(self, lang):
+        super().__init__([
+            [
+                SelectProjectButton(lang, ProjectType.PERSONAL),
+                SelectProjectButton(lang, ProjectType.STUDY),
+                SelectProjectButton(lang, ProjectType.WORK),
+                SelectProjectButton(lang, ProjectType.OTHER),
+            ]
+        ])
+
+
+class TasksAsButtons(Keyboard):
+    def __init__(self, tasks, lang):
+        super().__init__(None)
+        button_grid = []
+        for task in tasks:
+            btn_label = (':white_check_mark: ' if task.is_task_completed() else ':black_square_button: ') + task.get_description()
+
+            task_as_button = ViewTaskCommandButton(btn_label, None, Action.TASK_VIEW, task.get_id())
+            button_grid.append(task_as_button)
+
+        # add navigation buttons
+        # TODO add refresh button
+        button_grid.append([
+            AllTasksCommandButton('btn.all_tasks.upcoming', lang, Action.LIST_UPCOMING),
+            AllTasksCommandButton('btn.all_tasks.completed', lang, Action.LIST_COMPLETED),
+            StartCommandButton('btn.all_tasks.home', lang)
+        ])
+        self.set_button_grid(button_grid)

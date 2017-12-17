@@ -11,7 +11,7 @@ from config.state_config import State, Language, CallbackData, Action
 import logging
 
 from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
-from components.keyboard_builder import KeyboardBuilder as Kb
+import components.keyboard_builder as kb
 from utils import view_utils, date_utils
 from components.message_source import message_source
 import g
@@ -65,7 +65,7 @@ def start_state(bot, update, context):
     bot.send_message(chat_id=chat_id,
                      text=emojize(welcome_text, use_aliases=True),
                      parse_mode=ParseMode.MARKDOWN,
-                     reply_markup=Kb.start_state_buttons(lang))
+                     reply_markup=kb.StartStateKb(lang).build())
 
 
 # TODO add refresh list button. if task was deleted it still remains in a list. add re-render list button
@@ -106,7 +106,7 @@ def all_tasks_state(bot, update, context):
     bot.send_message(chat_id=chat_id,
                      text=emojize(text, use_aliases=True),
                      parse_mode=ParseMode.MARKDOWN,
-                     reply_markup=Kb.all_tasks_buttons(lang, tasks))
+                     reply_markup=kb.TasksAsButtons(tasks, lang).build())
 
 
 def select_lang_state(bot, update, context):
@@ -129,23 +129,19 @@ def select_lang_state(bot, update, context):
         context[CONTEXT_LANG] = lang
 
         text = message_source[lang]['btn.select_lang.' + lang_string + '.result']
-        buttons = Kb.start_state_buttons(lang)
+        buttons = kb.StartStateKb(lang).build()
 
     elif action is Action.VIEW_LANG:
         # It's callback. nevertheless just show available langs
         lang = context[CONTEXT_LANG]
-        text = message_source[lang]['state.select_lang']
-        text = concat_username(emoji_globe + '*', user, ', ' + text)
-
-        buttons = Kb.select_lang_buttons(lang)
+        text = concat_username(emoji_globe + '*', user, ', ' + message_source[lang]['state.select_lang'])
+        buttons = kb.SelectLangKb(lang).build()
 
     else:
         # It's not callback. just show available langs
         lang = context[CONTEXT_LANG]
-        text = message_source[lang]['state.select_lang']
-        text = concat_username(emoji_globe + '*', user, ', ' + text)
-
-        buttons = Kb.select_lang_buttons(lang)
+        text = concat_username(emoji_globe + '*', user, ', ' + message_source[lang]['state.select_lang'])
+        buttons = kb.SelectLangKb(lang).build()
 
     bot.send_message(chat_id=chat_id,
                      text=emojize(text, use_aliases=True),
@@ -174,8 +170,7 @@ def new_task_state(bot, update, context):
     if new_task:
         context[CONTEXT_TASK] = new_task
 
-        text = fill_task_template(lang, new_task, State.NEW_TASK)
-        markup = Kb.select_project_buttons(lang)
+        text, markup = view_task_template_and_markup(lang, new_task, State.NEW_TASK)
 
     else:
         text = message_source[lang]['state.new_task.not_created']
@@ -210,31 +205,31 @@ def view_task_state(bot, update, context):
 
     if task:
         reply_text = None
-        reply_markup = Kb.view_task_buttons(lang, task_id)
+        reply_markup = kb.ViewTaskKb(task_id, lang).build()
 
         if action is Action.TASK_MARK_AS_DONE:
             task.mark_as_completed()
             reply_text = message_source[lang]['btn.view_task.mark_as_done.result']
             reply_markup = None
 
-            # TODO switch Done to notDone button
+            text_on_edit, markup_on_edit = view_task_template_and_markup(lang, task, State.VIEW_TASK)
             bot.edit_message_text(chat_id=chat_id,
                                   message_id=update.effective_message.message_id,
-                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  text=emojize(text_on_edit, use_aliases=True),
                                   parse_mode=ParseMode.MARKDOWN,
-                                  reply_markup=Kb.view_task_buttons(lang, task_id))
+                                  reply_markup=markup_on_edit)
 
         elif action is Action.TASK_DISABLE:
             task.mark_as_disabled()
             reply_text = message_source[lang]['btn.view_task.disable_notify.result'].format(task.get_description())
             reply_markup = None
 
-            # TODO switch MUte to unMute button
+            text_on_edit, markup_on_edit = view_task_template_and_markup(lang, task, State.VIEW_TASK)
             bot.edit_message_text(chat_id=chat_id,
                                   message_id=update.effective_message.message_id,
-                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  text=emojize(text_on_edit, use_aliases=True),
                                   parse_mode=ParseMode.MARKDOWN,
-                                  reply_markup=Kb.view_task_buttons(lang, task_id))
+                                  reply_markup=markup_on_edit)
 
 
         elif action is Action.TASK_DELETE:
@@ -247,7 +242,7 @@ def view_task_state(bot, update, context):
 
         elif action is Action.TASK_VIEW:
             # It's not callback, then just render the state
-            reply_text = fill_task_template(lang, task, State.VIEW_TASK)
+            reply_text, reply_markup = view_task_template_and_markup(lang, task, State.VIEW_TASK)
 
         # set project id by editing current TASK_VIEW
         elif action is Action.TASK_PROJECT_SELECTED:
@@ -260,11 +255,12 @@ def view_task_state(bot, update, context):
 
             context[CONTEXT_TASK] = task
 
+            text_on_edit, markup_on_edit = view_task_template_and_markup(lang, task, State.VIEW_TASK)
             bot.edit_message_text(chat_id=chat_id,
                                   message_id=update.callback_query.message.message_id,
-                                  text=emojize(fill_task_template(lang, task, State.VIEW_TASK), use_aliases=True),
+                                  text=emojize(text_on_edit, use_aliases=True),
                                   parse_mode=ParseMode.MARKDOWN,
-                                  reply_markup=Kb.view_task_buttons(lang, task_id))
+                                  reply_markup=markup_on_edit)
             return
 
         # update task
@@ -347,7 +343,7 @@ def error_state(bot, update, context):
         log.warning("No task in context found")
 
 
-def fill_task_template(lang, task, state):
+def view_task_template_and_markup(lang, task, state):
     if not (state is State.NEW_TASK or state is State.VIEW_TASK):
         raise ValueError('Task template cannot be filled for state: ' + state._name_)
 
@@ -367,11 +363,21 @@ def fill_task_template(lang, task, state):
                        (message_source[lang]['task.muted'] if not task.is_task_enabled() else '')
 
     template = message_source[lang]['state.view_task']
-    filled = template.format(new_or_review_title,
-                             task.get_description(),
-                             reminder_to_show,
-                             readable_datetime(task.get_create_date()),
-                             project_to_show,
-                             status_to_show,
-                             task.get_id())
-    return filled
+    filled_template = template.format(new_or_review_title,
+                                      task.get_description(),
+                                      reminder_to_show,
+                                      readable_datetime(task.get_create_date()),
+                                      project_to_show,
+                                      status_to_show,
+                                      task.get_id())
+
+    markup = kb.ViewTaskKb(task.get_id(), lang)
+
+    if task.is_task_enabled():
+        pass
+
+    if task.is_task_completed():
+        pass
+
+    built_markup = markup.build()
+    return filled_template, built_markup
