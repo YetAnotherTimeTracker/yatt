@@ -212,6 +212,13 @@ def view_task_state(bot, update, context):
         reply_text = None
         reply_markup = kb.ViewTaskKb(task_id, lang).build()
 
+        # if task was removed do not show anything
+        if not task.is_flag_active():
+            reply_text = message_source[lang]['state.view_task.inactive']
+            reply_markup = None
+            # remove action to not show anything for removed task
+            action = None
+
         if action is Action.TASK_MARK_AS_DONE:
             reply_markup = None
             if task.is_task_completed():

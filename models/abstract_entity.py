@@ -14,3 +14,6 @@ class AbstractEntity:
 
     def mark_as_inactive(self):
         self.is_active = False
+
+    def is_flag_active(self):
+        return self.is_active

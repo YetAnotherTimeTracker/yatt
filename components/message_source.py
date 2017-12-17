@@ -26,6 +26,9 @@ message_source = {
                                      '\n'
                                      'Version: 0.{} Alpha\n',
 
+        'state.view_task.inactive': ':pensive: Probably, this is not the task you are looking for.\n'
+                                    '\n'
+                                    ':bulb: _To update task list, use the buttons below that list. Task you are looking for could be removed_',
         'state.view_task.review': 'Task review',
         'state.view_task': ':pencil: *{}*\n'
                            '\n'
@@ -116,6 +119,9 @@ message_source = {
                                      '\n'
                                      'Версия: 0.{} Alpha\n',
 
+        'state.view_task.inactive': ':pensive: Простите, не удалось найти выбранную задачу.\n'
+                                    '\n'
+                                    ':buld: _Чтобы обновить список задач, используйте кнопки в конце списка_',
         'state.view_task.review': 'Просмотр задачи',
         'state.view_task':  ':pencil: *{}*\n'   # New task has been created / Task review
                             '\n'
