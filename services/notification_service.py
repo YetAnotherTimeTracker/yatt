@@ -3,19 +3,23 @@ Created by anthony on 17.11.17
 notification_service
 """
 import logging
-
+from emoji import emojize
 import datetime
+
+from telegram import ParseMode
 
 import g
 from components.automata import CONTEXT_LANG
 import components.keyboard_builder as kb
-from services import task_service
+from components.message_source import message_source
+from services import task_service, user_service
+from utils.date_utils import readable_datetime
+from utils.view_utils import concat_username, emoji_mortal_reminder
 
 log = logging.getLogger(__name__)
 
 
 PAYLOAD_CHAT_ID = 'payload_chat_id'
-PAYLOAD_TEXT = 'payload_text'
 PAYLOAD_TASK_ID = 'payload_task_id'
 
 
@@ -23,8 +27,7 @@ PAYLOAD_TASK_ID = 'payload_task_id'
 def create_notification(chat_id, task):
     payload = {
         PAYLOAD_CHAT_ID: chat_id,
-        PAYLOAD_TASK_ID: task.get_id(),
-        PAYLOAD_TEXT: task.get_description()
+        PAYLOAD_TASK_ID: task.get_id()
     }
     remind_date = task.get_next_remind_date()
     log.info(f'Creating notification for chat ({chat_id}) on time ({remind_date})')
@@ -37,21 +40,28 @@ def notification_callback(bot, job):
 
     if payload:
         # chat id can be not int. e.g. '@username' is chat_id too
-        chat_id, task_id, text = map(payload.get, (PAYLOAD_CHAT_ID, PAYLOAD_TASK_ID, PAYLOAD_TEXT))
+        chat_id, task_id = map(payload.get, (PAYLOAD_CHAT_ID, PAYLOAD_TASK_ID))
+        chat_id = int(chat_id)
 
         task = task_service.find_task_by_id_and_user_id(task_id, chat_id)
         if task.is_task_enabled() is False or task.is_task_completed():
-            log.info(f'Notification for task {task_id} is disabled. Skipping')
+            log.info(f'Notification for task {task_id} in chat ({chat_id}) is disabled. Skipping')
             return
 
-        message_wrapped = f'You have a reminder!\n{text}'
-
-        # create custom keyboard for user to be able to mark task as completed
         lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
-        markup = kb.ViewTaskKb(task_id, lang)
 
-        bot.send_message(chat_id=chat_id, text=message_wrapped, reply_markup=markup)
-        # TODO deactivate job notification when notification is fired
+        user = user_service.create_or_get_user(chat_id)
+
+        reminder = message_source[lang]['state.edit_date.reminder'].format(
+            task.get_description(), readable_datetime(task.get_create_date()))
+        reply_text = concat_username(emoji_mortal_reminder + '*', user, reminder)
+
+        markup = kb.ViewTaskKb(task_id, lang).build()
+
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(reply_text, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN,
+                         reply_markup=markup)
 
     else:
         log.error('No payload found in notification callback')

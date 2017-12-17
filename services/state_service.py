@@ -3,30 +3,25 @@ Created by anthony on 12.11.17
 state_service
 """
 import datetime
+import logging
+
 from emoji import emojize
 from telegram import ParseMode
 
-from services import user_service, task_service, project_service
-from config.state_config import State, Language, CallbackData, Action
-import logging
-
-from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
 import components.keyboard_builder as kb
-from utils import view_utils, date_utils
-from components.message_source import message_source
 import g
-from utils.handler_utils import is_callback, deserialize_data
-from utils.view_utils import concat_username
+from components.automata import CONTEXT_TASK, CONTEXT_COMMANDS, CONTEXT_LANG
+from components.message_source import message_source
+from config.state_config import State, Language, CallbackData, Action
+from services import user_service, task_service, project_service
+from utils import view_utils, date_utils
 from utils.date_utils import readable_datetime
+from utils.handler_utils import is_callback, deserialize_data
+from utils.view_utils import concat_username, emoji_rocket, emoji_globe, emoji_upcoming, emoji_completed, emoji_all, \
+    emoji_search
+
 
 log = logging.getLogger(__name__)
-
-emoji_rocket = ':rocket: '
-emoji_globe = ':earth_africa: '
-emoji_upcoming = ':black_square_button: '
-emoji_completed = ':white_check_mark: '
-emoji_all = ':scroll: '
-emoji_search = ':mag: '
 
 
 def states():
@@ -105,6 +100,7 @@ def all_tasks_state(bot, update, context):
     else:
         text += message_source[lang]['state.all_tasks.notes']
 
+    tasks = sorted(tasks, key=lambda t: t.get_create_date())
     bot.send_message(chat_id=chat_id,
                      text=emojize(text, use_aliases=True),
                      parse_mode=ParseMode.MARKDOWN,
@@ -210,16 +206,9 @@ def view_task_state(bot, update, context):
     user = user_service.create_or_get_user(chat)
     task = task_service.find_task_by_id_and_user_id(task_id, user.get_id())
 
-    if task:
-        reply_text = None
-        reply_markup = kb.ViewTaskKb(task_id, lang).build()
-
-        # if task was removed do not show anything
-        if not task.is_flag_active():
-            reply_text = message_source[lang]['state.view_task.inactive']
-            reply_markup = None
-            # remove action to not show anything for removed task
-            action = None
+    # if task was removed do not show anything
+    if task and task.is_flag_active():
+        reply_text, reply_markup = view_task_template_and_markup(lang, task, State.VIEW_TASK)
 
         if action is Action.TASK_MARK_AS_DONE:
             reply_markup = None
@@ -299,55 +288,63 @@ def view_task_state(bot, update, context):
                          reply_markup=reply_markup)
 
     else:
-        reply_on_error = message_source[lang]['state.view_task.not_found']
+        task_inactive = message_source[lang]['state.view_task.inactive']
         bot.send_message(chat_id=chat_id,
-                         text=emojize(reply_on_error, use_aliases=True))
+                         text=emojize(task_inactive, use_aliases=True))
 
 
 def edit_date_state(bot, update, context):
-    user_id = update.message.chat.id
-    args = update.message.text.split()
-    datetime_args = args[1:]
-    latest_task = context[CONTEXT_TASK]
+    chat = update.effective_chat
+    chat_id = chat.id
     lang = context[CONTEXT_LANG]
+    latest_task = context[CONTEXT_TASK]
 
     err_cause = None
-    if latest_task:
+    if latest_task and latest_task.is_flag_active():
 
+        args = update.message.text.split()
+        datetime_args = args[1:]
         parsed_datetime = None
         if g.dev_mode or g.test_mode:
             seconds = int(datetime_args[0]) or 10
             parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
 
         else:
-            parsed_datetime = date_utils.parse_date_msg(datetime_args)
+            try:
+                parsed_datetime = date_utils.parse_date_msg(datetime_args)
+
+            except ValueError as e:
+                log.error('Could not parse datetime: ', e)
+                task_inactive = message_source[lang]['state.edit_date.parse_error']
+                bot.send_message(chat_id=chat_id,
+                                 text=emojize(task_inactive, use_aliases=True),
+                                 parse_mode=ParseMode.MARKDOWN)
 
         latest_task.set_next_remind_date(parsed_datetime)
         task_service.update_task(latest_task)
-        update.message.reply_text(message_source[lang]['set_date'].format(parsed_datetime))
 
-        # TODO add responseBuilder that can be used this way: rb.append(x), rb.appendNewLine(x)
-        update.message.reply_text(view_utils.render_task_basic(latest_task))
+        reply_text = message_source[lang]['state.edit_date.success'].format(readable_datetime(parsed_datetime))
 
         # find if reminder intersects with another tasks
-        time_delta_threshold = datetime.timedelta(hours=8)
-        nearest_tasks = task_service.find_tasks_within_timedelta(latest_task, time_delta_threshold)
+        nearest_tasks = list(set(task_service.find_tasks_within_timedelta(latest_task, datetime.timedelta(hours=8))))
         if 0 != len(nearest_tasks):
-            tasks_to_show = [view_utils.render_task_with_timedelta(t, latest_task) for t in nearest_tasks]
-            tasks_to_show = tasks_to_show[0:3]
-            update.message.reply_text(f'Don\' forget that You already have ' +
-                                      'task' if 1 == len(nearest_tasks) else 'tasks' +
-                                                                             f'assigned near that time:\n' + '\n'.join(
-                tasks_to_show) +
-                                                                             '\nIf you want to change reminder time, just write it :)')
-        return
+            render_num = min([3, len(nearest_tasks)])
+            tasks_to_show = ''
+            for t in nearest_tasks[0:render_num]:
+                tasks_to_show += view_utils.render_task_with_timedelta(latest_task, t, lang)
+
+            reply_text += message_source[lang]['state.edit_date.intersect'].format(tasks_to_show)
+            reply_text += message_source[lang]['state.edit_date.intersect.notes']
+
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(reply_text, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
     else:
-        err_cause = 'Task does not exist'
-
-    if err_cause:
-        log.error(err_cause)
-        update.message.reply_text(f'Sorry, I could not find that task')
+        task_inactive = message_source[lang]['state.view_task.inactive']
+        bot.send_message(chat_id=chat_id,
+                         text=emojize(task_inactive, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
 
 def error_state(bot, update, context):
@@ -361,7 +358,8 @@ def error_state(bot, update, context):
         command_trace = [c.name for c in context[CONTEXT_COMMANDS]]
         bot.send_message(chat_id=chat_id,
                          text=emojize(message_source[lang]['error'].format(latest_task.get_id(), command_trace)),
-                         use_aliases=True)
+                         use_aliases=True,
+                         parse_mode=ParseMode.MARKDOWN)
 
     else:
         log.warning("No task in context found")

@@ -4,8 +4,12 @@ from config.state_config import Language
 
 message_source = {
     Language.ENG: {
-        'set_date': 'Setting date to {} for task:',
         'error': 'Error. Latest task id: {}. Command trace: {}',
+
+        'date.hr': ' in *{} hr.*',
+        'date.hrs': ' in *{} hrs.*',
+        'date.min': ' in *{} min.*',
+        'date.same': ' *at the same time*!',
 
         'task.upcoming': 'Upcoming',
         'task.completed': 'Completed',
@@ -55,11 +59,25 @@ message_source = {
                                  ':bulb: _Controls are on the bottom of the list_\n'
                                  ':bulb: _To refresh the list, click on one of the buttons below_',
 
+        'state.edit_date.success': ':bell: *Notification has been set up!*\n'
+                                   '\n'
+                                   'I will remind you about this task on *{}*\n',
+        'state.edit_date.intersect': '\nDon\'t forget that You have task(s) nearby:\n'
+                                     '{}',
+        'state.edit_date.intersect.notes': '\n:bulb: _To set up another date, just repeat command from above with new date_',
+        'state.edit_date.parse_error': ':pensive: Sorry, I could not recognize that datetime :(\n'
+                                       '\n'
+                                       ':bulb: _To provide valid datetime, use some of these patterns_:\n'
+                                       '"/date 13-37", "/date 21 13-37" _or_ "/date 21 dec 13-37"',
+        'state.edit_date.reminder': 'you have a reminder!*\n'
+                                    '\n'
+                                    '      `{}`\n'   # task description
+                                    '\n',
+                                    'This task was created on *{}*'
+
         'state.select_lang': 'please, select language from the variants below*\n'
                              '\n'
                              ':bulb: _Current language is English_',
-
-        'state.view_task.not_found': ':mag: Sorry, I could not find selected task',
 
         'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Proceed to upcoming tasks',
         'btn.start_state.to_tasks.completed.label': ':white_check_mark: View completed tasks',
@@ -90,15 +108,19 @@ message_source = {
         'btn.view_task.completed.label': ':white_check_mark: Completed',
         'btn.view_task.all.label': ':clipboard: All',
 
-        'btn.new_task.project.prs.label': ':video_game: Personal',
+        'btn.new_task.project.prs.label': ':bust_in_silhouette: Personal',
         'btn.new_task.project.std.label': ':books: Study',
         'btn.new_task.project.wrk.label': ':briefcase: Work',
         'btn.new_task.project.oth.label': ':open_file_folder: Other'
     },
 
     Language.RUS: {
-        'set_date': 'Поставлена дата {} для задачи:',
         'error': 'Ошибка. id последней задачи: {}. Command trace: {}',
+
+        'date.hr': ' в *{} ч.*',
+        'date.hrs': ' в *{} ч.*',
+        'date.min': ' в *{} мин.*',
+        'date.same': ' *в это же время*',
 
         'task.upcoming': 'Предстоящая',
         'task.completed': 'Выполнено',
@@ -119,7 +141,7 @@ message_source = {
                                      '\n'
                                      'Версия: 0.{} Alpha\n',
 
-        'state.view_task.inactive': ':pensive: Простите, не удалось найти выбранную задачу.\n'
+        'state.view_task.inactive': ':pensive: Прости, не удалось найти выбранную задачу.\n'
                                     '\n'
                                     ':buld: _Чтобы обновить список задач, используйте кнопки в конце списка_',
         'state.view_task.review': 'Просмотр задачи',
@@ -136,7 +158,7 @@ message_source = {
                             ':bulb: _Введите /date и дату, чтобы включить уведомление (например, /date 21 дек 13-37)_',
 
         'state.new_task.created': 'Создана новая задача. Пожалуйста, выберите категорию из вариантов ниже',
-        'state.new_task.not_created': ':pensive: Простите, не удалость создать задачу\n'
+        'state.new_task.not_created': ':pensive: Прости, не удалость создать задачу\n'
                                       'Попробуйте еще раз, пожайлуйста',
 
         'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
@@ -148,16 +170,30 @@ message_source = {
                                  ':bulb: _Кнопки управления расположены внизу списка_\n'
                                  ':bulb: _Чтобы обновить список, используйте кнопки ниже_',
 
+        'state.edit_date.success': ':bell: *Уведомление установлено!*\n'
+                                   '\n'
+                                   'Я напомню Вам о задаче, когда настанет *{}*\n',
+        'state.edit_date.intersect': '\nНе забудьте, что у Вас уже имеются дела вблизи назначенного времени:\n'
+                                     '{}',
+        'state.edit_date.intersect.notes': '\n:bulb: _Чтобы изменить время уведомления, просто повторите предыдущую команду с новым временем_',
+        'state.edit_date.parse_error': ':pensive: Прости, не удалось распознать дату :(\n'
+                                       '\n'
+                                       ':bulb: _Для установки уведомления, используйте один из этих паттернов_:\n'
+                                       '"/date 13-37", "/date 21 13-37" _or_ "/date 21 дек 13-37"',
+        'state.edit_date.reminder': 'У вас 1 уведомление!*\n'
+                                    '\n'
+                                    '      `{}`\n'   # task description
+                                    '\n',
+                                    'Эта задача была добавлена *{}*'
+
         'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
                              '\n'
                              ':bulb: Текущий язык: Русский',
 
-        'state.view_task.not_found': ':mag: Не удалось найти выбранную задачу :(',
-
         'btn.start_state.to_tasks.upcoming.label': ':black_square_button: Открыть предстоящие задачи',
         'btn.start_state.to_tasks.completed.label': ':white_check_mark: Посмотреть выполненные задачи',
         'btn.start_state.to_tasks.all.label': ':scroll: Посмотреть весь список задач',
-        'btn.start_state.select_lang.label': ':earth_africa: Сменить язык',
+        'btn.start_state.select_lang.label': ':earth_africa: Изменить язык',
 
         'btn.select_lang.eng.label': 'Английский',
         'btn.select_lang.eng.result': 'Выбран английский язык',
@@ -183,7 +219,7 @@ message_source = {
         'btn.view_task.completed.label': ':white_check_mark: Выполн.',
         'btn.view_task.all.label': ':clipboard: Все',
 
-        'btn.new_task.project.prs.label': ':video_game: Личное',
+        'btn.new_task.project.prs.label': ':bust_in_silhouette: Личное',
         'btn.new_task.project.std.label': ':books: Учеба',
         'btn.new_task.project.wrk.label': ':briefcase: Работа',
         'btn.new_task.project.oth.label': ':open_file_folder: Другое'
