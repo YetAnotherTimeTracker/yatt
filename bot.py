@@ -53,9 +53,10 @@ def init_bot():
 
 
 def main():
-    delay = 15
-    log.info(f'Waiting {delay} seconds for db to start')
-    time.sleep(delay)
+    if g.prod_mode:
+        delay = 15
+        log.info(f'Waiting {delay} seconds before start up')
+        time.sleep(delay)
 
     # TODO handle startup error
     init_db()

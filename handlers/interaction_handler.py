@@ -2,8 +2,10 @@
 Created by anthony on 15.10.17
 start_handler
 """
+import json
 import logging
 
+import datetime
 from emoji import emojize
 from telegram import ParseMode
 from telegram.ext import MessageHandler, Filters, CallbackQueryHandler
@@ -12,7 +14,7 @@ import g
 from components.automata import CONTEXT_COMMANDS, CONTEXT_TASK, CONTEXT_LANG, CONTEXT_ACTION
 from components.filter import command_filter
 from components.message_source import message_source
-from config.state_config import CallbackData, Language
+from config.state_config import CallbackData, Language, ADMINS
 from services import state_service
 from utils.handler_utils import get_command_type, is_callback, deserialize_data
 
@@ -26,6 +28,9 @@ def command_handler():
 
 def callback_handler():
     return CallbackQueryHandler(callback=handle)
+
+
+ERR_COUNTER = {}
 
 
 def handle(bot, update):
@@ -51,6 +56,11 @@ def handle(bot, update):
             text = update.message.text
 
             if command_filter.known_command(text) is False:
+                # check if user is admin
+                if chat_id in ADMINS and '/stats' == text:
+                    bot.send_message(chat_id=chat_id, text=json.dumps(ERR_COUNTER, indent=2))
+                    return
+
                 reply_on_unknown(bot, chat_id)
                 return
 
@@ -85,6 +95,15 @@ def handle(bot, update):
             print_dev_info(bot, chat_id, curr_context)
 
     except Exception as e:
+        try:
+            ERR_COUNTER[str(len(ERR_COUNTER.values()) + 1)] = {
+                'datetime': str(datetime.datetime.now()),
+                'chat': chat_id,
+                'error': str(e),
+                'context': str(curr_context)
+            }
+        except Exception:
+            pass
         log.error('Error has been caught in handler: ', e)
         lang = curr_context[CONTEXT_LANG] if curr_context is not None else Language.ENG.value
         text = message_source[lang]['error']
@@ -97,7 +116,7 @@ def handle(bot, update):
 
 
 def reply_on_unknown(bot, chat_id):
-    log.info('Replying on unknown command')
+    log.info('x-- Replying on unknown command')
 
     lang = g.automata.get_context(chat_id)[CONTEXT_LANG]
     text = message_source[lang]['filter.unknown']

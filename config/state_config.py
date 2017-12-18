@@ -99,3 +99,8 @@ class CallbackData(Enum):
     ACTION = 'act'
     DATA = 'dt'
     COMMAND = 'cmd'
+
+
+ADMINS = [
+    316956601
+]
