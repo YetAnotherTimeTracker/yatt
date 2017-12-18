@@ -2,7 +2,7 @@
 Created by anthony on 07.12.2017
 date_utils
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from random import randrange
 from time import strftime, gmtime, time
 import time
@@ -20,37 +20,121 @@ def random_date(start, end):
     return start + timedelta(seconds=random_second)
 
 
-# TODO fix to support 3 inputs: date-month-time, date-time, time
 def parse_date_msg(basedate):
+    data_len = None
+    if list == type(basedate):
+        data_len = len(basedate)
 
-    day = basedate[0]
-    month = basedate[1]
+    else:
+        basedate = basedate.split()
+        data_len = len(basedate)
 
-    months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-    month_eng = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-    month_prefix = month[0: 3]  # декабрь ->дек, дек -> дек
-    if (month_prefix in months) or (month_prefix in month_eng):
-        num = None
-        if month_prefix in months:
-            num = str(months.index(month_prefix) + 1)
+    parsed = None
+    if 0 == data_len or basedate is None:
+        raise ValueError('Empty data provided!')
+
+    elif 1 == data_len:
+        # parse for time only. get nearest date with this time
+        t = basedate[0]
+
+        t_hour, t_minutes = recognize_time(t)
+
+        date_line = f'{date.today().day} {date.today().month} {date.today().year} {t_hour}:{t_minutes}'
+        parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+        if parsed < datetime.now():
+            date_line = f'{date.today().day + 1} {date.today().month} {date.today().year} {t_hour}:{t_minutes}'
+            parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+        return parsed
+
+    elif 2 == data_len:
+        # parse for day and time within current month
+        day = int(basedate[0])
+        t = basedate[1]
+
+        if 1 <= day <= 31:
+
+            t_hour, t_minutes = recognize_time(t)
+
+            date_line = f'{day} {date.today().month} {date.today().year} {t_hour}:{t_minutes}'
+            parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+            if parsed < datetime.now():
+                try:
+                    date_line = f'{day} {date.today().month + 1} {date.today().year} {t_hour}:{t_minutes}'
+                    parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+                except ValueError:
+                    date_line = f'{day} {1} {date.today().year + 1} {t_hour}:{t_minutes}'
+                    parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+            return parsed
 
         else:
-            num = str(month_eng.index(month_prefix) + 1)
+            raise ValueError(f'Could not recognize day in: {basedate}')
 
-        if len(num) < 2:
-            num = '0' + num
-    if month_prefix not in months:
-        raise ValueError('Could not recognize provided month')
+    elif 3 == data_len:
+        # parse for the whole date
+        day = int(basedate[0])
+        month = basedate[1]
+        t = basedate[2]
 
-    if basedate[-1][0: 3] in months:
-        time = '0.01'
+        months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+        month_eng = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+
+        month_prefix = month[0: 3]  # декабрь ->дек, дек -> дек
+        if month_prefix in months or month_prefix in month_eng:
+            month_ordinal = None
+            if month_prefix in months:
+                month_ordinal = str(months.index(month_prefix) + 1)
+
+            elif month_prefix in month_eng:
+                month_ordinal = str(month_eng.index(month_prefix) + 1)
+
+            else:
+                raise ValueError(f'Could not recognize month in: {basedate}')
+
+            if len(month_ordinal) < 2:
+                month_ordinal = '0' + month_ordinal
+
+            if 1 <= day <= 31:
+
+                t_hour, t_minutes = recognize_time(t)
+
+                date_line = f'{day} {month_ordinal} {date.today().year} {t_hour}:{t_minutes}'
+                parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+                return parsed
+
+        else:
+            raise ValueError(f'Could not recognize month in: {basedate}')
+
     else:
-        time = str(basedate[2]).replace(":", '.').replace("-", '.')
+        raise ValueError('Too much data provided')
 
-    date_line = str(day) + ' ' + str(num) + ' ' + str(datetime.date.today().year) + ' ' + time
 
-    parse_date = datetime.strptime(date_line, "%d %m %Y %H.%M")
-    return parse_date
+def recognize_time(time_string):
+    if '-' in time_string or '.' in time_string or ':' in time_string:
+        time_string = time_string.replace('-', ':').replace('.', ':')
+        hour = time_string[:time_string.index(':')]
+        if 1 == len(hour):
+            hour += '0'
+
+        minutes = time_string[time_string.index(':') + 1:]
+        return hour, minutes
+
+    elif 3 == len(time_string):
+        hour = '0' + time_string[0]
+        minutes = time_string[1:]
+        return hour, minutes
+
+    elif 4 == len(time_string):
+        hour = time_string[:2]
+        minutes = time_string[2:]
+        return hour, minutes
+
+    else:
+        raise ValueError(f'Could not recognize time in: {time_string}')
 
 
 def current_time():

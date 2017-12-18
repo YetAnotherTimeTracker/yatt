@@ -311,9 +311,9 @@ def edit_date_state(bot, update, context):
 
         else:
             try:
-                parsed_datetime = datetime.datetime.now() + datetime.timedelta(seconds=10)#date_utils.parse_date_msg(datetime_args)
+                parsed_datetime = date_utils.parse_date_msg(datetime_args)
 
-            except ValueError as e:
+            except Exception as e:
                 log.error('Could not parse datetime: ', e)
                 task_inactive = message_source[lang]['state.edit_date.parse_error']
                 bot.send_message(chat_id=chat_id,
