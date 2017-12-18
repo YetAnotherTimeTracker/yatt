@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, date
 from random import randrange
 from time import strftime, gmtime, time
 import time
-from dateutil import tz
 
 
 def random_date(start, end):
