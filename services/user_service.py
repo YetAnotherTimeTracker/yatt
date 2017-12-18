@@ -2,10 +2,8 @@
 Created by anthony on 23.10.17
 user_service.py
 """
-import datetime
 import logging
 
-from models.project import Project
 from models.user import User
 from utils.db_utils import save, flush, find_all, find_one_by_id
 
@@ -13,7 +11,7 @@ from utils.db_utils import save, flush, find_all, find_one_by_id
 log = logging.getLogger(__name__)
 
 
-def find_one_by_username(username):
+def find_user_by_username(username):
     users = find_all(User)
     for u in users:
         if username == u.get_username():
@@ -21,7 +19,7 @@ def find_one_by_username(username):
     return None
 
 
-def find_one_by_user_id(user_id):
+def find_user_by_id(user_id):
     return find_one_by_id(user_id, User)
 
 

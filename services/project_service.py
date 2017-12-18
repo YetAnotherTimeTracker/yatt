@@ -4,33 +4,39 @@ project_service
 """
 import logging
 
-from models.project import Project
-from services import task_service, user_service
-from utils.message_parser import message_parser
+from models.project import Project, ProjectType
+from services import task_service
 from utils.db_utils import save, flush, find_all, find_one_by_id
 
 
 log = logging.getLogger(__name__)
 
 
-def find_all_by_user_id(user_id):
+def find_projects_by_user_id(user_id_value):
+    user_id = int(user_id_value)
     projects = find_all(Project)
     projects_by_user = [p for p in projects if user_id == p.get_user_id()]
     return projects_by_user
 
 
-def create_or_get_project(message, user_id):
-    # TODO somehow find out message's category
-    title = message_parser.parse_message_for_project(message)
+def find_project_by_id(project_id_value):
+    project_id = int(project_id_value)
+    return find_one_by_id(project_id, Project)
 
-    projects_of_user = find_all_by_user_id(user_id)
+
+def create_or_get_project(user_id_value, project_type_value):
+    # validate at first
+    user_id = int(user_id_value)
+    project = ProjectType(project_type_value)
+
+    projects_of_user = find_projects_by_user_id(user_id)
     # check if there is already a project with same title(category)
     for p in projects_of_user:
-        if title == p.get_title():
+        if p.get_title() == project.value:
             return p
 
-    # there is no project withb this title -> create new
-    flushed_proj = flush(Project(title, user_id))
+    # there is no such project -> create new one
+    flushed_proj = flush(Project(user_id, project.value))
     saved_proj = save(flushed_proj)
     return saved_proj
 

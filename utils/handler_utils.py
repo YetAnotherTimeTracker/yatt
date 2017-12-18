@@ -39,3 +39,16 @@ def deserialize_data(data):
 
 def is_callback(update):
     return update.callback_query is not None
+
+
+def get_latest_list_action(actions):
+    actions_to_be_found = [Action.LIST_ALL, Action.LIST_COMPLETED, Action.LIST_UPCOMING]
+
+    actions_list = list(actions)
+    i = len(actions_list) - 1
+    while i >= 0:
+        act = actions_list[i]
+        if act in actions_to_be_found:
+            return act
+
+    return Action.LIST_ALL

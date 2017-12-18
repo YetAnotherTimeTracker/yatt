@@ -30,6 +30,24 @@ def find_all(entity_class):
         db_session.close()
 
 
+def find_active_and_inactive(entity_class):
+    """
+    Return all entries of class. Deleted entries are included
+    """
+    db_session = Session()
+    try:
+        all_entries = db_session.query(entity_class)
+        return all_entries
+
+    except Exception as e:
+        log.critical(f'Rolling back and closing "find_all" session for entity {entity_class}: {e}')
+        db_session.rollback()
+        return []
+
+    finally:
+        db_session.close()
+
+
 def find_one_by_id(id_value, entity_class):
     """
     While assuming _id is unique pre class(table), get entity of class by _id

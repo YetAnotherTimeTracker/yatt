@@ -8,10 +8,11 @@ e.g. get all user's tasks: return type is Task -> task_service.find_all_by_user_
 """
 import logging
 
+from models.project import ProjectType
 from models.task import Task
-from services import project_service, user_service, notification_service
+from services import project_service, user_service
 from utils import date_utils
-from utils.db_utils import flush, save, find_all, find_one_by_id
+from utils.db_utils import flush, save, find_all, find_one_by_id, find_active_and_inactive
 
 
 log = logging.getLogger(__name__)
@@ -84,17 +85,16 @@ def create_task(update):
     user = user_service.create_or_get_user(chat)
 
     # create or get project
-    msg_text = update.message.text
-    project = project_service.create_or_get_project(msg_text, user.get_id())
+    basic_type = ProjectType.OTHER.value
+    project = project_service.create_or_get_project(user.get_id(), basic_type)
 
     if project and user:
         log.info(f'Creating task for user {user.get_id()}')
+
+        msg_text = update.message.text
         new_task = Task(description=msg_text, user_id=user.get_id(), project_id=project.get_id())
         flushed_task = flush(new_task)
         saved_task = save(flushed_task)
-
-        project_service.update_nearest_task_for_user_project(project.get_id(), user.get_id())
-
         return saved_task
 
     else:
@@ -125,3 +125,18 @@ def find_tasks_within_timedelta(task_to_check, time_delta_threshold):
     nearest_tasks_sorted = sorted(nearest_tasks,
                                   key=lambda t: abs(date_utils.seconds_between_tasks(t, task_to_check)))
     return nearest_tasks_sorted
+
+
+def find_stats_for_user(user_id_val):
+    user_id = int(user_id_val)
+    all_by_user = len(find_tasks_by_user_id(user_id))
+    upcoming = len(find_upcoming_tasks_by_user_id(user_id))
+    completed = len(find_completed_tasks_by_user_id(user_id))
+    return all_by_user, upcoming, completed
+
+
+def find_latest_task_by_user_id(user_id_value):
+    user_id = int(user_id_value)
+    tasks = find_tasks_by_user_id(user_id)
+    tasks = sorted(tasks, key=lambda t: t.get_create_date(), reverse=True)
+    return tasks[0]
