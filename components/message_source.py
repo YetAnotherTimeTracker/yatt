@@ -56,8 +56,7 @@ message_source = {
         'state.all_tasks.no_tasks_yet': 'I could not find any tasks of that status*\n',
         'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _To create a new task, just write me something_ :)\n',
         'state.all_tasks.notes': '\n:bulb: _To create a new task, just write me something_ :)\n'
-                                 ':bulb: _Controls are on the bottom of the list_\n'
-                                 ':bulb: _To refresh the list, click on one of the buttons below_',
+                                 ':bulb: _To refresh the list, use buttons on the bottom of the list_',
 
         'state.edit_date.success': ':bell: *Notification has been set up!*\n'
                                    '\n'
@@ -158,7 +157,7 @@ message_source = {
                             ':bulb: _Введите /date и дату, чтобы включить уведомление (например, /date 21 дек 13-37)_',
 
         'state.new_task.created': 'Создана новая задача. Пожалуйста, выберите категорию из вариантов ниже',
-        'state.new_task.not_created': ':pensive: Прости, не удалость создать задачу\n'
+        'state.new_task.not_created': ':pensive: Простите, не удалость создать задачу\n'
                                       'Попробуйте еще раз, пожайлуйста',
 
         'state.all_tasks.tasks.upcoming': 'список Ваших предстоящих задач:*\n',
@@ -167,8 +166,7 @@ message_source = {
         'state.all_tasks.no_tasks_yet': 'Не найдено задач с выбранным статусом*\n',
         'state.all_tasks.notes.no_tasks_yet': '\n:bulb: _Чтобы создать задачу, просто напишите мне что-нибудь_ :)\n',
         'state.all_tasks.notes': '\n:bulb: _Чтобы создать задачу, просто напишите мне что-нибудь_ :)\n'
-                                 ':bulb: _Кнопки управления расположены внизу списка_\n'
-                                 ':bulb: _Чтобы обновить список, используйте кнопки ниже_',
+                                 ':bulb: _Чтобы обновить список, используйте кнопки управления внизу списка',
 
         'state.edit_date.success': ':bell: *Уведомление установлено!*\n'
                                    '\n'
@@ -179,14 +177,14 @@ message_source = {
         'state.edit_date.parse_error': ':pensive: Прости, не удалось распознать дату :(\n'
                                        '\n'
                                        ':bulb: _Для установки уведомления, используйте один из этих паттернов_:\n'
-                                       '"/date 13-37", "/date 21 13-37" _or_ "/date 21 дек 13-37"',
+                                       '"/date 13-37", "/date 21 13-37" _или_ "/date 21 дек 13-37"',
         'state.edit_date.reminder': 'у меня для Вас уведомление!*\n'
                                     '\n'
                                     '      `{}`\n'   # task description
                                     '\n'
                                     'Эта задача была добавлена {}',
 
-        'state.select_lang': 'выберите, пожалуйста, язык из представленных вариантов*\n'
+        'state.select_lang': 'выберите, пожалуйста, язык из предложенных вариантов*\n'
                              '\n'
                              ':bulb: Текущий язык: Русский',
 
@@ -208,15 +206,15 @@ message_source = {
         'btn.view_task.delete_task.label': ':x: Удалить',
         'btn.view_task.delete_task.result': ':x: Задача с ID "{}" удалена',
         'btn.view_task.disable_notify.label': ':no_bell: Выкл. уведомл.',
-        'btn.view_task.disable_notify.result': ':no_bell: Уведомления отключены для задачи "*{}*"',
+        'btn.view_task.disable_notify.result': ':no_bell: Уведомления выключены для задачи "*{}*"',
         'btn.view_task.enable_notify.label': ':bell: Включить',
         'btn.view_task.enable_notify.result': ':bell: Уведомления для задачи "*{}*" включены',
-        'btn.view_task.mark_as_done.label': ':white_check_mark: Выполнено',
+        'btn.view_task.mark_as_done.label': ':white_check_mark: Готово',
         'btn.view_task.mark_as_done.result': ':white_check_mark: Поздравляю с выполнением задачи! :clap:',
         'btn.view_task.mark_undone.label': ':black_square_button: Отменить',
         'btn.view_task.mark_undone.result': ':black_square_button: Задача отмечена, как предстоящая',
-        'btn.view_task.upcoming.label': ':black_square_button: Предстоящ.',
-        'btn.view_task.completed.label': ':white_check_mark: Выполн.',
+        'btn.view_task.upcoming.label': ':black_square_button: Предстоящие',
+        'btn.view_task.completed.label': ':white_check_mark: Выполненные',
         'btn.view_task.all.label': ':clipboard: Все',
 
         'btn.new_task.project.prs.label': ':bust_in_silhouette: Личное',

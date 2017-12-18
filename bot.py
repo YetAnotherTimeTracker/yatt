@@ -7,6 +7,7 @@ Should just assemble and run bot
 """
 from telegram.ext import Updater
 import logging
+import time
 
 from components.automata import Automata
 from handlers import interaction_handler
@@ -52,6 +53,11 @@ def init_bot():
 
 
 def main():
+    if g.prod_mode:
+        delay = 15
+        log.info(f'Waiting {delay} seconds before start up')
+        time.sleep(delay)
+
     # TODO handle startup error
     init_db()
     init_job_queue()

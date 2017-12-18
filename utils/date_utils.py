@@ -40,11 +40,10 @@ def parse_date_msg(basedate):
 
         date_line = f'{date.today().day} {date.today().month} {date.today().year} {t_hour}:{t_minutes}'
         parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
-
         if parsed < datetime.now():
             date_line = f'{date.today().day + 1} {date.today().month} {date.today().year} {t_hour}:{t_minutes}'
-            parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
 
+        parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
         return parsed
 
     elif 2 == data_len:
@@ -67,7 +66,6 @@ def parse_date_msg(basedate):
                 except ValueError:
                     date_line = f'{day} {1} {date.today().year + 1} {t_hour}:{t_minutes}'
                     parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
-
             return parsed
 
         else:
@@ -102,6 +100,19 @@ def parse_date_msg(basedate):
                 t_hour, t_minutes = recognize_time(t)
 
                 date_line = f'{day} {month_ordinal} {date.today().year} {t_hour}:{t_minutes}'
+                parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+                if parsed < datetime.now():
+                    try:
+                        date_line = f'{day} {date.today().month + 1} {date.today().year} {t_hour}:{t_minutes}'
+                        parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+                    except ValueError:
+                        date_line = f'{day} {1} {date.today().year + 1} {t_hour}:{t_minutes}'
+                        parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
+
+                    if parsed < datetime.now():
+                        date_line = f'{day} {date.today().month} {date.today().year + 1} {t_hour}:{t_minutes}'
+
                 parsed = datetime.strptime(date_line, "%d %m %Y %H:%M")
                 return parsed
 
