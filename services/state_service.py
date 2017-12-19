@@ -53,7 +53,7 @@ def start_state(bot, update, context):
     welcome_text = concat_username(emoji_rocket + '*', user, ', ' + message_source[lang]['state.start_state.welcome'])
 
     num_all, num_upcoming, num_completed = task_service.find_stats_for_user(chat_id)
-    bot_ver = 18  # because why not? :)
+    bot_ver = 19  # because why not? :)
     completed_percent = 0 if 0 == num_all else int(num_completed / num_all * 100)
     num_completed = f'{num_completed} ({completed_percent} %)'
     num_upcoming = f'{num_upcoming} ({0 if 0 == num_all else (100 - completed_percent)} %)'

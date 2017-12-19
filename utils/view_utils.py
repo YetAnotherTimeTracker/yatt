@@ -16,7 +16,7 @@ emoji_search = ':mag: '
 emoji_mortal_reminder = ':alarm_clock: '
 
 
-def render_task(task, project, lang):
+def render_task(task, lang):
     if task is None:
         raise AssertionError('Task is None')
 
@@ -24,6 +24,7 @@ def render_task(task, project, lang):
     if not task.is_task_completed():
         pretty_task = '*' + task.get_description() + '*'
 
+    project = project_service.find_project_by_id(task.get_project_id())
     category = message_source[lang][f'btn.new_task.project.{project.get_title()}.label']
     return pretty_task + ' (' + category + ') '
 
@@ -42,8 +43,7 @@ def render_task_with_timedelta(task, another_task, lang):
     if timedelta < datetime.timedelta(0):
         timedelta = datetime.timedelta(hours=24) - timedelta
 
-    project = project_service.find_project_by_id(task.get_project_id())
-    pretty_print = render_task(another_task, project, lang)
+    pretty_print = render_task(another_task, lang)
     if timedelta:
         hours = timedelta.seconds // 3600
         if 1 == hours:
