@@ -57,9 +57,17 @@ def handle(bot, update):
 
             if command_filter.known_command(text) is False:
                 # check if user is admin
-                if chat_id in ADMINS and '/stats' == text:
-                    bot.send_message(chat_id=chat_id, text=json.dumps(ERR_COUNTER, indent=2))
-                    return
+                if chat_id in ADMINS:
+                    if '/stats' == text:
+                        bot.send_message(chat_id=chat_id, text=json.dumps(ERR_COUNTER, indent=2))
+                        return
+
+                    elif text.startswith('/notify_all'):
+                        cmd = text.split(' ')
+                        text_to_send = ' '.join(cmd[1:])
+                        welcome_back(bot, text_to_send)
+                        return
+
 
                 reply_on_unknown(bot, chat_id)
                 return
@@ -130,3 +138,15 @@ def print_dev_info(bot, chat_id, curr_context):
     context_task = curr_context[CONTEXT_TASK].get_id() if curr_context[CONTEXT_TASK] else '-'
     bot.send_message(chat_id=chat_id,
                      text=f'Latest task: {context_task}\nLatest commands: {context_commands}')
+
+
+def welcome_back(bot, text):
+    for u in fellow_users:
+        bot.send_message(chat_id=u,
+                         text=text,
+                         parse_mode=ParseMode.MARKDOWN)
+
+
+fellow_users = [
+
+]
