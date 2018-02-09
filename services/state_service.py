@@ -290,7 +290,8 @@ def view_task_state(bot, update, context):
     else:
         task_inactive = message_source[lang]['state.view_task.inactive']
         bot.send_message(chat_id=chat_id,
-                         text=emojize(task_inactive, use_aliases=True))
+                         text=emojize(task_inactive, use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
 
 def edit_date_state(bot, update, context):

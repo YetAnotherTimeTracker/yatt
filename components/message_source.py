@@ -142,7 +142,7 @@ message_source = {
 
         'state.view_task.inactive': ':pensive: Прости, не удалось найти выбранную задачу.\n'
                                     '\n'
-                                    ':buld: _Чтобы обновить список задач, используйте кнопки в конце списка_',
+                                    ':bulb: _Чтобы обновить список задач, используйте кнопки в конце списка_',
         'state.view_task.review': 'Просмотр задачи',
         'state.view_task':  ':pencil: *{}*\n'   # New task has been created / Task review
                             '\n'
