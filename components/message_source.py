@@ -27,6 +27,7 @@ message_source = {
                                      '\n'
                                      ':bulb: _You can proceed to tasks with buttons below_\n'
                                      ':bulb: _Or write me anything You want to track and I will create a new task for You_ :)\n'
+                                     ':bulb: _You can provide feedback by sending it after /suggest_ :)\n'
                                      '\n'
                                      'Version: 0.{} Alpha\n',
 
@@ -137,6 +138,7 @@ message_source = {
                                      '\n'
                                      ':bulb: _Перейдите к задачам с помощью кнопок ниже_\n'
                                      ':bulb: _Чтобы создать задачу, просто напишите мне сообщение_ :)\n'
+                                     ':bulb: _Чтобы оставить фидбэк, напишите сообщение после /suggest_ :)\n'
                                      '\n'
                                      'Версия: 0.{} Alpha\n',
 

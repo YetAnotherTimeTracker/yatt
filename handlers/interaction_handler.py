@@ -68,6 +68,13 @@ def handle(bot, update):
                         welcome_back(bot, text_to_send)
                         return
 
+                else:
+                    if text.startswith('/suggest'):
+                        cmd = text.split(' ')
+                        text_to_send = ' '.join(cmd[1:])
+                        bot.send_message(chat_id=ADMINS[0], text=text_to_send)
+                        bot.send_message(chat_id=chat_id, text='Thanks for feedback :)')
+                        return
 
                 reply_on_unknown(bot, chat_id)
                 return
