@@ -72,6 +72,7 @@ def handle(bot, update):
                     if text.startswith('/suggest'):
                         cmd = text.split(' ')
                         text_to_send = ' '.join(cmd[1:])
+                        log.warning(f'-->--> Suggest from {chat.username} ({chat_id}): {text}')
                         bot.send_message(chat_id=ADMINS[0], text=text_to_send)
                         bot.send_message(chat_id=chat_id, text='Thanks for feedback :)')
                         return
@@ -149,9 +150,13 @@ def print_dev_info(bot, chat_id, curr_context):
 
 def welcome_back(bot, text):
     for u in fellow_users:
-        bot.send_message(chat_id=u,
-                         text=text,
-                         parse_mode=ParseMode.MARKDOWN)
+        try:
+            bot.send_message(chat_id=u,
+                             text=text,
+                             parse_mode=ParseMode.MARKDOWN)
+        # in case bot was blocked
+        except Exception as e:
+            log.error(e)
 
 
 fellow_users = [
