@@ -154,6 +154,7 @@ def welcome_back(bot, text):
             bot.send_message(chat_id=u,
                              text=text,
                              parse_mode=ParseMode.MARKDOWN)
+            log.info(f'Sent to {u}')
         # in case bot was blocked
         except Exception as e:
             log.error(e)
