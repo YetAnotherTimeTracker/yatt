@@ -15,6 +15,14 @@
  ## Try it yourself
  - Опробовать бота самостоятельно можно, добавив в Телеграмме `@YattTestBot` (или `@Yatt_bot`. Один из них отзовется) и, написав ему `/start`.
  
+ Main screen             |  Task list
+:-------------------------:|:-------------------------:
+![](img/img-1-home.PNG)  |  ![](img/img-2-list.PNG)
+
+ Task page             |  Notification
+:-------------------------:|:-------------------------:
+![](img/img-3-task.PNG)  |  ![](img/img-4-notify.PNG)
+ 
  
 ## Quick start (dev mode)
 - Склонируйте себе этот репозиторий: `git clone https://github.com/YetAnotherTimeTracker/yatt.git`
